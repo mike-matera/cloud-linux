@@ -1,7 +1,5 @@
 Introduction lecture slides are [here](https://docs.google.com/presentation/d/1uOAWM1pP4gSxS_XeRgOt1i1HAfQoCbQ5NBgJfYRvrOU/edit?usp=sharing) 
 
-Testing. Still. And still. Some more testing.
-
 # Introduction  
 
 CIS-191 builds on CIS-90. In this class we will go more deeply into how Linux works and how you control it. Each week I will lecture to give you a general idea of what we're covering and how the programs and technology work. This is to give you the information you need to understand what you are doing. Then we'll practice commands that change Linux's configuration and commands that observe the current configuration. My goal is to help you understand a three step process:
