@@ -1,16 +1,16 @@
 # Boot and Boot Loaders
 
-**Commands**
+## Commands
 
  - update-grub
  - systemctl 
  
-**Configuration**
+## Configuration
 
  - /etc/default/grub
  - /etc/grub.d
  
-**See Also**
+## See Also
 
   - [Unified Extensible Firmware Interface (UEFI)](http://en.wikipedia.org/wiki/Unified_Extensible_Firmware_Interface)
   - [Ubuntu's UEFI Documentation](https://help.ubuntu.com/community/UEFI)
