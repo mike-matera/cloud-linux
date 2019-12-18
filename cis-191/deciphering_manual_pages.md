@@ -2,11 +2,11 @@
 
 Manual pages are the definitive references for Linux commands. They are the best place to find out how to use a command and what you can do with it. But, they can be difficult to interpret. This guide will introduce manual page concepts and will help you understand how to decipher a command's usage.
 
-**Commands**
+## Commands
 
   * man
 
-**Configuration**
+## Configuration
 
   * None
 
