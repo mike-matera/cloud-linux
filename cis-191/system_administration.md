@@ -17,7 +17,7 @@ The most essential knowledge that a system administrator must have is how to cha
 **Further Reading**
 
   * [http://www.linux-mag.com/id/2195/](http://www.linux-mag.com/id/2195/)
-  * [Deciphering Manual Pages](deciphering_manual_pages)
+  * [Deciphering Manual Pages](deciphering_manual_pages.md)
 
 ## Sudo and The Linux Process Tree 
 
