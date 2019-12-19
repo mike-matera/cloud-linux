@@ -82,7 +82,7 @@ $ sudo mount /dev/my_vg/raid_volume /mnt
 
 Check the available space on the device:
 
-```sql
+```
 $ df /mnt/
 Filesystem                    1K-blocks  Used Available Use% Mounted on
 /dev/mapper/my_vg-raid_volume   3006608  4584   2829584   1% /mnt

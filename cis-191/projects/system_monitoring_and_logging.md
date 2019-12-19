@@ -15,9 +15,12 @@ For this project you will execute commands that show you what's going on with a 
 
 ## Examining the Log  
 
-For this part examine the system logs of a real machine and answer questions about the machine.
+Examine the system logs of a real machine and answer questions about the machine.
 
-Download the [TAR file](../../_static/cis-191/system-monitoring-and-logging.tar.gz) attached to this link. The file contains several log files. Examine the log files and answer the following questions:
+```eval_rst
+- :download:`Download system_monitoring_and_logging.tar.gz <system_monitoring_and_logging.tar.gz>` 
+```
+The file contains several log files. Examine the log files and answer the following questions:
 
   - What dates do the log files cover?
   - How many times did the computer reboot during those dates?

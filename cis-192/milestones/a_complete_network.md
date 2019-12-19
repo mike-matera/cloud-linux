@@ -4,7 +4,7 @@ When you complete this milestone you will have a complete working network betwee
 
 ## Configure the Switch 
 
-Follow the instructions in [Routing and Switching](routing_and_switching.html). The instructions show you how to bond the three interfaces on your switch into a bridge. Test that your configuration has worked by rebooting your switch and running the following commands:
+Follow the instructions in [Routing and Switching](../pages/routing_and_switching.md). The instructions show you how to bond the three interfaces on your switch into a bridge. Test that your configuration has worked by rebooting your switch and running the following commands:
 
 ```
 switch$ brctl show

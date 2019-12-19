@@ -9,7 +9,8 @@ You will need to have a copy of Wireshark on your local machine. The CIS machine
 [https://www.wireshark.org/](https://www.wireshark.org/)
 
 Make sure you have read and understand this week's lesson:
- [Debugging and Advanced SSH](debugging_and_advanced_ssh.html)
+
+ [Debugging and Advanced SSH](../pages/debugging_and_advanced_ssh.md)
 
 ## Capture and View Packets 
 

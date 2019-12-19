@@ -14,8 +14,9 @@ In this project, you will create and manage user accounts, and practice common s
 
 This project comes with a grading script written by my predecessor Jim Griffin. You can fetch it using this link: 
 
-> [user_accounts_and_groups.sh](../../_static/cis-191/user_accounts_and_groups.sh)
-
+```eval_rst
+- :download:`Download user_accounts_and_groups.sh <user_accounts_and_groups.sh>` 
+```
 
 ## Creating Groups
 

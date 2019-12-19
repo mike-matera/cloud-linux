@@ -46,7 +46,7 @@ This will generate a random salt so every hash will be different. Here's an exam
 $6$PO8tqBryUU5aZA.r$Dy0ybcqFH6aHA/vQGixiKGzKoWX2Ryh5a1aGdRqYB9U0SWpZZyUSLyMDP0Q4BonjA1c7ywdO.wktOk13KFO3T1
 ```
 
-The salt is made of fields separated by the dollar sign ($). The fields are:
+The salt is made of fields separated by the dollar sign (`$`). The fields are:
 
   1. `$6`: Encryption method (`SHA-512`)
   2. `$PO8tqBryUU5aZA.r`: Salt (chosen at random)

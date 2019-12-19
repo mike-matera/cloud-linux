@@ -1,7 +1,8 @@
 # Milestone: Microservice
 
 When you have completed this milestone you will have web pages hosted from your custom domain. In class we setup Docker and created a microservice. For this milestone you'll get a web page up after following the instructions here:
- [Docker Microservice](../pages/dockerfile_and_container_management.html)
+
+ [Docker Microservice](../pages/dockerfile_and_container_management.md)
 
 Double check your setup with a browser as instructed in the HowTo. On canvas you will submit two URLs. One for each of the virtual hosts.
 

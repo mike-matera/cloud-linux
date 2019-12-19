@@ -69,7 +69,7 @@ $ sudo mount /dev/my_vg/simple_volume /mnt
 
 Check the available space on the device:
 
-```sql
+```
 $ df /mnt/
 Filesystem                      1K-blocks  Used Available Use% Mounted on
 /dev/mapper/my_vg-simple_volume   4046784  8152   3813352   1% /mnt

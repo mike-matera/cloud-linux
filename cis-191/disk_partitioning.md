@@ -101,7 +101,7 @@ Number Start  End   Size  Type   File system Flags
 
 ## Creating a Partition Table 
 
-If you have followed the steps in [Adding Disks to your VM](adding_disks_to_your_vm) then you should have two additional disks (`/dev/sdb` and `/dev/sdc`). Initially they will be blank:
+Your VM has two additional disks (`/dev/sdb` and `/dev/sdc`). Initially they will be blank:
 
 ```
 student@ubuntu:~$ sudo parted /dev/sdb
