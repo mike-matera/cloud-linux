@@ -30,7 +30,7 @@ $ qemu-system-x86_64
   
 Here's what the GUI looks like: 
 
-![image](../_static/images/qemu_window.png)
+![image](images/qemu_window.png)
 
 It's a full fledged virtual machine!
 

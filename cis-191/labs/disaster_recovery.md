@@ -92,11 +92,11 @@ You are now stuck without GRUB. Because there's nothing in the MBR VMWare will n
 
 You can use the Ubuntu Desktop LiveCD to rescue your system. If VMware found your CD it should boot into this menu:
 
-![image](../../_static/images/select_try_ubuntu_to_start.jpg)
+![image](../images/select_try_ubuntu_to_start.jpg)
 
 Select the "Try Ubuntu" option. This gives you a full Ubuntu Desktop environment that you can use to save yourself. When you see the Ubuntu desktop (pictured) click the icon in the upper left corner and search for "Terminal". Select the Terminal program.
 
-![image](../../_static/images/ubuntu_trusty_tahr_1f0aa.jpg)
+![image](../images/ubuntu_trusty_tahr_1f0aa.jpg)
 
 When you have a terminal you must execute the following commands:
 

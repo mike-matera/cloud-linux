@@ -20,7 +20,7 @@ What are the things you will do in this lab? What knowledge does will those thin
 
 ## A Unified Filesystem 
 
-![image](../_static/images/filesystem_logical_view.png)
+![image](images/filesystem_logical_view.png)
 
 UNIX and Linux use a Unified Filesystem. That is a system where all the disk drives in the system (as well as partitions and network drives) are all located in the same file hierarchy. For users used to Microsoft Windows it can be a bit confusing at first. However, Linux users quickly discover how convenient it is for every file path to look the same regardless of where the data is actually located. From an administrator's standpoint this makes it possible to make your users experience the same on all UNIX machines regardless of whether the user is logged into a machine in the home office or a satellite office.
 

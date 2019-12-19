@@ -34,7 +34,7 @@ In the PC world there are three kinds of BIOS that you may encounter. For decade
 
 How you configure BIOS depends on the make and model of your computer. New computers usually have menu driven systems where you can use the mouse. VMWare mimics the old-style text only menu systems that have been common for decades. On recent computers there will be many, many options to configure. The most important one is where to look for the boot loader. This screen in VMWare lets you select:
 
-![image](../_static/images/vmware_vm_bios_boot_order.png)
+![image](images/vmware_vm_bios_boot_order.png)
 
 Bootloaders can also be loaded over the Internet. This configuration is common in environments with a large number of computers because it's a pain to update disks. We won't cover that in class but if you want a project that will take you all weekend you can make your VM boot over the network.
  

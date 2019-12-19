@@ -21,7 +21,7 @@ The most essential knowledge that a system administrator must have is how to cha
 
 ## Sudo and The Linux Process Tree 
 
-![The Linux Process Tree](../_static/images/the_linux_process_tree.png)
+![The Linux Process Tree](images/the_linux_process_tree.png)
 
 Linux is a program. It's job is to run other programs. When a program is running it's called a process. Each process runs on behalf of the user that executed it. It's said to be owned by that user. The identity of the user determines what that process is able to do. Try executing the following command on Ubuntu:
 
@@ -65,7 +65,7 @@ $ whoami
 mike
 ```
 
-![image](../_static/images/sudo_and_su_process_chaining_1.png)
+![image](images/sudo_and_su_process_chaining_1.png)
 
 The sequence of commands is diagramed on the right. The user "mike" starts in his own BASH shell. Executing `sudo -i` creates a new BASH shell owned by root. The original shell is still running and in the background. The su command is used to droppermissions back to a regular user. This creates yet another BASH shell running as `mike`. In order to go back to the beginning you must exit both shells by running the `exit` command twice.
 

@@ -289,7 +289,7 @@ LISTEN     0      128                                                           
 
 Test that you can see the hello app from your browser. Remember, if you don't have IPv6 at home you'll need to use a proxy service as shown above. Here's a screenshot of connecting to my hello-app from home:
 
-![image](../../_static/images/screenshot_from_2017_04_23_10_20_10722e.png)
+![image](hello_app_running.png)
 
 Congratulations you now have a running microservice!
 

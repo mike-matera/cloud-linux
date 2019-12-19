@@ -18,7 +18,7 @@ Your "student" number is important. You will have a pair of static IP addresses 
 
 Your router will need a static IP address to be the gateway for the rest of your network. You must give static IPv4 and IPv6 address to `ens192`. The static IP address is derived from your private network number. You can find your private network number in VMware. The network number will be visible in the summary tab of the web interface. The picture below shows the location:
 
-![](../../_static/images/student_network7255.png)
+![](student_network7255.png)
 
 You network number is the "student" number circled. It's the same as your original folder number. Set the IPv4 information on Ubuntu's `ens192` as follows:
 

@@ -18,7 +18,7 @@ Linux's filesystem is a filesystem of filesystems. A filesystem is an entity tha
 
 ## The Logical Filesystem  
 
-![image](../_static/images/filesystem_logical_view.png)
+![image](images/filesystem_logical_view.png)
 
 In Depth:[Navigating the Filesystem](navigating_the_filesystem)
 
@@ -40,7 +40,7 @@ This understanding is all a regular user needs. An administrator, however is con
 
 ## The Physical Filesystem 
 
-![image](../_static/images/filesystem_physical_view.png)
+![image](images/filesystem_physical_view.png)
 
 There are invisible boundaries in the logical filesystem. Those boundaries are where different storage media have been mounted into the file tree. Examine the drawing above. In that drawing the same folders as above are shown but grouped together with the disk or network share that contains the files. The diagram shows that the logical filesystem is composed of four physical filesystems.
 

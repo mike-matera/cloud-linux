@@ -24,7 +24,7 @@ This guide will show you how to control process execution, examine process resou
 
 ## CPU Usage 
 
-![image](../_static/images/process_statescb9b.png)
+![image](images/process_statescb9b.png)
 
 The drawing is a simplified version of the state machine that is the essence of every Linux process. Every process begins in the ready state. In the ready state a process is awaiting processor time. When the system is not busy processes don't spend much time in the ready state, they go into the executing state right away. In the executing state the process is on the CPU. There are four ways out of the execute state. If the process is interrupted to make way for another ready process it goes back into the ready state. If a process is interrupted by a `CTRL-Z` it's halted and goes into the stopped state where it must wait for a user to resume it, which puts it back into the ready state. If the process requests I/O, like reading data from disk or waiting for a keystroke, it goes into the waiting state. There it will stay until whatever it's waiting for becomes available. Finally, if the program exits the process goes into the zombie state. In the zombie state the process can no longer execute and waits for it's parent process to acknowledge it's exit. A misbehaving program can sometimes forget to release its child processes from the zombie state, filling the system with zombie processes!
 

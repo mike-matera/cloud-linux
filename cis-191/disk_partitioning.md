@@ -29,7 +29,7 @@ Linux installers automatically partition the system disk with defaults that will
 
 ## Partitions and Block Devices 
 
-![image](../_static/images/disk_partitions_1.png)
+![image](images/disk_partitions_1.png)
 
 There's an easy way to see the partitions on the system disk of your VM:
 

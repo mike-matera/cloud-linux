@@ -74,7 +74,7 @@ The output shows that my system is using 772516 kB (2048172 KB total of 1275656 
 
 ### Swap 
 
-![image](../_static/images/process_memory_and_swap_1.png)
+![image](images/process_memory_and_swap_1.png)
 
 The picture on the right shows what happens when a processes on the operating system request more memory than is physically present in the system. The additional pages required can be served by Linux but the overflow goes into swap. Swap is space on the disk used to back memory. Having swap means that Linux can gracefully handle situations where there is a short-term shortage of memory. You can see how much swap is used by looking in `/proc/meminfo`
 

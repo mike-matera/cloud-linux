@@ -22,7 +22,7 @@ The kernel is not one open source project, it's many. Anyone that wishes to make
 
 ## Understanding Kernel Versions 
 
-![image](../_static/images/kernelversionsfb2e.png)
+![image](images/kernelversionsfb2e.png)
 
 > Instead of a roadmap, there are technical guidelines. Instead of a central resource allocation, there are persons and companies who all have a stake in the further development of the Linux kernel, quite independently from one another: People like Linus Torvalds and I don't plan the kernel evolution. We don't sit there and think up the roadmap for the next two years, then assign resources to the various new features. That's because we don't have any resources. The resources are all owned by the various corporations who use and contribute to Linux, as well as by the various independent contributors out there. It's those people who own the resources who decide..."
 >
