@@ -2,28 +2,6 @@
 
 Apache is a popular web server. Web servers serve web pages and are the cornerstone of the world wide web. In this project you will install and Apache and move its data to an advanced filesystem.
 
-## Configure Vagrant 
-
-The Vagrantfile I gave you needs to be updated in order to allow access to Apache. You can download the latest copy using the URL below: 
-
-> [Vagrantfile-Xenial64-Disks](http://www.lifealgorithmic.com/_static/boxes/Vagrantfile-Xenial64-Disks)
-
-You can also edit your old Vagrant file to uncomment the following line: 
-
-```
-config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
-```
-
-If you succeed the `vagrant up` command will have this output: 
-
-```
-==> default: Forwarding ports...
-    default: 80 (guest) => 8080 (host) (adapter 1)
-    default: 22 (guest) => 2222 (host) (adapter 1)
-```
-
-Notice that port 80 and 22 are forwarded. 
-
 ## Install Apache 
 
 To install Apache run the commands: 

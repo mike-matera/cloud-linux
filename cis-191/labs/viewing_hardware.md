@@ -4,15 +4,17 @@ In this lab you will examine the hardware on your Linux machine. You can perform
 
 ## Step 1: Create the Standard VM 
 
-I've created a Vagrantfile for this class. The Vagrantfile is a standard Ubuntu 16.04 Server VM with additional disks added. The disks will come in handy later. You can create the standard VM by downloading the Vagrant file and using `vagrant up`.
+I've created a `Vagrantfile` for this class. The `Vagrantfile` is a standard Ubuntu 16.04 Server VM with additional disks added. The disks will come in handy later. You can create the standard VM by downloading the Vagrant file and using `vagrant up`.
 
-```bash 
-$ wget http://www.lifealgorithmic.com/_static/boxes/Vagrantfile-Xenial64-Disks
-$ mv Vagrantfile-Xenial64-Disks Vagrantfile 
-$ vagrant up
+```eval_rst
+- :download:`Vagrantfile <../../boxes/xenial64-disks/Vagrantfile>` - The "standard" VM for this class.
 ```
 
-> Note: Create a new directory for your Vagrantfile. The name of the directory is up to you.
+Create a new directory for your `Vagrantfile` and change into the directory. When you are in a directory with a `Vagrantfile` you can start the Vagrant VM with the command:
+
+```
+$ vagrant up
+```
 
 ## Step 2: SSH Into your Vagrant VM
 

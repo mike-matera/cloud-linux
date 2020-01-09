@@ -11,10 +11,10 @@ $ mkdir docker-box
 $ cd docker-box
 ```
 
-Now download the `Vagrantfile` into the new directory:
+Now download the `Vagrantfile` linked below into the new directory:
 
-``` 
-$ wget -O Vagrantfile http://www.lifealgorithmic.com/_static/boxes/cis-191/Vagrantfile
+```eval_rst
+- :download:`Vagrantfile <../../boxes/xenial64-disks/Vagrantfile>` - The "standard" VM for this class.
 ```
 
 ## Step 1: Create a Customization Script 
