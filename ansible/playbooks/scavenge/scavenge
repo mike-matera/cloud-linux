@@ -1,0 +1,746 @@
+#!/bin/bash -i
+# (the -i is for interactive shell for the prompt question)
+#
+# R. Simms (Summer 2014, modified Fall 2017 for Opus-II)
+#
+# Usage: scavenge
+#
+# Scavenger hunt to learn Lesson 1 commands:
+#
+#   shell prompt
+#   date cal who [am i] hostname id clear ps tty history uname 
+#   cat /etc/issue
+#   cat /etc/*-release
+#   ssh 
+#
+# Systems used: opus defiant freedom enterprise excalibur intrepid lexington
+#
+# Data sources:
+#
+#   Periodic Comet Numbers (The International Astonomical Union)
+#   http://www.minorplanetcenter.net/iau/lists/PeriodicCodes1.html
+#
+#   List of proper names of stars in alphabetical order (Wikipedia)
+#   http://en.wikipedia.org/wiki/List_of_proper_names_of_stars_in_alphabetical_order
+#
+#   1000 novels everyone must read: the definitive list (The Guardian)
+#   http://www.theguardian.com/books/2009/jan/23/bestbooks-fiction
+#
+#   The New York Times Best 1,000 Movies Ever Made
+#   http://www.themovingarts.com/greatest-films/the-new-york-times-best-1000-movies-ever-made/
+#
+#   List of fruits (Enchanted Learning)
+#   http://www.enchantedlearning.com/wordlist/fruit.shtml
+#
+#   List of musical instruments ((Enchanted Learning)
+#   http://www.enchantedlearning.com/wordlist/musicalinstruments.shtml
+#
+#   List of Breeds (TCA The Cut Above)
+#   http://thecutabovedoggrooming.com/dog-breeds/1974242
+#
+
+################# Data #################
+bold="\e[1m"
+ul="\e[4m"
+invert="\e[7m"
+red="\e[31m"
+blue="\e[34m"
+green="\e[32m"
+off="\e[0m"
+
+hosts[0]="opus-ii"      
+hosts[1]="defiant"
+hosts[2]="lexington"
+hosts[3]="enterprise"
+hosts[4]="intrepid"
+hosts[5]="freedom"
+hosts[6]="excalibur"
+
+promptString[0]="default"
+promptString[1]=$(cat .myprompt 2> /dev/null)
+promptString[2]="default"
+promptString[3]="default"
+promptString[4]=$(cat .myprompt 2> /dev/null)
+promptString[5]="default"
+promptString[6]="default"
+
+issueCutFields[0]="1"
+issueCutFields[1]="2"
+issueCutFields[2]="3"
+issueCutFields[3]="1"
+issueCutFields[4]="1"
+issueCutFields[5]="1"
+issueCutFields[6]="1"
+
+ports[0]="2220"
+ports[1]="2221"
+ports[2]="2222"
+ports[3]="2223"
+ports[4]="2224"
+ports[5]="2225"
+ports[6]="2226"
+
+baseUIDs[0]="1200"
+baseUIDs[1]="725"
+baseUIDs[2]="2043"
+baseUIDs[3]="1017"
+baseUIDs[4]="1152"
+baseUIDs[5]="1322"
+baseUIDs[6]="1339"
+
+items[0]="na";          itemSingle[0]="na"
+items[1]="stars";       itemSingle[1]="star"
+items[2]="instruments"; itemSingle[2]="instrument"
+items[3]="movies";      itemSingle[3]="movie"
+items[4]="fruits";      itemSingle[4]="fruit"
+items[5]="books";       itemSingle[5]="book"
+items[6]="dogs";        itemSingle[6]="dog"
+
+pats[0]="Nice work"
+pats[1]="You are off to a good start"
+pats[2]="Not bad"
+pats[3]="You are getting the hang of this"
+pats[4]="Good job"
+pats[5]="Nice job"
+pats[6]="Great job"
+
+dates[0]="July 4, 1776"
+dates[1]="November 9, 1989"
+dates[2]="June 6, 1944"
+dates[3]="July 20, 1969"
+dates[4]="November 22, 1963"
+dates[5]="September 11, 2001"
+dates[6]="August 26, 1920"
+
+days[0]="Th"
+days[1]="Th"
+days[2]="Tu"
+days[3]="Su"
+days[4]="Fr"
+days[5]="Tu"
+days[6]="Th"
+
+dataDir=/etc/scavenge
+journeyFile="$dataDir/combos"
+homeHost="opus-ii"
+domain="cis.cabrillo.edu"
+logFile="$HOME/.lab01.tracking" 
+maxStudentsInCis90=60
+
+rightAnswer=1
+wrongAnswer=0
+
+
+function initializePromptFudges {
+
+  # The prompt fudge is used to strip leading characters off prompt guesses
+  # We have to guess since we run as child process
+  #
+  # defiant (custom2): [defiant] $
+  # lexington (default): "lllfff90@lexington:~>" to "lexington:~ $"
+  # enterprise (default): simben90@enterprise:~$: 
+  # intrepid (custom1): BS@intrepid COMMAND ⇒
+  # freedom (default): $
+  # excalibur (default): [simben90@excalibur ~]$
+
+  lenUsername=${#username}
+  promptFudge[0]=8 # Opus
+  promptFudge[1]=0 # Defiant 
+  let promptFudge[2]=$lenUsername+1 # Lexington 
+  let promptFudge[3]=$lenUsername+19 # Enterprise
+  promptFudge[4]=0 # Intrepid
+  promptFudge[5]=8 # Freedom
+  promptFudge[6]=8 # Excalibur
+
+  if [ "$debug" = "ON" ]; then
+    echo "TRACE (initializePromptFudges) promptFudge[2]=$promptFudge[2]" 
+  fi
+
+}
+
+function initializeQuestionsAnswers () { 
+
+  # These can't be finalized untill all variables below have been initialized
+  questions[1]="What is the hostname of this system?"
+  questions[2]="What is your exact prompt string on this system?\n"
+  questions[2]=${questions[2]}"     (use quotes around your answer please)"
+
+  questions[3]="Which distro has been installed on this system?\n"
+  questions[3]=${questions[3]}"     (single word answer only please)"
+
+  questions[4]="What is the name of the kernel running on this system?"
+  questions[5]="What is the name of the shell running on this system?"
+  questions[6]="Which terminal device are you using to connect to this system?"
+  questions[7]="What is your uid (user ID) number on $hostname?"
+  questions[8]="What is your gid (group ID) number on $hostname?"
+  questions[9]="What is your username on $hostname?"
+  questions[10]="How many login sessions (including yours) are there on this system?"
+
+  questions[11]="Regarding the users logged in REMOTELY (over the network rather than\n"
+  questions[11]=${questions[11]}"    local). Who has been logged in the longest?"
+
+  questions[12]="Where did that REMOTE user (the one logged in longest) login from?\n"
+  questions[12]=${questions[12]}"      (specify the IP adddress or hostname)\n"
+  questions[12]=${questions[12]}"      (don't include the leading or trailing parentheses)"
+
+  questions[13]="What time is it on this system?\n"
+  questions[13]=${questions[13]}"    (use HH:MM format and don't dawdle!)"
+
+  questions[14]="What day of the week (e.g Su Mo, Tu ...) was ${dates[$currentHostNum]}?"
+  questions[15]="What happens when you use the clear command?"
+  questions[16]="What happens when you use the history command?"
+
+  questions[17]="Run these comands:\n"
+  questions[17]=${questions[17]}"      tty\n"
+  questions[17]=${questions[17]}"      who am i\n"
+  questions[17]=${questions[17]}"    What portion of the output from these commands is identical?"
+
+  answers[1]="$(hostname)"
+
+  # if [ "${promptString[$currentHostNum]}" = "default" ]; then
+  #   # Determine the prompt string using subshell and string manipulation
+  #   export PS1
+  #   # http://stackoverflow.com/questions/3451993/echo-expanded-ps1
+  #   pStr=$(x="$(PS1="$PS1" echo -n | bash --norc -i 2>&1)"; echo "${x%exit}")
+  #   # trim trailing white space
+  #   #pStr=$(echo $pStr/ | sed -e 's/^[ \t]*//')
+  #   pStr=$(echo $pStr | sed 's/ *$//')
+  #   #trim leading invisible escape sequences
+  #   fudge=${promptFudge[$currentHostNum]}
+  #   let  pStrLen=${#pStr}-$fudge
+  #   answers[2]=${pStr:$fudge:$pStrLen}
+  # else 
+  #   pStr=${promptString[$currentHostNum]}
+  #   #echo "TRACE starting pStr==$pStr="
+  #   pStr=$(echo $pStr | sed 's/ *$//')    
+  #   #echo "TRACE trimmed pStr==$pStr="
+  #   answers[2]=$pStr
+  # fi
+
+  # # MAC freedom fix
+  # if [ "$currentHostNum" = "5" ] && [ "${answers[2]}" = "" ]; then
+  #   answers[2]="$"
+  # fi
+
+  # Just get the fucking prompt.
+  answers[2]="${PS1@P}"
+
+  if [ "$debug" = "ON" ]; then
+    echo "TRACE (START setting answers[2])" 
+    echo "  prompt=${answers[2]}"
+    echo "  fudge=$fudge"
+    echo "TRACE (END setting answers[2])" 
+  fi
+
+  answers[3]=$(cat /etc/issue | head -n1 | cut -f${issueCutFields[$currentHostNum]} -d" ")
+
+  answers[4]=$(uname)
+
+  #answers[5]=$(set $(ps | head -n2 | tail -n1); echo $4)
+  answers[5]=$(basename $(grep $username /etc/passwd | cut -f7 -d":"))
+
+  answers[6]=$(tty)
+  answers[7]=$(grep $username /etc/passwd | cut -f3 -d":")
+  answers[8]=$(grep $username /etc/passwd | cut -f4 -d":")
+  answers[9]=$(grep $username /etc/passwd | cut -f1 -d":")
+  answers[10]=$(who | wc -l)
+  
+  # Determine which remote login session has been logged in the longest
+  last -a | grep "still logged in" | grep "pts/" > /tmp/$username$$
+  numLogins=$(cat /tmp/$username$$ | wc -l)
+  for (( i=$numLogins; i>0; i--)); do
+    remoteHostname=$(set $(head -n $i /tmp/$username$$ | tail -n 1); echo ${10})
+    remoteUsername=$(set $(head -n $i /tmp/$username$$ | tail -n 1); echo ${1})
+    #echo "TRACE (answers array initialization) i=$i"
+    #echo "TRACE (answers array initialization) remoteHostname=$remoteHostname"
+    #echo "TRACE (answers array initialization) remoteUsername=$remoteUsername"
+    if [ "$remoteHostname" != "" ]; then
+      break
+    fi
+  done
+  rm -f /tmp/$username$$
+  if [ "$remoteHostname" = "" ]; then
+    echo "ASSERT (answers array initialization) Could not determine remote hostname"
+    exit
+  fi
+  answers[11]=$remoteUsername
+  answers[12]=$remoteHostname
+
+  answers[13]=$(date +"%H:%M")
+  answers[14]=${days[$currentHostNum]}
+  answers[15]="WILDCARD"
+  answers[16]="WILDCARD"
+  answers[17]="$(set $(who am i); echo $2)"
+}
+
+################# Functions #################
+
+function spacing () {
+  local numLines=$1
+  local i
+  if [ "$numLines" = "" ]; then numlines=1; fi
+  for (( i=0; i<$numLines; i++)); do
+    echo
+  done
+}
+
+function pause () {
+  read -p "Press Enter to continue ..." buffer
+}
+
+
+function printLabCommands () {
+
+echo "
+Lesson 1 Commands
+-----------------
+scavenge <answer>   - shell script used in Lab 1 to answer questions 
+sc <answer>         - an alias for scavenge (fewer keystrokes to type)
+submit              - shell script used only on Opus to submit your work
+
+cal <mm> <yyyy>     - show calendar for month mm of year yyyy (e.g. cal 7 1776) 
+cat /etc/issue      - show the distro (distribution) name and version
+clear               - clear the screen
+date                - show current date and time
+history             - show commands entered previously
+hostname            - show the system's hostname
+id                  - show your username, user ID and group ID   
+ps                  - show your running processes (includes the shell) 
+tty                 - show your terminal device
+uname               - show the name of the kernel
+who                 - show all login sessions
+who am i            - shows the login session you are using
+
+ssh -p <port> <username>@<hostname>   - login to a remote system
+exit                                  - logoff from the remote system
+
+(See Lesson 1 slides for more information)"
+}
+
+function printBanner () {
+echo "###################################
+#   S C A V E N G E R   H U N T   #
+###################################
+"
+}
+
+function printWelcome () {
+echo "Welcome $first,
+
+You are on a scavenger hunt to find six items. To get
+each item you must login to a different Linux system and
+answer some questions.  Each time you answer a question
+you must use that answer as an argument to the scavenge
+command. Once you have answered each question correctly you
+will be given the item for that system.
+
+Instructions will follow on how to reach the next system
+where you will have more questions and another item.
+"
+}
+
+function printJourneySummary () {
+  let wayPointIndex=$wayPoint+1
+  local item=${itemSingle[$currentHostNum]}
+  local firstLetter=${item:0:1}
+  local article="a"
+  echo $firstLetter | grep [aeiou] > /dev/null
+  if [ "$?" = "0" ]; then
+    article="an"
+  fi 
+  echo "STATUS:"
+  echo " - You are on $hostname (system $wayPointIndex of ${#journey})"
+  echo " - You are scavenging for $article ${itemSingle[$currentHostNum]}"
+  printQuestionStatus
+}
+
+function printQuestionStatus () {
+  #echo "TRACE (alreadyAnswered) logFile=$logFile"
+  local i
+  local answeredCorrectly=0
+  local numQuestions=${#questions[@]}
+  #echo "TRACE (printQuestionStatus) i=$i"
+  #echo "TRACE (printQuestionStatus) numQuestions=$numQuestions"
+  for (( i=1; i<=$numQuestions; i++)); do
+    alreadyAnswered Q$i
+    if [ "$returnVal" = "true" ]; then
+      answeredCorrectly=$i
+      #echo "TRACE (printQuestionStatus) answeredCorrectly=$answeredCorrectly"
+    else
+      break
+    fi
+  done
+  echo " - You have answered $answeredCorrectly of $numQuestions questions on $hostname"
+}
+
+function printScavengedItem () {
+  local item=$(cat $dataDir/${items[$currentHostNum]} | head -n$studentIndex | tail -n1)
+  item=$(echo $item | sed 's/ *$//')
+  #echo "TRACE (printScavengedItem) item=$item"
+  #echo "TRACE (printScavengedItem) data file: $dataDir/${items[$currentHostNum]}"
+  #echo "TRACE (printScavengedItem) currentHostNum=$currentHostNum"
+  #echo "TRACE (printScavengedItem) studentIndex=$studentIndex"
+  echo
+  echo "${pats[$wayPoint]} $first!"
+  echo
+  echo -e "Since you correctly answered all questions for the ${ul}$hostname${off}"
+  echo "system here is your ${itemSingle[$currentHostNum]}:"
+  echo
+  echo -e "  ${ul}${red}${bold}$item${off}"
+  echo
+  echo -e "(Please record the ${ul}system name${off} and ${ul}${itemSingle[$currentHostNum]}${off} in your notes because"
+  echo " you will need them when submitting this lab!)"
+  echo
+  if [ "$isLastHost" != true ]; then
+    echo  "You are not done yet.  Please continue on to the next system."
+    echo
+  fi
+}
+
+function printNextHostInstructions () {
+  if [ "$isLastHost" = true ]; then
+    echo "C O N G R A T U L A T I O N S"
+    echo "As $hostname was the last system on your scavenger hunt you have now collected"
+    echo "all the items!"
+    echo
+    echo "FINAL INSTRUCTIONS:"
+    echo "Keep using the exit command until you are back on Opus-II."
+    echo "When back on Opus use the submit command to turn in Lab 1. This"
+    echo "command will ask you to record each of your scavenged items."
+    echo
+    echo "Be sure you submit before the deadline so you get credit for completing"
+    echo "this lab!"
+    echo
+  else
+    echo
+    echo "INSTRUCTIONS FOR THE NEXT SYSTEM:"
+    echo "With the ssh command login to the next Linux system using:"
+    echo "  Username: $username"
+    echo "  Password: <the one assigned to you by the instructor>"
+    echo "  Hostname: $nextHostName.$domain"
+    echo "  Port: $nextPort"
+    echo -e "You will be scavenging for ${ul}$nextItem${off} there."
+    echo
+    echo "Have fun scavenging!"
+    echo
+  fi
+}
+
+function initializeKeyVariables () {
+  # Prepare for prompt guess calculations
+  initializePromptFudges
+
+  # Set currentHostNum and currentHostName
+  currentHostNum="null"
+  for (( i=0; i<${#hosts[@]}; i++ )); do
+    if [ "$hostname" = "${hosts[$i]}" ]; then
+       currentHostNum=$i
+       currentHostName=$hostname
+       break;
+    fi
+  done
+  if [ "$currentHostNum" = "null" ]; then
+    echo "scavenge was not intended to be run on $hostname"
+    exit 1
+  fi
+  #echo "TRACE (initializeKeyVariables) currentHostNum=$currentHostNum" 
+
+  # Set studentIndex
+  #minUID=${baseUIDs[$currentHostNum]}
+  minUID=$(grep mmatera /etc/passwd | cut -d: -f3)
+  let maxUID=$minUID+$maxStudentsInCis90
+  uid=$(cat /etc/passwd | grep $username | cut -f3 -d":")
+  if [ "$uid" -lt "$minUID" ] || [ "$uid" -gt "$maxUID" ]; then
+    echo "Sorry user $username is not a CIS90 student"
+    exit 1
+  fi
+  let studentIndex=$uid-$minUID
+  #echo "TRACE (initializeKeyVariables) studentIndex=$studentIndex" 
+
+  # Set journey to random sequence of host number indexs to hosts[] array
+  journey=$(head -$studentIndex $journeyFile | tail -1)
+  # Insert opus-ii at the beginning of the journey
+  journey=0$journey
+  #echo "TRACE (initializeKeyVariables) journey=$journey " 
+}
+
+function areWeThereYet () {
+  local journey=$1
+  local currentHostNum=$2
+  local numWayPoints=${#journey}
+  local i next lastWayPoint
+  # global nextHostNum, nextHostName, nextPort, nextItem, wayPoint
+  # global isLastHost (true or false)
+  # global index
+
+  # Be sure that key variables have been initialized
+  if [ "$journey" = "" ]; then echo "[AreWeThereYet] bad journey"; fi
+  if [ "$currentHostNum" = "" ]; then echo "[AreWeThereYet] bad currentHostNum"; fi
+ 
+  # Determine where we are on the journey
+  wayPoint=null
+  for (( i=0; i<$numWayPoints; i++ )); do
+    if [ "$currentHostNum" = "${journey:$i:1}" ]; then
+       wayPoint=$i
+       break;
+    fi
+  done
+
+  if [ "$wayPoint" = "null" ]; then echo "[AreWeThereYet] bad wayPoint"; fi 
+ 
+  let lastWayPoint=$numWayPoints-1
+  if [ "$wayPoint" = "$lastWayPoint" ]; then
+    isLastHost=true
+    nextHostNum="null"
+    nextHostName="null"
+    nextPort="null"
+    nextItem="null"
+  else
+    isLastHost=false
+    let next=$wayPoint+1
+    nextHostNum=${journey:$next:1}
+    nextHostName=${hosts[$nextHostNum]}
+    nextPort=${ports[$nextHostNum]}
+    nextItem=${items[$nextHostNum]}
+  fi
+}
+
+function getUserInfo () {
+  local username=$1
+  # global uid
+  # global name, first, last
+
+  uid=$(cat /etc/passwd | grep $username | cut -f3 -d":")
+  name=$(cat /etc/passwd | grep $username | cut -f5 -d":")
+  first=$(echo $name | cut -f1 -d" ")
+  last=$(echo $name | cut -f2 -d" ")
+}
+
+function continueYesNo() {
+    prompt=$1
+   
+    read -p "$prompt (y or n) [y]: " buffer
+    if [ "$buffer" = "" ]; then
+      buffer="yes"
+    fi
+    buffer=$(echo $buffer | tr '[:upper:]' '[:lower:]')
+    if [ "$buffer" = "yes" ] || [ "$buffer" = "y" ]; then 
+      return;
+    else    
+      exit
+    fi
+}
+
+function alreadyAnswered () {
+  local Q=$1
+  #echo "TRACE (alreadyAnswered) Q=$Q"
+  #echo "TRACE (alreadyAnswered) logFile=$logFile"
+  grep "$Q" $logFile | cut -f3 -d":" | grep $rightAnswer > /dev/null
+  if [ "$?" = "0" ]; then 
+    returnVal=true
+  else
+    returnVal=false
+  fi
+}
+
+function logAnswer () {
+  local Q=$1
+  local isCorrect=$2
+  local answer=$3
+  local timeStamp=$(date +"%Y-%b-%d-%H-%M-%S")
+  echo $timeStamp:$Q:$isCorrect:$hostname:$username:$answer >> $logFile
+}
+
+function poseQuestion () {
+  local qNum=$1
+  local question=$2
+  echo -e "${blue}${bold}${qNum}) $question${off}"
+}
+
+function question () {
+  local Q=$1
+  local qNum=${Q##Q}
+  local response=$2
+  local correctAnswer
+  
+  # If already correctly answered then skip to next question
+  alreadyAnswered $Q
+  if [ "$returnVal" = "true" ]; then return; fi
+
+  if [ "$response" = "" ]; then
+    # Print the next question
+    echo
+    if [ "$qNum" = "1" ]; then start="First"; else start="Next"; fi 
+    echo -n "$start question "
+    for (( i=0; i<3; i++ )); do
+      echo -n "."
+      sleep .1
+    done
+    echo
+
+    echo
+    poseQuestion "$qNum" "${questions[$qNum]}"
+    #echo -e "${blue}${bold}${qNum}) ${questions[$qNum]}${off}"
+    echo
+    echo "Note:"
+    echo "  To submit an answer use: scavenge \"your answer\" " 
+    echo "    (quotes optional unless your answer contains blanks or special characters)"
+    echo "  To list the commands needed for this lab use: scavenge commands"
+    echo "  To repeat the current question use: scavenge"   
+    echo
+    exit
+  else
+    correctAnswer=${answers[$qNum]}
+    let altIndex=$qNum+100
+    altCorrectAnswer=${answers[$altIndex]}
+    if [ "$correctAnswer" = "WILDCARD" ]; then 
+      # Accept any answer (too hard to verify)
+      echo
+      echo "Ok ... your answer to $Q was logged."
+      sleep 2
+      echo
+      logAnswer $Q $rightAnswer "$response"
+      userResponse=""
+    elif [ "$response" = "$correctAnswer" ]; then
+      # A correct answer was submitted
+      echo
+      echo "Nice work ... your answer to $Q was:  C O R R E C T !!"
+      sleep 1
+      echo
+      logAnswer $Q $rightAnswer "$response"
+      userResponse=""
+    elif [ "$altCorrectAnswer" != "" ] && \
+         [ "$response" = "$altCorrectAnswer" ]; then
+      # An alternate correct answer was submitted
+      echo
+      echo "Ok ... your answer to $Q was correct!"
+      sleep 1
+      echo
+      logAnswer $Q $rightAnswer "$response"
+      userResponse=""
+    else
+      # An incorrect answer was submitted
+      echo
+      echo "Your answer to $Q was: $response"
+      echo "I'm sorry, this answer is not quite right." 
+      echo
+      echo "Please try again."
+      poseQuestion "$qNum" "${questions[$qNum]}"
+
+      #echo "TRACE correctAnswer: =$correctAnswer="
+      #echo "TRACE {#correctAnswer}=${#correctAnswer}"
+      #echo $correctAnswer > $$temp; xxd $$temp; rm $$temp
+      #echo "TRACE altCorrectAnswer: =$altCorrectAnswer="
+      #echo "TRACE {#altCorrectAnswer}=${#altCorrectAnswer}"
+      #echo "TRACE response: =$response="
+      #echo "TRACE {#response}=${#response}"
+
+      echo 
+      logAnswer $Q $wrongAnswer "$response"
+      exit
+    fi
+  fi
+}
+
+
+################# MAIN #################
+
+#echo "TRACE (MAIN)"
+clear
+
+# Process command line options and arguments
+commandName=`basename $0`
+usage="$commandName [-u username] [-h hostname] [-d ON] [answer]"
+while getopts ":u:h:d:" opt; do
+  case $opt in
+     u) username=$OPTARG ;;
+     h) hostname=$OPTARG ;;
+     d) debug="$OPTARG" ;;
+     *) echo "-- Usage: " $usage >&2
+        exit 1 ;;
+  esac
+done
+# Shift out any options
+if [ $OPTIND -ge 1 ]; then shift $(($OPTIND - 1)); fi
+userResponse=$@
+# trim trailing blanks
+userResponse=$(echo $userResponse | sed 's/ *$//')
+
+#echo "TRACE username=$username"
+#echo "TRACE hostname=$hostname"
+#echo "TRACE userReponse=$userResponse"
+
+if [ "$username" = "" ]; then
+  username=$LOGNAME
+fi
+if [ "$hostname" = "" ]; then
+  hostname=$(hostname -s)
+fi
+if [ "$debug" = "" ]; then
+  debug="OFF"
+fi
+
+# Only for CIS 90 students
+#if [ "$(hostname -s)" = "opus-ii" ]; then
+#  cisGroupID=$(grep "^cis90:" /etc/group | cut -f3 -d':')
+#  if [ "$(grep $username /etc/passwd | cut -f4 -d':')" != "$cisGroupID" ]; then
+#    echo "Sorry .. for CIS 90 students only"
+#  fi 
+#fi
+ 
+# Initialize
+initializeKeyVariables
+touch $logFile
+
+# Determine where they are on their journey across systems
+areWeThereYet $journey $currentHostNum
+
+# Get student information
+getUserInfo $username
+
+# Initialize the scavenger questions and answers
+initializeQuestionsAnswers
+
+printBanner
+if [ "$hostname" = "$homeHost" ]; then
+  printWelcome
+else
+  printJourneySummary
+fi
+
+# Ask each question until it is answered correctly then move on
+case $hostname in
+  opus-ii)
+    echo "The scavenger hunt begins here on Opus-II!"
+    continueYesNo "Are you ready to continue?"
+    clear
+    printNextHostInstructions
+    ;;
+  *)
+    #echo "TRACE (main in default case) hostname=$hostname"
+    if [ "$userResponse" = "commands" ]; then
+      printLabCommands
+      exit
+    fi
+    question Q1 "$userResponse"
+    #question Q2 "$userResponse"
+    question Q3 "$userResponse"
+    question Q4 "$userResponse"
+    question Q5 "$userResponse"
+    question Q6 "$userResponse"
+    question Q7 "$userResponse"
+    question Q8 "$userResponse"
+    question Q9 "$userResponse"
+    question Q10 "$userResponse"
+    #question Q11 "$userResponse"
+    #question Q12 "$userResponse"
+    question Q13 "$userResponse"
+    question Q14 "$userResponse"
+    question Q15 "$userResponse"
+    question Q16 "$userResponse"
+    question Q17 "$userResponse"
+    printScavengedItem
+    printNextHostInstructions
+esac
+
+exit

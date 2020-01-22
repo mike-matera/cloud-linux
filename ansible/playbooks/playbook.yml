@@ -1,0 +1,117 @@
+---
+- hosts: all
+  tasks:
+    - include_vars: users.yaml
+    - name: Set the hostname 
+      hostname:
+        name: tux
+    - name: Ensure group "cis90" exists
+      group:
+        name: cis90
+        state: present
+
+    - name: Enable the firewall 
+      ufw:
+        state: enabled
+        policy: deny
+    - name: Limit SSH 
+      ufw:
+        rule: limit
+        port: ssh
+        proto: tcp
+    - name: Allow SSH connections 
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    # Packages 
+    - name: Only run "update_cache=yes" if the last one is more than X seconds ago
+      apt:
+        update_cache: yes
+        cache_valid_time: 86400
+    - name: Add Docker key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: Add Docker repo
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+    - name: Install Docker
+      apt:
+        pkg:
+          - docker-ce
+          - docker-ce-cli 
+          - containerd.io
+          - tree 
+
+    # Enable LXD 
+    - name: Configure LXD
+      command: /usr/bin/lxd init --auto 
+
+    # Add me
+    - name: Add me. I must be added first.
+      user:
+        name: mmatera
+        comment: Mike Matera
+        password: $6$to1tkyvYy4KX/4hA$TrJ.uAGCjVrcN6Td/P4ozjsn3fTCe6S8gFLBOCArbX2ruUulszWHlUigC3/BcldU781PmYcStbjpF.h6p/vuN/
+        groups: 
+          - admin
+          - cis90
+          - docker
+          - lxd
+        shell: /bin/bash
+        append: yes
+    - name: Add my keys 
+      authorized_key:
+        user: mmatera
+        state: present
+        key: '{{ item }}'
+      with_file:
+        - public_keys/opus.pub
+        - public_keys/mouthfeel.pub
+        - public_keys/phoenix.pub
+
+    # Create the user skeleton
+    - name: Create the /etc/student-skel directory
+      file:
+        path: /etc/student-skel
+        state: directory
+        mode: '0755'
+    - name: Create the student skel directory. 
+      unarchive:
+        src: student-skel.tar
+        dest: /etc/student-skel
+
+    # Install the scavenge program.
+    - name: Create the scavenge program. 
+      copy:
+        src: scavenge/scavenge
+        dest: /usr/local/bin/scavenge
+        owner: root
+        group: root 
+        mode: '0755'
+    - name: Make the scavenge link 
+      file:
+        src: /usr/local/bin/scavenge
+        dest: /usr/local/bin/sc 
+        owner: root
+        group: root 
+        state: link 
+    - name: Copy the scavenge infrastructure 
+      copy:
+        src: scavenge/etc/scavenge
+        dest: /etc 
+        owner: root
+        group: root 
+    - name: Add class users.
+      user:
+        name: "{{ item.name }}"
+        comment: "{{ item.comment }}"
+        password: "{{ item.password }}"
+        groups: "{{ item.groups }}"
+        home: "{{ item.home }}"
+        skeleton: /etc/student-skel
+        shell: /bin/bash
+        append: yes
+      loop: "{{ users | flatten(levels=1) }}"

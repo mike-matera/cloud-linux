@@ -1,0 +1,4 @@
+all:
+  hosts:
+    tux.cis.cabrillo.edu
+    
