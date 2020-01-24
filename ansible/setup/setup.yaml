@@ -35,6 +35,7 @@
         - public_keys/mouthfeel.pub
         - public_keys/phoenix.pub
         - public_keys/tux.pub
+        - public_keys/turbine.pub
 
     
 - hosts: ubuntu
