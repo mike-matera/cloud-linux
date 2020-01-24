@@ -1,0 +1,69 @@
+---
+- hosts: all
+  tasks:
+    - name: Set the hostname 
+      hostname:
+        name: tux
+
+    - name: Enable the firewall 
+      ufw:
+        state: enabled
+        policy: deny
+    - name: Limit SSH 
+      ufw:
+        rule: limit
+        port: ssh
+        proto: tcp
+        state: disabled
+    - name: Allow SSH connections 
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    # Packages 
+    - name: Only run "update_cache=yes" if the last one is more than X seconds ago
+      apt:
+        update_cache: yes
+        cache_valid_time: 86400
+    - name: Add Docker key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: Add Docker repo
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+    - name: Install Docker
+      apt:
+        pkg:
+          - docker-ce
+          - docker-ce-cli 
+          - containerd.io
+          - tree 
+
+    # Enable LXD 
+    - name: Configure LXD
+      command: /usr/bin/lxd init --auto 
+
+    # Add me
+    - name: Add me. I must be added first.
+      user:
+        name: mmatera
+        comment: Mike Matera
+        password: $6$to1tkyvYy4KX/4hA$TrJ.uAGCjVrcN6Td/P4ozjsn3fTCe6S8gFLBOCArbX2ruUulszWHlUigC3/BcldU781PmYcStbjpF.h6p/vuN/
+        groups: 
+          - admin
+          - docker
+          - lxd
+        shell: /bin/bash
+        append: yes
+    - name: Add my keys 
+      authorized_key:
+        user: mmatera
+        state: present
+        key: '{{ item }}'
+      with_file:
+        - public_keys/opus.pub
+        - public_keys/mouthfeel.pub
+        - public_keys/phoenix.pub
+
