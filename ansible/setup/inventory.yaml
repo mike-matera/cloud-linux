@@ -1,0 +1,23 @@
+all:
+  children:
+    centos:
+      hosts:
+        freedom.cis.cabrillo.edu:
+    mint:
+      hosts:
+        defiant.cis.cabrillo.edu:
+    ubuntu:
+      hosts:
+        opus3.cis.cabrillo.edu:
+        intrepid.cis.cabrillo.edu:
+    debian:
+      hosts:
+        enterprise.cis.cabrillo.edu:
+    fedora:
+      hosts:
+        excalibur.cis.cabrillo.edu:
+    opensuse:
+      hosts:
+        lexington.cis.cabrillo.edu:
+  vars:
+    ansible_user: root

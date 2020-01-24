@@ -1,0 +1,9 @@
+all:
+  hosts:
+    defiant.cis.cabrillo.edu:
+    enterprise.cis.cabrillo.edu:
+    excalibur.cis.cabrillo.edu:
+    freedom.cis.cabrillo.edu:
+    intrepid.cis.cabrillo.edu:
+    lexington.cis.cabrillo.edu:
+    

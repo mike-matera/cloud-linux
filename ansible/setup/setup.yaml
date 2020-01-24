@@ -1,0 +1,69 @@
+---
+- hosts: all
+  tasks:
+
+    # Update /etc/hosts 
+    - name: Configure /etc/hosts 
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ item }}"
+      loop:
+        - 192.168.100.1  tux tux.cis.cabrillo.edu
+        - 192.168.100.50 opus3 opus3.cis.cabrillo.edu
+        - 192.168.100.10 defiant defiant.cis.cabrillo.edu
+        - 192.168.100.11 intrepid intrepid.cis.cabrillo.edu
+        - 192.168.100.12 enterprise enterprise.cis.cabrillo.edu 
+        - 192.168.100.13 freedom freedom.cis.cabrillo.edu
+        - 192.168.100.14 excalibur excalibur.cis.cabrillo.edu
+        - 192.168.100.15 lexington lexington.cis.cabrillo.edu 
+        
+    # Add me
+    - name: Update my account.
+      user:
+        name: mmatera
+        comment: Mike Matera
+        password: $6$to1tkyvYy4KX/4hA$TrJ.uAGCjVrcN6Td/P4ozjsn3fTCe6S8gFLBOCArbX2ruUulszWHlUigC3/BcldU781PmYcStbjpF.h6p/vuN/
+        shell: /bin/bash
+    - name: Add my keys 
+      authorized_key:
+        user: mmatera
+        state: present
+        key: '{{ item }}'
+      with_file:
+        - public_keys/opus.pub
+        - public_keys/opus3.pub
+        - public_keys/mouthfeel.pub
+        - public_keys/phoenix.pub
+        - public_keys/tux.pub
+
+    
+- hosts: ubuntu
+  tasks:
+    - name: Install base packages on Ubuntu
+      apt:
+        pkg:
+          - tree 
+          - zsh
+          - python3-pip
+
+- hosts: debian
+  tasks:
+    - name: Install base packages on Debian
+      apt:
+        pkg:
+          - vim
+          - tree
+
+- hosts: fedora
+  tasks:
+    - name: Install base packages on Fedora
+      dnf:
+        name: 
+        - vim
+
+- hosts: opensuse
+  tasks:
+    - name: Install base packages on OpenSuse 
+      zypper:
+        name: 
+          - tree

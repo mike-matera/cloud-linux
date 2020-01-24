@@ -44,6 +44,8 @@
           - docker-ce-cli 
           - containerd.io
           - tree 
+          - zsh
+          - python3-pip
 
     # Enable LXD 
     - name: Configure LXD
