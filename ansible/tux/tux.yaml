@@ -5,11 +5,31 @@
       hostname:
         name: tux
 
+    # Firewall 
+    - name: Allowing IP forwarding in UFW 
+      lineinfile:
+        path: /etc/default/ufw 
+        regexp: '^DEFAULT_FORWARD_POLICY='
+        line: 'DEFAULT_FORWARD_POLICY="ACCEPT"'        
+    - name: Enable IP fowarding in the kernel 
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: 1 
+        reload: yes
+    - name: Add masquerade for the internal network. 
+      blockinfile:
+        path: /etc/ufw/before.rules
+        marker: "## {mark} ANSIBLE: provide NAT for the vm network. ##"
+        block: |
+          *nat
+          :PREROUTING ACCEPT [0:0]
+          -A POSTROUTING -s 192.168.100.0/24 -o br0 -j MASQUERADE
+          COMMIT
     - name: Enable the firewall 
       ufw:
         state: enabled
         policy: deny
-    - name: Limit SSH 
+    - name: (disabled) Limit SSH 
       ufw:
         rule: limit
         port: ssh
@@ -20,8 +40,9 @@
         rule: allow
         name: OpenSSH
 
+
     # Packages 
-    - name: Only run "update_cache=yes" if the last one is more than X seconds ago
+    - name: Set package update policy.
       apt:
         update_cache: yes
         cache_valid_time: 86400
@@ -33,7 +54,7 @@
       apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
         state: present
-    - name: Install Docker
+    - name: Install packages
       apt:
         pkg:
           - docker-ce
@@ -46,7 +67,7 @@
       command: /usr/bin/lxd init --auto 
 
     # Add me
-    - name: Add me. I must be added first.
+    - name: Setup my account.
       user:
         name: mmatera
         comment: Mike Matera
@@ -66,4 +87,5 @@
         - public_keys/opus.pub
         - public_keys/mouthfeel.pub
         - public_keys/phoenix.pub
+        - public_keys/turbine.pub
 
