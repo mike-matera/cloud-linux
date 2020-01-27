@@ -1,0 +1,15 @@
+dogs:
+    - comment: Benji Simms
+      groups:
+        - users
+        - cis90
+      home: /home/cis90/simben90
+      name: simben90
+      password: !
+    - comment: Luigi Graziani
+      groups:
+        - users
+        - cis90
+      home: /home/cis90/gralui90
+      name: gralui90
+      password: !

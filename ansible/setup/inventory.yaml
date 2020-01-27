@@ -1,5 +1,8 @@
 all:
   children:
+    login-servers:
+      hosts:
+        opus3.cis.cabrillo.edu:
     centos:
       hosts:
         freedom.cis.cabrillo.edu:

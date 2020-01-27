@@ -1,0 +1,23 @@
+---
+- hosts: all
+  tasks:
+    - name: Create the scavenge program. 
+      copy:
+        src: scavenge/scavenge
+        dest: /usr/local/bin/scavenge
+        owner: root
+        group: root 
+        mode: '0755'
+    - name: Make the scavenge link 
+      file:
+        src: /usr/local/bin/scavenge
+        dest: /usr/local/bin/sc 
+        owner: root
+        group: root 
+        state: link 
+    - name: Copy the scavenge infrastructure 
+      copy:
+        src: scavenge/etc/scavenge
+        dest: /etc 
+        owner: root
+        group: root 

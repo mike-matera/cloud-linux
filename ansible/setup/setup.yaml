@@ -22,6 +22,11 @@
         regexp: 'opus3'
         line: 172.19.100.2   opus3 opus3.cis.cabrillo.edu
 
+    - name: Add the cis90 group.
+      group:
+        name: cis90
+        state: present
+
     # Add me
     - name: Update my account.
       user:
@@ -42,13 +47,12 @@
         - public_keys/tux.pub
         - public_keys/turbine.pub
 
-    
 - hosts: ubuntu
   tasks:
     - name: Install base packages on Ubuntu
       apt:
         pkg:
-          - tree 
+          - tree
           - zsh
           - python3-pip
 
@@ -73,3 +77,51 @@
       zypper:
         name: 
           - tree
+
+- hosts: login-servers
+  tasks:
+    - include_vars: dogs.yaml
+    # Create the user skeleton
+    - name: Upload the skeleton files. 
+      file:
+        path: /etc/student-skel
+        state: directory
+        mode: '0755'
+    - name: Create the student skel directory. 
+      unarchive:
+        src: student-skel.tar
+        dest: /etc/student-skel
+    - name: Add dog accounts.
+      user:
+        name: "{{ item.name }}"
+        comment: "{{ item.comment }}"
+        password: "{{ item.password }}"
+        groups: "{{ item.groups }}"
+        home: "{{ item.home }}"
+        skeleton: /etc/student-skel
+        shell: /bin/bash
+        append: yes
+      loop: "{{ dogs | flatten(levels=1) }}"
+
+- hosts: all:!login-servers
+  tasks:
+    - include_vars: dogs.yaml
+    - name: Add dog accounts.
+      user:
+        name: "{{ item.name }}"
+        comment: "{{ item.comment }}"
+        password: "{{ item.password }}"
+        groups: "{{ item.groups }}"
+        home: "{{ item.home }}"
+        shell: /bin/bash
+        append: yes
+      loop: "{{ dogs | flatten(levels=1) }}"
+
+- hosts: all 
+  tasks:
+    - name: Add opus3 key to dog accounts.
+      authorized_key:
+        user: "{{ item.name }}"
+        state: present
+        key: "{{ lookup('file', 'public_keys/opus3.pub') }}"
+      loop: "{{ dogs | flatten(levels=1) }}"

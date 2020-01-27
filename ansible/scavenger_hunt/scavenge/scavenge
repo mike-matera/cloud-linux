@@ -48,7 +48,7 @@ blue="\e[34m"
 green="\e[32m"
 off="\e[0m"
 
-hosts[0]="opus-ii"      
+hosts[0]="opus3"
 hosts[1]="defiant"
 hosts[2]="lexington"
 hosts[3]="enterprise"
@@ -122,7 +122,7 @@ days[6]="Th"
 
 dataDir=/etc/scavenge
 journeyFile="$dataDir/combos"
-homeHost="opus-ii"
+homeHost="opus3"
 domain="cis.cabrillo.edu"
 logFile="$HOME/.lab01.tracking" 
 maxStudentsInCis90=60
@@ -266,7 +266,7 @@ function initializeQuestionsAnswers () {
   answers[11]=$remoteUsername
   answers[12]=$remoteHostname
 
-  answers[13]=$(date +"%H:%M")
+  answers[13]=$(date +"%I:%M")
   answers[14]=${days[$currentHostNum]}
   answers[15]="WILDCARD"
   answers[16]="WILDCARD"
@@ -404,7 +404,7 @@ function printNextHostInstructions () {
     echo "all the items!"
     echo
     echo "FINAL INSTRUCTIONS:"
-    echo "Keep using the exit command until you are back on Opus-II."
+    echo "Keep using the exit command until you are back on Opus3."
     echo "When back on Opus use the submit command to turn in Lab 1. This"
     echo "command will ask you to record each of your scavenged items."
     echo
@@ -603,8 +603,7 @@ function question () {
       userResponse=""
     elif [ "$response" = "$correctAnswer" ]; then
       # A correct answer was submitted
-      echo
-      echo "Nice work ... your answer to $Q was:  C O R R E C T !!"
+      echo "Nice work ... your answer to $Q was:  C O R R E C T "
       sleep 1
       echo
       logAnswer $Q $rightAnswer "$response"
@@ -710,8 +709,8 @@ fi
 
 # Ask each question until it is answered correctly then move on
 case $hostname in
-  opus-ii)
-    echo "The scavenger hunt begins here on Opus-II!"
+  opus3)
+    echo "The scavenger hunt begins here on Opus3!"
     continueYesNo "Are you ready to continue?"
     clear
     printNextHostInstructions
@@ -724,7 +723,7 @@ case $hostname in
     fi
     question Q1 "$userResponse"
     #question Q2 "$userResponse"
-    question Q3 "$userResponse"
+    #question Q3 "$userResponse"
     question Q4 "$userResponse"
     question Q5 "$userResponse"
     question Q6 "$userResponse"

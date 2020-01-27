@@ -1,5 +1,6 @@
 all:
   hosts:
+    opus3.cis.cabrillo.edu:
     defiant.cis.cabrillo.edu:
     enterprise.cis.cabrillo.edu:
     excalibur.cis.cabrillo.edu:
