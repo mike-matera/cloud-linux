@@ -125,3 +125,74 @@
         state: present
         key: "{{ lookup('file', 'public_keys/opus3.pub') }}"
       loop: "{{ dogs | flatten(levels=1) }}"
+
+# Add motd files. 
+- hosts: opus3.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on opus
+      copy:
+        src: motd/opus.txt
+        dest: /etc/update-motd.d/99-opus
+        owner: root
+        group: root
+        mode: '0755'
+
+- hosts: defiant.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on defiant
+      copy:
+        src: motd/defiant.txt
+        dest: /etc/update-motd.d/99-defiant
+        owner: root
+        group: root
+        mode: '0755'
+
+- hosts: intrepid.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on intrepid
+      copy:
+        src: motd/intrepid.txt
+        dest: /etc/update-motd.d/99-intrepid
+        owner: root
+        group: root
+        mode: '0755'
+
+- hosts: enterprise.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on enterprise
+      copy:
+        src: motd/enterprise.txt
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+
+- hosts: freedom.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on freedom
+      copy:
+        src: motd/freedom.txt
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+
+- hosts: excalibur.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on excalibur
+      copy:
+        src: motd/excalibur.txt
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+
+- hosts: lexington.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on lexington 
+      copy:
+        src: motd/lexington.txt
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
