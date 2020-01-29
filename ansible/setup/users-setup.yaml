@@ -1,0 +1,14 @@
+- hosts: all
+  tasks:
+    - include_vars: users.yaml
+    - name: Add class users.
+      user:
+        name: "{{ item.name }}"
+        comment: "{{ item.comment }}"
+        password: "{{ item.password }}"
+        groups: "{{ item.groups }}"
+        home: "{{ item.home }}"
+        skeleton: /etc/student-skel
+        shell: /bin/bash
+        append: yes
+      loop: "{{ users | flatten(levels=1) }}"
