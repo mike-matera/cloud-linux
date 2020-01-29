@@ -351,7 +351,7 @@ function printJourneySummary () {
   echo "STATUS:"
   echo " - You are on $hostname (system $wayPointIndex of ${#journey})"
   echo " - You are scavenging for $article ${itemSingle[$currentHostNum]}"
-  printQuestionStatus
+  #printQuestionStatus
 }
 
 function printQuestionStatus () {
