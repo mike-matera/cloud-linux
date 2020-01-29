@@ -103,7 +103,7 @@
         append: yes
       loop: "{{ dogs | flatten(levels=1) }}"
 
-- hosts: all:!login-servers
+- hosts: all
   tasks:
     - include_vars: dogs.yaml
     - name: Add dog accounts.
@@ -116,12 +116,150 @@
         shell: /bin/bash
         append: yes
       loop: "{{ dogs | flatten(levels=1) }}"
-
-- hosts: all 
-  tasks:
     - name: Add opus3 key to dog accounts.
       authorized_key:
         user: "{{ item.name }}"
         state: present
         key: "{{ lookup('file', 'public_keys/opus3.pub') }}"
       loop: "{{ dogs | flatten(levels=1) }}"
+
+# Add motd files. 
+- hosts: opus3.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on opus
+      copy:
+        src: motd/opus.txt
+        dest: /etc/update-motd.d/99-opus
+        owner: root
+        group: root
+        mode: '0755'
+
+- hosts: defiant.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on defiant
+      copy:
+        src: motd/defiant.txt
+        dest: /etc/update-motd.d/99-defiant
+        owner: root
+        group: root
+        mode: '0755'
+    - name: Add sisko account.
+      user:
+        name: sisko
+        comment: Benjamin Sisko
+        password: !
+    - name: Add opus3 key to sisko account.
+      authorized_key:
+        user: sisko
+        state: present
+        key: "{{ lookup('file', 'public_keys/opus3.pub') }}"
+
+- hosts: intrepid.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on intrepid
+      copy:
+        src: motd/intrepid.txt
+        dest: /etc/update-motd.d/99-intrepid
+        owner: root
+        group: root
+        mode: '0755'
+    - name: Add commodore Stone
+      user:
+        name: cstone
+        comment: Commodore Stone
+        password: !
+    - name: Add opus3 key to cstone account.
+      authorized_key:
+        user: cstone
+        state: present
+        key: "{{ lookup('file', 'public_keys/opus3.pub') }}"
+    - name: Add spock
+      user:
+        name: spock
+        comment: Spock
+        password: !
+    - name: Add opus3 key to spock account.
+      authorized_key:
+        user: spock
+        state: present
+        key: "{{ lookup('file', 'public_keys/opus3.pub') }}"
+
+- hosts: enterprise.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on enterprise
+      copy:
+        src: motd/enterprise.txt
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+    - name: Add captiain Kirk
+      user:
+        name: kirk
+        comment: James T. Kirk
+        password: !
+    - name: Add opus3 key to kirk account.
+      authorized_key:
+        user: kirk
+        state: present
+        key: "{{ lookup('file', 'public_keys/opus3.pub') }}"
+    - name: Add spock
+      user:
+        name: spock
+        comment: Spock
+        password: !
+    - name: Add opus3 key to spock account.
+      authorized_key:
+        user: spock
+        state: present
+        key: "{{ lookup('file', 'public_keys/opus3.pub') }}"
+    - name: Add sulu
+      user:
+        name: sulu
+        comment: Hikaru Sulu
+        password: !
+    - name: Add opus3 key to sulu account.
+      authorized_key:
+        user: sulu
+        state: present
+        key: "{{ lookup('file', 'public_keys/opus3.pub') }}"
+
+- hosts: freedom.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on freedom
+      copy:
+        src: motd/freedom.txt
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+
+- hosts: excalibur.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on excalibur
+      copy:
+        src: motd/excalibur.txt
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+
+- hosts: lexington.cis.cabrillo.edu
+  tasks:
+    - name: Installing motd on lexington 
+      copy:
+        src: motd/lexington.txt
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+    - name: Add dax
+      user:
+        name: dax
+        comment: Jadzea Dax
+        password: !
+    - name: Add opus3 key to dax account.
+      authorized_key:
+        user: dax
+        state: present
+        key: "{{ lookup('file', 'public_keys/opus3.pub') }}"

@@ -1,8 +1,8 @@
 # Installing Vagrant 
 
-> *If you plan to use school computers or have Vagrant installed already you can safely skip this lab.* 
+> *If you plan to use school computers or have Vagrant installed already you can skip the steps in this lab and just get a screenshot.* 
 
-In this lab you'll install Vagrant on your own computer. Vagrant creates virtual machines from based on descriptions called vagrantfiles. It gives me a way to distribute pre-configured virtual machines to you. Your computer must be powerful enough to run Linux virtual machines. You must have:
+In this lab you'll install Vagrant on your own computer. Vagrant creates virtual machines from based on descriptions called vagrantfiles. It gives me a way to distribute pre-configured virtual machines to you. Your computer must be powerful enough to run Linux virtual machines. You should have:
 
  - At least 8 GiB of RAM 
  - A 4+ core 64bit processor 
