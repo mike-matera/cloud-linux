@@ -184,7 +184,7 @@ function initializeQuestionsAnswers () {
   questions[12]=${questions[12]}"      (don't include the leading or trailing parentheses)"
 
   questions[13]="What time is it on this system?\n"
-  questions[13]=${questions[13]}"    (use HH:MM format and don't dawdle!)"
+  questions[13]=${questions[13]}"      use HH:MM format and 24 hour time. (e.g. 2pm is 14)"
 
   questions[14]="What day of the week (e.g Su Mo, Tu ...) was ${dates[$currentHostNum]}?"
   questions[15]="What happens when you use the clear command?"
