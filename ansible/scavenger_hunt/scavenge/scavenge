@@ -418,7 +418,6 @@ function printNextHostInstructions () {
     echo "  Username: $username"
     echo "  Password: <the one assigned to you by the instructor>"
     echo "  Hostname: $nextHostName.$domain"
-    echo "  Port: $nextPort"
     echo -e "You will be scavenging for ${ul}$nextItem${off} there."
     echo
     echo "Have fun scavenging!"
