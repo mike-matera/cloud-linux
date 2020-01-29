@@ -1,6 +1,6 @@
 - hosts: all
   tasks:
-    - include_vars: users.yaml
+    - include_vars: cis-90-users.yaml
     - name: Add class users.
       user:
         name: "{{ item.name }}"
