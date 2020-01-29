@@ -25,16 +25,13 @@
           :PREROUTING ACCEPT [0:0]
           -A POSTROUTING -s 192.168.100.0/24 -o br0 -j MASQUERADE
           COMMIT
+    - name: Reset the firewall 
+      ufw:
+        state: reset
     - name: Enable the firewall 
       ufw:
         state: enabled
         policy: deny
-    - name: (disabled) Limit SSH 
-      ufw:
-        rule: limit
-        port: ssh
-        proto: tcp
-        state: disabled
     - name: Allow SSH connections 
       ufw:
         rule: allow
