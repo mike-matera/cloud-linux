@@ -1,13 +1,13 @@
-# Viewing Hardware 
+# The Standard VM
 
-In this lab you will examine the hardware on your Linux machine. You can perform this lab on your VM or your own computer. Modern computers have  many devices, it can be difficult to know exactly what's inside the box. Even when you can look into the box, most of the devices that Linux uses aren't visible. The `lshw` command shows you what devices are connected to your computer.
+In this lab you will create the VM that you'll use for the rest of the semester. Then you'll examine the VM's hardware. Modern computers have  many devices, it can be difficult to know exactly what's inside the box. Even when you can look into the box, most of the devices that Linux uses aren't visible. The `lshw` command shows you what devices are connected to your computer.
 
 ## Step 1: Create the Standard VM 
 
-I've created a `Vagrantfile` for this class. The `Vagrantfile` is a standard Ubuntu 16.04 Server VM with additional disks added. The disks will come in handy later. You can create the standard VM by downloading the Vagrant file and using `vagrant up`.
+I've created a `Vagrantfile` for this class. The `Vagrantfile` is a standard Ubuntu 18.04 Server VM with additional disks added. The disks will come in handy later. You can create the standard VM by downloading the Vagrant file and using `vagrant up`.
 
 ```eval_rst
-- :download:`Vagrantfile <../../boxes/xenial64-disks/Vagrantfile>` - The "standard" VM for this class.
+- :download:`Vagrantfile <../../boxes/bionic64-disks/Vagrantfile>` - The "standard" VM for this class.
 ```
 
 Create a new directory for your `Vagrantfile` and change into the directory. When you are in a directory with a `Vagrantfile` you can start the Vagrant VM with the command:
