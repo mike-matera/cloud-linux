@@ -184,7 +184,7 @@ function initializeQuestionsAnswers () {
   questions[12]=${questions[12]}"      (don't include the leading or trailing parentheses)"
 
   questions[13]="What time is it on this system?\n"
-  questions[13]=${questions[13]}"    (use HH:MM format and don't dawdle!)"
+  questions[13]=${questions[13]}"      use HH:MM format and 24 hour time. (e.g. 2pm is 14)"
 
   questions[14]="What day of the week (e.g Su Mo, Tu ...) was ${dates[$currentHostNum]}?"
   questions[15]="What happens when you use the clear command?"
@@ -266,7 +266,7 @@ function initializeQuestionsAnswers () {
   answers[11]=$remoteUsername
   answers[12]=$remoteHostname
 
-  answers[13]=$(date +"%I:%M")
+  answers[13]=$(date +"%H:%M")
   answers[14]=${days[$currentHostNum]}
   answers[15]="WILDCARD"
   answers[16]="WILDCARD"
@@ -351,7 +351,7 @@ function printJourneySummary () {
   echo "STATUS:"
   echo " - You are on $hostname (system $wayPointIndex of ${#journey})"
   echo " - You are scavenging for $article ${itemSingle[$currentHostNum]}"
-  printQuestionStatus
+  #printQuestionStatus
 }
 
 function printQuestionStatus () {
