@@ -296,7 +296,6 @@ Lesson 1 Commands
 -----------------
 scavenge <answer>   - shell script used in Lab 1 to answer questions 
 sc <answer>         - an alias for scavenge (fewer keystrokes to type)
-submit              - shell script used only on Opus to submit your work
 
 cal <mm> <yyyy>     - show calendar for month mm of year yyyy (e.g. cal 7 1776) 
 cat /etc/issue      - show the distro (distribution) name and version
@@ -405,11 +404,6 @@ function printNextHostInstructions () {
     echo
     echo "FINAL INSTRUCTIONS:"
     echo "Keep using the exit command until you are back on Opus3."
-    echo "When back on Opus use the submit command to turn in Lab 1. This"
-    echo "command will ask you to record each of your scavenged items."
-    echo
-    echo "Be sure you submit before the deadline so you get credit for completing"
-    echo "this lab!"
     echo
   else
     echo
