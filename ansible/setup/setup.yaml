@@ -55,6 +55,7 @@
           - tree
           - zsh
           - python3-pip
+          - sysvbanner
 
 - hosts: debian
   tasks:
@@ -63,6 +64,7 @@
         pkg:
           - vim
           - tree
+          - sysvbanner
 
 - hosts: fedora
   tasks:
@@ -70,6 +72,7 @@
       dnf:
         name: 
         - vim
+        - banner
 
 - hosts: opensuse
   tasks:
