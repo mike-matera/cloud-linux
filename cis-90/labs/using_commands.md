@@ -183,7 +183,7 @@ Answer each of the questions below and be sure to issue all commands asked for. 
     Your command should produce output similar to:
 
     ```
-    opus3.cis.cabrillo.edu 3.10.0-862.9.1.el7.x86_64 GNU/Linux
+    opus3 3.10.0-862.9.1.el7.x86_64 GNU/Linux
     ```
 
     > Hint:  Use the `man uname` command, scroll up/down and use `q` to quit.
