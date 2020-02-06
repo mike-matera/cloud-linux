@@ -1,232 +1,225 @@
 users:
-- comment: J. Armstrong
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/armjes90
-  name: armjes90
-  password: $6$bIruxJRezbTIHFPl$RwPAfgZLcXWk9r6FdVGFTnxC3SZXSpjdCd/s47uwi6HPFRdWmT7a6kh4fVcbDzPw0F48RdcOa3Vg.Y0j819IE1
 - comment: H. Ayala
   groups:
   - users
   - cis90
   home: /home/cis90/ayahec90
   name: ayahec90
-  password: $6$c3geIwyfR.Ll2Qpj$5MDsX2KT4G9UncfLdKwagqbMe36EJvt4lHzb/9oncVTEmB8Fz5tphGHSUa.pLXfGB7x2HTMdadL0M9aLJB4du1
+  password: $6$spTLtlavA0wBOJs6$29rRzTlpbcwVMu5mWDISbgiT9qH4VS4XSLLGO1njvykC.ODmtq4ZEkzpRUkeuoyWNsxteuS.v8js/JQLhJOlT/
 - comment: E. Barkis
   groups:
   - users
   - cis90
   home: /home/cis90/barell90
   name: barell90
-  password: $6$hYB17akD4aPzq5hb$hNxtWJtBLaL1EDTtOI5teR.NLSThO7inWS.7F88cXTVRz2LxR2iTU8gV4lZGqfXIggOZpvPc.gWW830BKQj4H0
-- comment: T. Bone
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/bontim90
-  name: bontim90
-  password: $6$SjPlQCl1iNmMjcwJ$MFTpDhWDI1MNxq9w25rULOz80ROUpfjbxDe4D21Jff7TzOWExNAvTimAqha0u61l2QYSRnTdJSb/msCBUto8n1
+  password: $6$u5I.h6tt.Se45zZr$ASBhQcQomO2RJFDvTxJUshPj/PTHmVAAm1gZmTqBsJSzDOSmZw/Ob6w6n6EaRUATT7DWkprbGCzxtRGdwuepW1
 - comment: C. Caldwell
   groups:
   - users
   - cis90
   home: /home/cis90/calchr90
   name: calchr90
-  password: $6$90kzToYwxX.OSZh9$cOBq/ue6CtTSGXDxl3DKMXW/YoppL05Sid5eTYJbbSQTbPNE3iY9LK5DahaSgOQpvWs/RntodrZTRmN2gLf4C.
+  password: $6$yCsIyZC4Q6NcFoIV$Xx74YLOIbqwQx.wPV5P27FR2RAOmfb2pu0yQ4M/668AzmhW1Mh7V0QAN3M2pXD3/lyChccVyDbQkcZqyZUoUZ.
 - comment: K. Chan
   groups:
   - users
   - cis90
   home: /home/cis90/chakar90
   name: chakar90
-  password: $6$YNZyhWLC5iWADHa.$WcrYw5JlkzkO.6RDDrId7FaaqjjdipPM7HAQvNMSaM/6UB.aglT0uRbr9mEWNAOHISkJJK513zINayNd4NFGR0
+  password: $6$yODeJMCNfzKidOOO$tqrNfk75ZVumtaBt7Q6cq4EVwnzoh9N.CFCXxzk5xFktvjxJFRvbvN7XGPc4zJsKYeEF0CDDxyL43x.inpXz1/
 - comment: M. Chavez
   groups:
   - users
   - cis90
   home: /home/cis90/chamic90
   name: chamic90
-  password: $6$CVS5Bi288LbbVSg9$e0fmopEeblpY3hzhwLHncrjZ/rRcc8RiLgNNDD0sRajypnPl6Mq0rKjm2UmDGhoXJNjS0I777oS7zP.iO59sK/
+  password: $6$cXYJZ.dK/utru/8b$.L/7lJZB3sBltTHSF5eMjI0Tj3P3U0G0eL7iCalrdELtA6MoP9d0FOwPJflCHCKlWGNENn2bA5VIOGyRdNeOO.
 - comment: D. Degive
   groups:
   - users
   - cis90
   home: /home/cis90/degdav90
   name: degdav90
-  password: $6$Ffhvhxs9CSBAD/bz$Oasi47Ah62WslC38N7jA1idfy0EJn0.XogpS/eHbhKhyaYBiu5u.k.PlBn2SZkKCSJueDP71l2t2531dp3UM21
-- comment: A. Gerretson
+  password: $6$WRCYON4w4h3XBiXc$pvK1gVml9LBGkmSJDPAMK3oQTM7Uo2Du/UR.RMhh.iN.azb5hA3LUo4OVczCgvoepq1amBcQE2DSUH6tZ7QC//
+- comment: K. Dowling
   groups:
   - users
   - cis90
-  home: /home/cis90/geradr90
-  name: geradr90
-  password: $6$Hj2V2GJcOv0YUnBn$11/5hKYImTgPbax6hcpvzAnBDnYEtYPHRyGjEqteLbGpFKecexOEb6HuSgYN3MFH0z3Dlnaukovevy9JR/21z0
-- comment: J. Gonzalez
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/gonjos90
-  name: gonjos90
-  password: $6$80Ar2WTUteOY00yH$L8HKKrW/NtyvjF1.rlUpNB0IBRFbWm0o4JQNCXCXhOP1Hms1b9Z8v7Y4bLgjJPAbYRPa6NnqkL.hZA0IYtNGr/
-- comment: J. Haire
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/haijon90
-  name: haijon90
-  password: $6$IjOuKCnD6zqFX2wJ$.HFjU3GTJKeffOplPlKgo7K6G8A1OaIDIehA.dqB53qcHgbK4h2t7OsTsMsCffsf3m1hD9zmw7ZC6Lt3Vrv3T.
-- comment: T. JohnsonHaro
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/johtyl90
-  name: johtyl90
-  password: $6$1443MH9DAUSpd4bP$WbRDA5F5rNpUTmRfh74SDWUauPc7Ubu5vIA7Ro9LNTL5I20M2EWY52NGSjc6pTZdX/HMidlF9kbqnh0lPOimO0
-- comment: L. Mares
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/marlui90
-  name: marlui90
-  password: $6$Usq/su3OfST.6YKN$inryJxjqtxQiVilrRwqG6p6W3pks47J7oPF.1cifbE221P5PgYvEjxzxxmoHJ0bKcmwLHK0AoEskdkOcXDRB8.
-- comment: D. Marx
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/marder90
-  name: marder90
-  password: $6$dPm2bt3mwNQRYmrc$7WEbwqeFlNFQaSOHj6bj03VhdV6h1MPPLocZYRfwtspkUig/4Gar/TQJvLFuwE.05fAX/Vmk3LaXcPaJk8o0j1
-- comment: G. Montanez
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/mongil90
-  name: mongil90
-  password: $6$Un8H6wAbeDluKXlt$oBVkm4jYCJ5yWumYopugTNAq7zS1LtdvmXu8TEMpTS4OM4Zjw8PeApZzwLorcuCuLxE6ISe72WH6eSfn8E/8K0
-- comment: M. Montanez
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/monmig90
-  name: monmig90
-  password: $6$vvHipdIj7Ad4KJeh$QBRPxB8iMVygI3pxGcXRsu83yUEyzLj1tuoZomHQ3l.8N85PhX47FT4PptoS.BaAjRKbZFAD2bqFZVxyk27WL0
-- comment: G. Olsen
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/olsgre90
-  name: olsgre90
-  password: $6$Jzi16/2J2Gl1CCVi$IsBBnPoV.znYMafi8mp/qZwq4MTp5ShBzRjf77cspL7b5.rBaA9RIRt0PSnGgEHV.CxRjyV9HbFa70ogls6YU.
-- comment: J. Rischpater
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/risjar90
-  name: risjar90
-  password: $6$d0pBIFUR2HnSDJX3$elSQdcPCYgytn6BELJF3Cfo4KxAlGxnaYtnNaytm.SAtU6Iy4M.SuH0QMIDUZKNR2zHW/eytIpcsDkwhasBCU1
-- comment: L. Robertson
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/roblyn90
-  name: roblyn90
-  password: $6$ZYtpWH2FRh7bVY7P$bcAjrumUw6m8XFNs3yL/B549hmn75anUvVQFBhTGoXZw0dTpE/KdWQ0lqxbgPeN.KXqCjT1DOl8VLzL7R8Nne.
-- comment: R. Souza
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/sourya90
-  name: sourya90
-  password: $6$ydtJiJYxX5GTHT12$NOaTEtAJz4KocF5eksM6kvJqgIEULfV59x2oKCpInevc5WXhEdi1XaBxOHG/F0zFfOXdkA6v7Zm0PCiEM55/k0
-- comment: A. Swift
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/swiale90
-  name: swiale90
-  password: $6$fwS89GjLFfjaLP6A$PCoBBqnhrlvzDqxC8nIt4nqrgkHwbNGLV67NUeGws.fgLHQfQI9BKwogZ3DG9bu.sNqbI1Tscc.tSbA28tQmZ/
-- comment: P. Vizcarra
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/vizpao90
-  name: vizpao90
-  password: $6$TUqZL0JgSLrdRFq1$lTj8k7pDdsLc6Rou4d/.2/DGIj.pPeg3XsHVv7HMUZOBaDUX8lBTrjjAIZuhLum7m6IF25sfooDqyrJuMFfsU.
-- comment: G. Weihrauch
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/weigab90
-  name: weigab90
-  password: $6$HvgMLjctbGdhCFAx$7hHp2lJEZOpmm92qye5tDGqAnux4TrmqMHsxZwk0XxLiAGsqjhuySDrIgLFtNH4qBGKUc5pg/2586UJVb9LSU/
-- comment: L. Weislak
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/weilau90
-  name: weilau90
-  password: $6$3FeuLi7EsAPF5aAS$XVNAF/k3J2G72BmQDcjJgw.ynjtb7vHn.qP.Vx9iNE8ID/v2TJqFFlM0f7bAqW/N91MlKjFukK4yzy2CDwOZh.
-- comment: A. Wieland
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/wieand90
-  name: wieand90
-  password: $6$VRNLJF89VKNfA2JF$MO8pHZ2ILsswH03cH/cw4xghVM2oRH0B6gSkPtTWXMeutcqc2fX2ABaDOxNsX2AaMLMSZ5EkeQtUpwpCjhWzk0
-- comment: M. Johnson
-  groups:
-  - users
-  - cis90
-  home: /home/cis90/johmak90
-  name: johmak90
-  password: $6$oLjQZKLF7rWe5L9y$odZJA1MnfarogyvGzYW9xIwgbQDf5qjbE4sUwdMQ9JjpOq2HILz9/A6sD.LBS7rH4B7I3/AhrZr7PHwRaeXc60
+  home: /home/cis90/dowkyl90
+  name: dowkyl90
+  password: $6$BmuNIryj.NvaIwsN$ewDcKz1uHvzFd2woeUjq90SLKMfX/lbsCo6Xxl6HbmNRggRwnBoEFcp.t9kSlOqbIR.RFLFpH6guFCH3.meox.
 - comment: M. Fortney
   groups:
   - users
   - cis90
   home: /home/cis90/formic90
   name: formic90
-  password: $6$Em7rqwatxEtcSAKB$yILeD.w0S/FmzOAwLwe611KqmegyCGlL97W3ttp6p5XLqc2hJRv932XkNzYIkiYWVWCEtiDp8GJIrkXrEpAIV/
+  password: $6$jIi6ydSv1TQvufxq$7ABrC.Du0RgW7rlCkWKdA3rptC8XvspVQrIlLZnUSJkPXoyMktRfT3rtZ94WT.ERiB5.oxFO9SRbmd/w3M6Tt/
+- comment: A. Gerretson
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/geradr90
+  name: geradr90
+  password: $6$2IJNQ/rPiJ8qqp3u$jGlzdJu.5hppAVlHXOvUOMAvp2Nslx4LF5dEjRkcZ.2DSdtXgy2eAWKIgHvMYGVl/OvGX4w/2PtyaELiyMvI4/
+- comment: J. Gonzalez
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/gonjos90
+  name: gonjos90
+  password: $6$X8hyygT71Aa5opKg$ylzqcYgtO9xXY2yf3eSU4ZvWgFJ3Gij9QMPvA5uNC12A0UhXLKm91Fn5aKPcz/YHywg.RCBlLSssDbMMAoxFH0
+- comment: J. Haire
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/haijon90
+  name: haijon90
+  password: $6$L1nPHUX6GbSb28Xn$Fhj19.mPgIy40UE/MgkbCvKV3MhIan1AenIfW7vYJ/oNy8fqaPPyuiAuz7ZmJrai5/w51MkyxWQNNbXMXa2Ye.
+- comment: T. JohnsonHaro
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/johtyl90
+  name: johtyl90
+  password: $6$CnySvbA/mzi0othx$xWnKhJx2CXSOXMLxS9yLKgxDp3ScJOFUuyjYxVionVLI3Vx9jUSkQzlseseUyjshrZymZeR/zWIpsH5rh47qo1
+- comment: L. Mares
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/marlui90
+  name: marlui90
+  password: $6$CTnCHbvxai4.QEdV$glgt4yadDubWD3Q5HrPr.yY1mpkPziZVyKgpgGx/bqQY715Q5jXKCot/TF6Gn5grdkrxcMfQAO5MJfgkmkUQw1
+- comment: D. Marx
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/marder90
+  name: marder90
+  password: $6$ZmjWRRwH9A61NjyM$IYGFrsGIZXFhcIYBuDSfwVIfKgPNTsrGWIm2MlxqG17oK16MnAqudJcsZr/hiowmj4ActEF6JFh7AxuHtSC0K/
+- comment: G. Montanez
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/mongil90
+  name: mongil90
+  password: $6$51wus2kGQ34QsZcX$KAxGKoLLT.lvlGZ5JqTX5gHXUTwf7wRs6M/YynZE/f7ps9l/qi13suUYjKtJBvz1RNRAhnGFCpEXR2Z9gyb9p0
+- comment: M. Montanez
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/monmig90
+  name: monmig90
+  password: $6$6jX7uthZ3YWYyfl3$9Bxi5sy69VNJc4lFsYAXF00cE1WnBJ9VR0wQBxVp2D26plIQaGFomsYeS5eE0qz1BiJRXRJJHygpqbxYpzQtg/
+- comment: G. Olsen
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/olsgre90
+  name: olsgre90
+  password: $6$BN7csUZdAmTiMUVZ$ZBWhGiEYrrUcjJsZCN1jCuhNakTTvhJA8O4lztVzU2G/Wzp9PYZ64kzhx8Ozvf6umdpKa3TCz8q0xKCLgJciu1
+- comment: J. Rischpater
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/risjar90
+  name: risjar90
+  password: $6$VKncWFKBLqH1oJ6f$TAf7NOcwd44ngRtrWmM2lrTN9uINLS5RBSTWU9.YbMYQ5.0L3wMLA9x/vgJO2aN9yblf/YRgswb1OSYwga21j1
+- comment: M. Roberts
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/robmat90
+  name: robmat90
+  password: $6$GN3T4vlLtrmHJPOs$/vm0NIwY479aGIsDnt40lZvBpXeOWmoehA5EHe6p9g3jnpB4fTGwuyagVr8Il644XIx6b.idtUCSEobsFd5kW.
+- comment: L. Robertson
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/roblyn90
+  name: roblyn90
+  password: $6$pXRDJKhgRQeB17KC$8/a.LU6fOacXDFi28.OeOmeBw72RuwqYIOc1O94AdKCgIbZPIgkzXJPidS6z.IpvlFb.9fy7/hFQI4phzDSyE/
+- comment: R. Souza
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/sourya90
+  name: sourya90
+  password: $6$033b4ywDWsuHsWZy$g8YPcj3eooIraPuPV9m8LwavuGHMuV7jdvGfSfD3uJmtBa0LiL3OFejXydaNJ0affHngy4YbryfQQa71YOiu4.
+- comment: A. Swift
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/swiale90
+  name: swiale90
+  password: $6$vVIcIKXYlH/9cit/$5sGlvL5aV49ZrXt2iRD5LBeFfM3oGJqwsJ50baoJvSbjTqcWug95V.wMDxXuXCRYQmrqz7LotlfHBxClliXNY1
+- comment: P. Vizcarra
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/vizpao90
+  name: vizpao90
+  password: $6$i8pUwq7lDGuACY8Y$7SDPLrgxvoNvshEgO9cuFTntyAzoEvkisdVuIW0T5EoZZKnNr/4l9x2sTe3Ii9aXjTFIcoypZPdlXbFkknG9C.
+- comment: G. Weihrauch
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/weigab90
+  name: weigab90
+  password: $6$eEpsXUAO43gH3U4v$lOQLO3AvMLDnVhdwShoQHr5jRg0uVMMP6eBhXFXL0F3bHmaMfT02CBQoZelwft/GROtJgOFSt8DfXErOTPwHK1
+- comment: L. Weislak
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/weilau90
+  name: weilau90
+  password: $6$eacqUY7EBdrbQoL9$DiL2Glf5DjYN4VFEALO6tJKroJjF08cZrhCIReaUZvJQRdPrHhQJoCGt2nxye63TAFKHosKwIWnvXWmVfnrTz1
+- comment: A. Wieland
+  groups:
+  - users
+  - cis90
+  home: /home/cis90/wieand90
+  name: wieand90
+  password: $6$YPD8vvtGYM3.pjis$GSnMayKDSW3m6JjEtXV9TWuIY9CkZqK87EX/WqAuzrjBSPTcwa/TR2maoNqfWekekn9sq8ljBajtLOh7IkiP8/
 - comment: J. Boudreau
   groups:
   - users
   - cis90
   home: /home/cis90/boujea90
   name: boujea90
-  password: $6$HfXD93c0q/9sZOPz$Ug4Wgzgzui4f8HQmAUkhoHB5tUgwYiksVRCBNAcoMASCmHSXtfo/W9oAy8do.zQAlHbTISRfSGlUjkgkPRbAh.
+  password: $6$es1DGr078k5pHIeN$sOsFdYsIWFGQtiLxZ.d.LQ.AYchA/Wyb/6W7GYlKTZOxb1poHAihbEaqYcFWX11hV4UiJnzVZDN43K29y1zCB0
 - comment: C. Garcia
   groups:
   - users
   - cis90
   home: /home/cis90/garcar90
   name: garcar90
-  password: $6$SHrokZSdsUN/7yAu$BsgX0LWGqq4XewSfGa9BsQUy80okE40PzSDp/TPyCSXdHldWWJLTJQSEumUhnxzrB9BS0Sbp90c8t3oXKruVy/
+  password: $6$LO56enr3AS6fTQiZ$rfrObKALgwO51ZX.wEphsQyRBRmYvDAz9/VudkpBMSFzhTTWVsI5cAAV0IgXpYIOLwB7D394dSClIXhKJ4AyG.
 - comment: S. Jones
   groups:
   - users
   - cis90
   home: /home/cis90/jonspe90
   name: jonspe90
-  password: $6$oEQpYmJFB/qccEUk$O92AC.J.kVe8jCRrza.00C2HjtYcZRD.BW81KMEGdwHNPUq/QYVAFd4KsSG3PfB4B4h9DhjizspLsY7ycRnLP0
+  password: $6$rCwosaroiWMcmigH$XZRVptnhJHCOvo8pohwBr3/a8DZXN0pYtE1K0cIFaMDfkzJRj/P/GuVCzCF7YQT/bXB7xw/0JVf6DZq1y/m1u1
 - comment: T. Junge
   groups:
   - users
   - cis90
   home: /home/cis90/juntam90
   name: juntam90
-  password: $6$PwG7mzNqooblpBKn$tJSRcl4XkrG5Tpct7zmErCDVb0.Het0Y.fsQM81lrq.V6aR6bSqTqcyYgwbS5JjlMOCRXdHW97vvUqQ9Hn8aR0
+  password: $6$9cFokIZn0bvOdTzh$RX9JOUT/L5n.ruTywGVdO4emHJGhvTHgFCof21VM4Hue3Na0KYN3JHxwqM9OyD1iaKR.5a7lQmSmbPidpAF27/
 - comment: C. Kochan
   groups:
   - users
   - cis90
   home: /home/cis90/koccam90
   name: koccam90
-  password: $6$Fvn.SqVZYDiMmu2f$Sk9zm9XnVpd6txqXKQEI3u/eLe6IHQ25FXRkFfmOS3LX8L4rWwntNMdOZy6s2rINWm3XfrVkWRlM6NjDpi7uy1
+  password: $6$4WgugYZ8FkuM93JU$dE56lIwj6.ReFss0Cs4PpyOX/7EM.EQmw7GuqJ5FbRZQ9H6pigqD1oHpQaIVjlUp4m8iU4U9wO8o5KmbdMAht1
 - comment: M. Loofbourrow
   groups:
   - users
   - cis90
   home: /home/cis90/loomit90
   name: loomit90
-  password: $6$XcOwYdAvLOYD04xW$5jbTmxsluZdnmA.0s8mHVmfQKA.gUB/2K4xxR0B/LTUcY7zEzYwuUzrRoYcQGugk2KAU06w8O1y5HTrfvTzGJ/
+  password: $6$M6tJrcUAfuRUCpCx$7aMInpT04YV9Ox.KTHKyy6XIKCHCD3Wj2UvEUJVflPe0MrcTqwkb9kvqw19UrYFlpea2X6ijSQOT9DbhRGyGD/
