@@ -1,7 +1,7 @@
 - hosts: all
   tasks:
     - include_vars: cis-90-users.yaml
-    - name: Add class users.
+    - name: Add CIS-90 users to opus3.
       user:
         name: "{{ item.name }}"
         comment: "{{ item.comment }}"
@@ -9,6 +9,20 @@
         groups: "{{ item.groups }}"
         home: "{{ item.home }}"
         skeleton: /etc/student-skel
+        shell: /bin/bash
+        append: yes
+      loop: "{{ users | flatten(levels=1) }}"
+
+- hosts: opus3.cis.cabrillo.edu 
+  tasks:
+    - include_vars: cis-191ab-users.yaml 
+    - name: Add CIS-191 users to opus3 
+      user:
+        name: "{{ item.name }}"
+        comment: "{{ item.comment }}"
+        password: "{{ item.password }}"
+        groups: "{{ item.groups }}"
+        home: "{{ item.home }}"
         shell: /bin/bash
         append: yes
       loop: "{{ users | flatten(levels=1) }}"

@@ -7,10 +7,10 @@ In this lab you will create the VM that you'll use for the rest of the semester.
 I've created a `Vagrantfile` for this class. The `Vagrantfile` is a standard Ubuntu 18.04 Server VM with additional disks added. The disks will come in handy later. You can create the standard VM by downloading the Vagrant file and using `vagrant up`.
 
 ```eval_rst
-- :download:`Vagrantfile <../../boxes/bionic64-disks/Vagrantfile>` - The "standard" VM for this class.
+:Download: :download:`Vagrantfile <../../boxes/bionic64-disks/Vagrantfile>`
 ```
 
-Create a new directory for your `Vagrantfile` and change into the directory. When you are in a directory with a `Vagrantfile` you can start the Vagrant VM with the command:
+Create a new directory for your `Vagrantfile` and change into it. When you are in a directory with a `Vagrantfile` you can start the Vagrant VM with the command:
 
 ```
 $ vagrant up
@@ -41,17 +41,31 @@ $ lshw
 Save the output of `lshw` to a file: 
 
 ```bash 
-$ lshw > hardware_list.txt
+$ lshw > /vagrant/hardware_list.txt
 ```
 
-## Step 4: What's Inside? 
+## Step 4: A Real Example 
+
+The hardware file you get from your VM is quite limited because VMs only need a minimum of hardware to do their job. Below is a link to download the output of `lshw` run on a server in the CIS datacenter. 
+
+```eval_rst 
+:Download: :download:`lshw_example.txt` 
+```
+
+Look through the file to answer the following questions: 
+
+  - How many CPUs (physical chips) does the server have? 
+  - How many cores does each chip have? 
+  - How much memory is in the machine? 
+
+## Step 5: What's Inside? 
 
 Now that you have the raw information you should be able to answer the following questions:
 
   - What is the `product` information on the CPU?
   - What is the `product` information on the Ethernet device?
   - How much memory is in the VM?
-  - List all of the disks and their sizes. 
+  - List all of the storage devices and their sizes. 
 
 ## Turn In 
 

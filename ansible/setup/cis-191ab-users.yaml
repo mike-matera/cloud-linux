@@ -1,0 +1,92 @@
+users:
+- comment: J. Armstrong
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/armjes191
+  name: armjes191
+  password: $6$b8FuUy//XwHENMSs$ecG.lV8bTSMkP19tvYJ1is5QAcrS6Sm7JHctHfGcsWLtQYfj/JF9AfsAALC7DD7L0mvk4x3UioU8cmKuqHtIL1
+- comment: A. Cappelli
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/capath191
+  name: capath191
+  password: $6$JVSsjsx2p.FyXDOA$lncSaRUiUz3to8Bx74gGTwBX1NXluaBMKQ7Xk2HADrIzQUshqUq7ofrXkTzrHhmHILfI3LovSuxW8fV.osRxK.
+- comment: M. Della
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/delmar191
+  name: delmar191
+  password: $6$t7kqYRZVlFjkVWTE$DFVZhwdPrpyrg8ARXr2U/J4sSY8XyNTxx9oDwGXlQzoem3lBIsjzqscGWMNi2DAf51DdVenlciuPijas9frWP/
+- comment: M. Hewitt
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/hewmax191
+  name: hewmax191
+  password: $6$2jzYHubf3uYr7zVq$O8PsIdxc2579JlvsPIwdvlp2L9teELJqMkqiwUYsLsgvEEEjtBusqictsH5mbyBelrIlmlAlRyZXpCMmfBhyY0
+- comment: C. Kennedy
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/kencam191
+  name: kencam191
+  password: $6$ZwlLjGoipXnIMH.g$RjWhJ.TGLlQ3Bp8abXe6fjUXJ/.CBQSN.MG04LJg/Gfp3QuZsHIxPVPI5fTOv1H48yVuMMgsd7pe0yVtL3ROE.
+- comment: A. Lewis
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/lewaus191
+  name: lewaus191
+  password: $6$hhWamamKXyB4n80M$.cF99qpnLIDM2dOi8MViooUKL2qVej.O1n/2jl/Pm4lpmGe0kfvl7VXv.ENTePWtzkB79W/2bZH3tAIz3wznR0
+- comment: R. Mock
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/mocrya191
+  name: mocrya191
+  password: $6$9aMyOZitYMz94k4O$sK26LLjpwBwkMacCcnRDYCVhStEltGYNLgtJeWdlxMmEA4dqBaxKxDrJ1QH7WcD9LoC8ESosyWVrWi8qQB6gw1
+- comment: J. Soberanes
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/sobjua191
+  name: sobjua191
+  password: $6$51koZiM7t7SP2p9z$T46O6MfOkarWphZoMzRVgk4.0iYNJuQIrUkRjwSsrOE0BBwMgiXbXnDg5kbOQLGAHKpH0VH43PTJLW4.xRQ9g1
+- comment: N. Telus
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/telnat191
+  name: telnat191
+  password: $6$xCz/g0o1Wbq4iErM$G.gemVnwJyGxkEPpO/llRTvf9Z2.v5Ni6h50bcC2mSKmsSz33o3mSyeyP03Hm178AIpiC9Zdbkh8/5I.rCF5l/
+- comment: M. Zurlin
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/zurmat191
+  name: zurmat191
+  password: $6$TNZR/Xhb9vgVg4Z.$lf8zHlrEM06UFcJGwwoSoay/CA9yRC98ToScwgxleD/zuuJL0civ/amSAMoKYhkzUfJVOlU5LmynZC4uITfSD/
+- comment: R. Garcia
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/garrya191
+  name: garrya191
+  password: $6$/Qw9kQ.sldo0UHp/$B1BaQDfkOaQS0IzT6NPXTLCI8JXEBhb0uIMkYT5g8pPwZhDDH4UlTPmRBuJ5scG47h0PUyrsvt3tLG/FmAFkd.
+- comment: M. Isaacson
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/isamat191
+  name: isamat191
+  password: $6$4biJHCAx1oQSj6LB$EBwdYHv8dqF3jGjrvXU9T4TGPKLr3nE4IUOkuGmzRvffB3NviRoKG4fT/DUMEyUPFfoLfpC3Ql1gOvv9zksZp0
+- comment: V. Poddar
+  groups:
+  - users
+  - cis191
+  home: /home/cis191/podvar191
+  name: podvar191
+  password: $6$7iBrwXqR8EqBRJt4$zkDrRBgdB7lswqS/C6WWKlWDX05Msxa3ul4h5mLKAtAF8EvgaVOw3r2w7uExBZu9zcIvtjkDAgLb2F.9qVOZQ0

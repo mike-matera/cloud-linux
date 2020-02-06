@@ -27,6 +27,11 @@
         name: cis90
         state: present
 
+    - name: Add the cis191 group.
+      group:
+        name: cis191
+        state: present
+
     # Add me
     - name: Update my account.
       user:
