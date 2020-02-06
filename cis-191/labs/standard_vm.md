@@ -44,7 +44,16 @@ Save the output of `lshw` to a file:
 $ lshw > /vagrant/hardware_list.txt
 ```
 
-## Step 4: A Real Example 
+## Step 4: What's Inside? 
+
+Now that you have the raw information you should be able to answer the following questions:
+
+  - What is the `product` information on the CPU?
+  - What is the `product` information on the Ethernet device?
+  - How much memory is in the VM?
+  - List all of the storage devices and their sizes. 
+
+## Step 5: A Real Example 
 
 The hardware file you get from your VM is quite limited because VMs only need a minimum of hardware to do their job. Below is a link to download the output of `lshw` run on a server in the CIS datacenter. 
 
@@ -57,15 +66,6 @@ Look through the file to answer the following questions:
   - How many CPUs (physical chips) does the server have? 
   - How many cores does each chip have? 
   - How much memory is in the machine? 
-
-## Step 5: What's Inside? 
-
-Now that you have the raw information you should be able to answer the following questions:
-
-  - What is the `product` information on the CPU?
-  - What is the `product` information on the Ethernet device?
-  - How much memory is in the VM?
-  - List all of the storage devices and their sizes. 
 
 ## Turn In 
 
