@@ -129,6 +129,62 @@ Finally reboot your VM and look for your picture.
 
 ![](../images/seahawk_background.png)
 
+## Optional: Start a Playbook 
+
+This lab customizes your VM. What if you wanted to do this customization 10 times, or 100 times? It would be very time consuming. Also, if you accidentally break your VM and have to do a `vagrant destroy` your cool splash screen will be lost. [Ansible](https://docs.ansible.com/ansible/latest/user_guide/index.html) is a system that automates customization tasks on Linux. 
+
+Start a playbook by putting a file called `playbook.yaml` next to the `Vagrantfile` in the cis-191 directory that you created last week. 
+
+> The Vagrantfile has been updated. Please re-download the newest copy. 
+
+The `playbook.yaml` should start with the following content: 
+
+```yaml 
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Download the Cabrillo logo. 
+      get_url:
+        url: https://www.cabrillo.edu/services/marketing/images/new_cabrillo_logo_1_003.jpg
+        dest: /root/cabrillo.jpg
+        mode: '0644'
+    - name: Remove file 50-cloudimg-settings.cfg
+      file:
+        path: /etc/default/grub.d/50-cloudimg-settings.cfg
+        state: absent    
+    - name: Update GRUB timeout to 10 seconds.
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_TIMEOUT='
+        line: GRUB_TIMEOUT=10
+    - name: Update GRUB hidden timeout to empty
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_TIMEOUT_STYLE='
+        line: GRUB_TIMEOUT_STYLE=menu
+    - name: Set the GRUB splash screen.
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_BACKGROUND='
+        line: GRUB_BACKGROUND=/root/cabrillo.jpg
+    - name: Run update-grub to reflect changes. 
+      shell: update-grub
+```
+
+When you create your VM again from scratch the play book will be run: 
+
+```bash
+$ vagrant destroy -f 
+$ vagrant up 
+```
+
+If you want to run your playbook without destroying your VM run the command below while the VM is running:
+
+```bash
+$ vagrant provision 
+```
+
 ## Turn In
 
 Turn in a screenshot of your custom splash screen.
