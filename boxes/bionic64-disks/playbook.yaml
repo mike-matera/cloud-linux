@@ -1,0 +1,30 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Download the Cabrillo logo. 
+      get_url:
+        url: https://www.cabrillo.edu/services/marketing/images/new_cabrillo_logo_1_003.jpg
+        dest: /root/cabrillo.jpg
+        mode: '0644'
+    - name: Remove file 50-cloudimg-settings.cfg
+      file:
+        path: /etc/default/grub.d/50-cloudimg-settings.cfg
+        state: absent    
+    - name: Update GRUB timeout to 10 seconds.
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_TIMEOUT='
+        line: GRUB_TIMEOUT=10
+    - name: Update GRUB hiddent timeout to empty
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_TIMEOUT_STYLE='
+        line: GRUB_TIMEOUT_STYLE=menu
+    - name: Set the GRUB splash screen.
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_BACKGROUND='
+        line: GRUB_BACKGROUND=/root/cabrillo.jpg
+    - name: Run update-grub to reflect changes. 
+      shell: update-grub
