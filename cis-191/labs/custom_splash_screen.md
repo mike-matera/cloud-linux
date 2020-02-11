@@ -8,7 +8,7 @@ GRUB doesn't support all images. It supports most `jpeg` and `png` files. There'
 
 When you have an image file transfer it to your vagrant box. 
 
-> Tip: Copy the image into /home/vagrant on your box.
+> Tip: Copy the image into /root on your box.
 
 ## Step 1: Find the Configuration Files 
 
@@ -83,10 +83,10 @@ GRUB_TIMEOUT=30
 
 > IMPORTANT: The must be **no space** before or after the equal sign.
 
-Now disable the `GRUB_HIDDEN_TIMEOUT` parameter by making it blank:
+Now tell GRUB to show the menu during the timeout by setting `GRUB_TIMEOUT_STYLE` parameter TO `menu`:
 
 ```bash
-GRUB_HIDDEN_TIMEOUT=
+GRUB_TIMEOUT_STYLE=menu
 ```
 
 > NOTE: There's nothing on the right of the equal sign. 
@@ -105,12 +105,11 @@ $ sudo reboot
 
 ## Step 4: Configure the Background Image 
 
-
 Edit `/etc/default/grub` and add the location of your picture:
 
 ```bash
-# Change /home/vagrant/seahawk.png to your file.
-GRUB_BACKGROUND=/home/vagrant/seahawk.png
+# Change /root/seahawk.png to your file.
+GRUB_BACKGROUND=/root/seahawk.png
 ```
 
 Rerun `update-grub` and check the output. If your image is recognized you will see its name in the output like this: 
@@ -118,8 +117,8 @@ Rerun `update-grub` and check the output. If your image is recognized you will s
 ```bash
 $ sudo update-grub
 Generating grub configuration file ...
-Found background: /home/vagrant/seahawk.png
-Found background image: /home/vagrant/seahawk.png
+Found background: /root/seahawk.png
+Found background image: /root/seahawk.png
 Found linux image: /boot/vmlinuz-4.4.0-142-generic
 Found initrd image: /boot/initrd.img-4.4.0-142-generic
 ```
