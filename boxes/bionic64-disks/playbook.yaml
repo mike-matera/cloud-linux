@@ -2,10 +2,12 @@
 - hosts: all
   become: true
   tasks:
+
+    # Tasks from week3
     - name: Download the Cabrillo logo. 
       get_url:
         url: https://www.cabrillo.edu/services/marketing/images/new_cabrillo_logo_1_003.jpg
-        dest: /root/cabrillo.jpg
+        dest: /root/splash.jpg
         mode: '0644'
     - name: Remove file 50-cloudimg-settings.cfg
       file:
@@ -16,7 +18,7 @@
         path: /etc/default/grub
         regexp: '^GRUB_TIMEOUT='
         line: GRUB_TIMEOUT=10
-    - name: Update GRUB hiddent timeout to empty
+    - name: Update GRUB hidden timeout to empty
       lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_TIMEOUT_STYLE='
@@ -25,6 +27,36 @@
       lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_BACKGROUND='
-        line: GRUB_BACKGROUND=/root/cabrillo.jpg
+        line: GRUB_BACKGROUND=/root/splash.jpg
     - name: Run update-grub to reflect changes. 
       shell: update-grub
+
+    # Install AWS credentials 
+    - name: Installing the AWS command line
+      apt:
+        pkg:
+        - awscli
+    - name: Create the /vagrant/.aws directory
+      file:
+        path: /home/vagrant/.aws
+        state: directory
+        owner: vagrant 
+        group: vagrant
+        mode: '0700'        
+    - name: Installing AWS credentials 
+      copy:
+        src: /vagrant/aws_credentials.txt
+        dest: /home/vagrant/.aws/credentials
+        owner: vagrant
+        group: vagrant
+        mode: '0600'
+    - name: Set the AWS region
+      blockinfile:
+        path: /home/vagrant/.aws/config
+        create: yes
+        owner: vagrant
+        group: vagrant
+        mode: '0644'
+        block: |
+          [default]
+          region = us-east-1
