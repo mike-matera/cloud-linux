@@ -320,3 +320,4 @@
         pkg:
           - alpine 
           - postfix 
+          - mailutils
