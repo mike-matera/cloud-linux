@@ -58,36 +58,35 @@ An error occurred (UnauthorizedOperation) when calling the DescribeInstances ope
 
 ## Optional: Ansible Configuration 
 
-You should have a playbook started by following the instructions in the [Custom Splash Screen](custom_splash_screen) lab. Add the following tasks to copy the credentials in `/vagrant/aws_credentials.txt` from your shared directory in Vagrant and automatically set the region to `us-east-1`. 
+You should have a playbook started by following the instructions in the [Custom Splash Screen](custom_splash_screen) lab. Add the following play to copy the credentials in `/vagrant/aws_credentials.txt` from your shared directory in Vagrant and automatically set the region to `us-east-1`. 
 
-Add these tasks to your playbook: 
+Add the following play:
 
 ```yaml 
-    # Install AWS credentials 
+- hosts: all
+  name: Install AWS credentials
+  vars:
+    ansible_python_interpreter: auto
+  tasks:
     - name: Installing the AWS command line
+      become: true
       apt:
         pkg:
         - awscli
-    - name: Create the /vagrant/.aws directory
+    - name: Create the ~/.aws directory
       file:
         path: /home/vagrant/.aws
         state: directory
-        owner: vagrant 
-        group: vagrant
         mode: '0700'        
     - name: Installing AWS credentials 
       copy:
         src: /vagrant/aws_credentials.txt
         dest: /home/vagrant/.aws/credentials
-        owner: vagrant
-        group: vagrant
         mode: '0600'
     - name: Set the AWS region
       blockinfile:
         path: /home/vagrant/.aws/config
         create: yes
-        owner: vagrant
-        group: vagrant
         mode: '0644'
         block: |
           [default]

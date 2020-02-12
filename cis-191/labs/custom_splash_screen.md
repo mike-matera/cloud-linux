@@ -137,38 +137,49 @@ Start a playbook by putting a file called `playbook.yaml` next to the `Vagrantfi
 
 > The Vagrantfile has been updated. Please re-download the newest copy. 
 
-The `playbook.yaml` should start with the following content: 
+The `playbook.yaml` should start with the following play: 
 
 ```yaml 
 ---
+# This play updates GRUB's configuration 
 - hosts: all
+  name: Update GRUB's configuration
   become: true
+  vars:
+    ansible_python_interpreter: auto
   tasks:
     - name: Download the Cabrillo logo. 
       get_url:
         url: https://www.cabrillo.edu/services/marketing/images/new_cabrillo_logo_1_003.jpg
-        dest: /root/cabrillo.jpg
+        dest: /root/splash.jpg
         mode: '0644'
+        force: yes
+      notify: update grub
     - name: Remove file 50-cloudimg-settings.cfg
       file:
         path: /etc/default/grub.d/50-cloudimg-settings.cfg
         state: absent    
+      notify: update grub
     - name: Update GRUB timeout to 10 seconds.
       lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_TIMEOUT='
         line: GRUB_TIMEOUT=10
+      notify: update grub
     - name: Update GRUB hidden timeout to empty
       lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_TIMEOUT_STYLE='
         line: GRUB_TIMEOUT_STYLE=menu
+      notify: update grub
     - name: Set the GRUB splash screen.
       lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_BACKGROUND='
-        line: GRUB_BACKGROUND=/root/cabrillo.jpg
-    - name: Run update-grub to reflect changes. 
+        line: GRUB_BACKGROUND=/root/splash.jpg
+      notify: update grub
+  handlers:
+    - name: update grub
       shell: update-grub
 ```
 
