@@ -61,6 +61,7 @@
           - zsh
           - python3-pip
           - sysvbanner
+          - emacs
 
 - hosts: debian
   tasks:
