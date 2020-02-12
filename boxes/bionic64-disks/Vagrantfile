@@ -1,7 +1,14 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'pathname'
+
+# Change this if you want to add or remove extra disks. 
 num_disks = 4
+
+# Look for an anisble playbook in this file to setup the VM. 
+# It's okay if the file doesn't exist. 
+pb = Pathname.new('playbook.yaml')
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
@@ -82,6 +89,14 @@ Vagrant.configure("2") do |config|
     # Customize the amount of memory on the VM:
     vb.memory = "1024"
 
+  end
+
+  # Check to see if the playbook is available. 
+  if pb.exist?
+    # Run Ansible from the Vagrant VM
+    config.vm.provision "ansible_local" do |ansible|
+      ansible.playbook = pb
+    end
   end
 
 end

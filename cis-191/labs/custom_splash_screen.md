@@ -8,7 +8,7 @@ GRUB doesn't support all images. It supports most `jpeg` and `png` files. There'
 
 When you have an image file transfer it to your vagrant box. 
 
-> Tip: Copy the image into /home/vagrant on your box.
+> Tip: Copy the image into /root on your box.
 
 ## Step 1: Find the Configuration Files 
 
@@ -83,10 +83,10 @@ GRUB_TIMEOUT=30
 
 > IMPORTANT: The must be **no space** before or after the equal sign.
 
-Now disable the `GRUB_HIDDEN_TIMEOUT` parameter by making it blank:
+Now tell GRUB to show the menu during the timeout by setting `GRUB_TIMEOUT_STYLE` parameter TO `menu`:
 
 ```bash
-GRUB_HIDDEN_TIMEOUT=
+GRUB_TIMEOUT_STYLE=menu
 ```
 
 > NOTE: There's nothing on the right of the equal sign. 
@@ -105,12 +105,11 @@ $ sudo reboot
 
 ## Step 4: Configure the Background Image 
 
-
 Edit `/etc/default/grub` and add the location of your picture:
 
 ```bash
-# Change /home/vagrant/seahawk.png to your file.
-GRUB_BACKGROUND=/home/vagrant/seahawk.png
+# Change /root/seahawk.png to your file.
+GRUB_BACKGROUND=/root/seahawk.png
 ```
 
 Rerun `update-grub` and check the output. If your image is recognized you will see its name in the output like this: 
@@ -118,8 +117,8 @@ Rerun `update-grub` and check the output. If your image is recognized you will s
 ```bash
 $ sudo update-grub
 Generating grub configuration file ...
-Found background: /home/vagrant/seahawk.png
-Found background image: /home/vagrant/seahawk.png
+Found background: /root/seahawk.png
+Found background image: /root/seahawk.png
 Found linux image: /boot/vmlinuz-4.4.0-142-generic
 Found initrd image: /boot/initrd.img-4.4.0-142-generic
 ```
@@ -129,6 +128,73 @@ Found initrd image: /boot/initrd.img-4.4.0-142-generic
 Finally reboot your VM and look for your picture.
 
 ![](../images/seahawk_background.png)
+
+## Optional: Start a Playbook 
+
+This lab customizes your VM. What if you wanted to do this customization 10 times, or 100 times? It would be very time consuming. Also, if you accidentally break your VM and have to do a `vagrant destroy` your cool splash screen will be lost. [Ansible](https://docs.ansible.com/ansible/latest/user_guide/index.html) is a system that automates customization tasks on Linux. 
+
+Start a playbook by putting a file called `playbook.yaml` next to the `Vagrantfile` in the cis-191 directory that you created last week. 
+
+> The Vagrantfile has been updated. Please re-download the newest copy. 
+
+The `playbook.yaml` should start with the following play: 
+
+```yaml 
+---
+# This play updates GRUB's configuration 
+- hosts: all
+  name: Update GRUB's configuration
+  become: true
+  vars:
+    ansible_python_interpreter: auto
+  tasks:
+    - name: Download the Cabrillo logo. 
+      get_url:
+        url: https://www.cabrillo.edu/services/marketing/images/new_cabrillo_logo_1_003.jpg
+        dest: /root/splash.jpg
+        mode: '0644'
+        force: yes
+      notify: update grub
+    - name: Remove file 50-cloudimg-settings.cfg
+      file:
+        path: /etc/default/grub.d/50-cloudimg-settings.cfg
+        state: absent    
+      notify: update grub
+    - name: Update GRUB timeout to 10 seconds.
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_TIMEOUT='
+        line: GRUB_TIMEOUT=10
+      notify: update grub
+    - name: Update GRUB hidden timeout to empty
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_TIMEOUT_STYLE='
+        line: GRUB_TIMEOUT_STYLE=menu
+      notify: update grub
+    - name: Set the GRUB splash screen.
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_BACKGROUND='
+        line: GRUB_BACKGROUND=/root/splash.jpg
+      notify: update grub
+  handlers:
+    - name: update grub
+      shell: update-grub
+```
+
+When you create your VM again from scratch the play book will be run: 
+
+```bash
+$ vagrant destroy -f 
+$ vagrant up 
+```
+
+If you want to run your playbook without destroying your VM run the command below while the VM is running:
+
+```bash
+$ vagrant provision 
+```
 
 ## Turn In
 
