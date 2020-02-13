@@ -2,7 +2,17 @@
 
 This lab will take you through the process of getting setup with the AWS command line. The AWS command line works on Windows, Mac and Linux but instead of setting it up on your host we'll make it work on your Vagrant VM. When you have the CLI setup you'll be able to do all AWS tasks using the command line, instead of the web GUI. 
 
-## Step 1: Get Your Access Key
+## Step 1: Install the AWS CLI on Your Vagrant VM 
+
+The AWS command line tool is not installed by default on your Vagrant VM. Use `apt` to install it:
+
+```bash
+$ sudo apt install awscli 
+``` 
+
+After that you should have the `aws` command.
+
+## Step 2: Get Your Access Key
 
 The AWS command needs to have access to your account. This is done using secret keys that you can download from Amazon. Login to AWS Educate and get to the home screen shown below: 
 
@@ -14,7 +24,7 @@ Click the "Account Details" button which raises a popup:
 
 The instructions tell you to copy-and-paste the revealed text into `~/.aws/credentials`. Instead place the contents into a file called `aws_credentials.txt` next to your `Vagrantfile`. That way the credentials are still present even if you delete your VM. 
 
-## Step 2: Install the Access Key 
+## Step 3: Install the Access Key 
 
 Connect to your VM using the `vagrant ssh` command. From the command line of your VM copy the contents of your credentials file to `~/.aws/credentials`:
 
@@ -25,7 +35,7 @@ vagrant@ubuntu-bionic:~$ cp /vagrant/aws_credentials.txt ~/.aws/credentials
 
 You now need to set a default region. 
 
-## Step 3: Set the Default Region 
+## Step 4: Set the Default Region 
 
 All AWS resources are regional, they exist in a real datacenter somewhere. Normally you can create resources in any region, however with AWS Educate you can only create resources in the N. Virginia datacenter, code named `us-east-1`. Use the command below to set this to your default region.
 
@@ -39,7 +49,7 @@ Default output format [None]:
 
 Now it's time to test! 
 
-## Step 4: Test the Connection 
+## Step 5: Test the Connection 
 
 If everything is done correctly you should be able to view your Amazon VMs. Of course, you haven't created any yet, so you'll see an empty list. 
 
