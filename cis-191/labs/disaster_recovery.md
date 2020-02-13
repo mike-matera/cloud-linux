@@ -86,11 +86,11 @@ Now let's zero the whole thing. BE CAREFUL. Don't kill more than the MBR bootstr
 # sudo reboot
 ```
 
-You are now stuck without GRUB. Because there's nothing in the MBR VMWare will no longer be able to boot your hard disk. Now connect the ISO image to boot Ubuntu Desktop. 
+You are now stuck without GRUB. Because there's nothing in the MBR VirtualBox will no longer be able to boot your hard disk. Now connect the ISO image to boot Ubuntu Desktop. 
 
 ### Step 3: Boot onto the LiveCD 
 
-You can use the Ubuntu Desktop LiveCD to rescue your system. If VMware found your CD it should boot into this menu:
+You can use the Ubuntu Desktop LiveCD to rescue your system. If VirtualBox found your CD it should boot into this menu:
 
 ![image](../images/select_try_ubuntu_to_start.jpg)
 
@@ -135,9 +135,9 @@ $ sudo reboot
 After you reboot you should have the following files in your VM:
 
 ```
-/root/lab2.backup.img
-/root/grub.log
-/root/mount.log
+/home/vagrant/grub.backup.img
+/home/vagrant/grub.log
+/home/vagrant/mount.log
 ```
 
 You will submit them for credit.
