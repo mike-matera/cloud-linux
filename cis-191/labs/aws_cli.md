@@ -7,6 +7,7 @@ This lab will take you through the process of getting setup with the AWS command
 The AWS command line tool is not installed by default on your Vagrant VM. Use `apt` to install it:
 
 ```bash
+$ sudo apt update
 $ sudo apt install awscli 
 ``` 
 
