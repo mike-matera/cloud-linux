@@ -15,6 +15,8 @@ After that you should have the `aws` command.
 
 ## Step 2: Get Your Access Key
 
+> Your access key expires after a day. Repeat this when necessary. 
+
 The AWS command needs to have access to your account. This is done using secret keys that you can download from Amazon. Login to AWS Educate and get to the home screen shown below: 
 
 ![AWS Educate home screen](aws_educate_homescreen.png)
@@ -23,7 +25,7 @@ Click the "Account Details" button which raises a popup:
 
 ![AWS account details](aws_hidden_credentials.png)
 
-The instructions tell you to copy-and-paste the revealed text into `~/.aws/credentials`. Instead place the contents into a file called `aws_credentials.txt` next to your `Vagrantfile`. That way the credentials are still present even if you delete your VM. 
+The instructions tell you to copy-and-paste the revealed text into `~/.aws/credentials`. Instead place the contents into a file called `aws_credentials.txt` next to your `Vagrantfile`. That way the credentials are still present even if you delete your VM.
 
 ## Step 3: Install the Access Key 
 
