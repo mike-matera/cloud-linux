@@ -6,6 +6,7 @@ all:
     centos:
       hosts:
         freedom.cis.cabrillo.edu:
+        sun-hwa-v.cis.cabrillo.edu:
     mint:
       hosts:
         defiant.cis.cabrillo.edu:
