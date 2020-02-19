@@ -38,9 +38,7 @@ Do you recognize any of the filenames? What kind of files are these?
 
 ## Answer the following questions (graded)
 
-Log on to the Opus server so that you have a command line shell at your service. Change to your home directory if you are not already there.
-
-Use the `submit` command to record and submit your answers to the questions below.
+Log on to the Opus server so that you have a command line shell at your service. Change to your home directory if you are not already there. Record the answers to the questions below and test them by executing them in your shell. Your answers will be graded as well as your history file:
 
 1. What option is required on the `ls` command to do a "long listing"?
 2. What option is required on the `ls` command to show inode numbers?
