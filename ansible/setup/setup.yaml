@@ -15,6 +15,7 @@
         - 192.168.100.13 freedom freedom.cis.cabrillo.edu
         - 192.168.100.14 excalibur excalibur.cis.cabrillo.edu
         - 192.168.100.15 lexington lexington.cis.cabrillo.edu 
+        - 192.168.100.20 sun-hwa-v sun-hwa-v.cis.cabrillo.edu
         
     - name: Fix opus3 in /etc/hosts.  
       lineinfile:
@@ -98,7 +99,7 @@
         mode: '0755'
     - name: Create the student skel directory. 
       unarchive:
-        src: student-skel.tar
+        src: skel/student-skel.tar
         dest: /etc/student-skel
     - name: Add dog accounts.
       user:
@@ -122,6 +123,7 @@
         password: "{{ item.password }}"
         groups: "{{ item.groups }}"
         home: "{{ item.home }}"
+        skeleton: /etc/student-skel
         shell: /bin/bash
         append: yes
       loop: "{{ dogs | flatten(levels=1) }}"
@@ -322,3 +324,26 @@
           - alpine 
           - postfix 
           - mailutils
+
+- hosts: sun-hwa-v.cis.cabrillo.edu
+  tasks:
+    - name: Setting the hostname 
+      hostname: 
+        name: sun-hwa-v.cis.cabrillo.edu       
+    - name: Installing motd on freedom
+      copy:
+        src: motd/sun-hwa-v.txt
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+    - name: Upload the skeleton files. 
+      file:
+        path: /etc/student-skel
+        state: directory
+        mode: '0755'
+    - name: Create the student skel directory. 
+      unarchive:
+        src: skel/sun-hwa-v-skel.tar
+        dest: /etc/student-skel
+
