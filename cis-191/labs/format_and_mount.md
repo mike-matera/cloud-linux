@@ -98,6 +98,40 @@ Save the output of `blkid` to submit with this lab.
 $ sudo blkid > /home/vagrant/blkid.txt
 ```
 
+## Ansible Play (Optional)
+
+The steps in this lab can be performed by Ansible. Add this play to your playbook:
+
+```yaml
+- hosts: all
+  become: true
+  name: Partition /dev/sdc 
+  tasks:
+    - name: Create a partition table on /dev/sdc
+      parted:
+        device: /dev/sdc 
+    - name: Create /dev/sdc1 
+      parted:
+        device: /dev/sdc 
+        number: 1
+        state: present 
+    - name: Create a ext4 filesystem on /dev/sdc1
+      filesystem:
+        fstype: ext4
+        dev: /dev/sdc1
+    - name: Create the /data/sdc1 directory
+      file:
+        path: /data/sdc1
+        state: directory
+        mode: '0755'        
+    - name: Adding mount point /dev/sdc1 on /data/sdc1
+      mount:
+        path: /data/sdc1
+        src: /dev/sdc1
+        fstype: ext4
+        state: mounted
+```
+
 ## Submit 
 
 Please submit the following:
