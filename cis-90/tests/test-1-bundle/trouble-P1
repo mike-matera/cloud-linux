@@ -1,0 +1,49 @@
+#!/bin/bash
+# Trouble P1
+#
+# This script needs a /etc/cis90-passwd file that contains
+# all the CIS 90 accounts from Opus
+#
+
+event=P1
+path="/etc/u/are/on/an/island/far/far/away"
+
+# Clean up old trouble
+/root/trouble-none
+
+# Make new trouble
+cp -v /etc/.trouble/profile.d/z-cis90-$event.sh /etc/profile.d/
+chmod -v 755 /etc/.trouble/bin/$event
+
+# This is now done in test setup script
+#mkdir -p $path
+#echo "If I don't play ping pong every 108 minutes the whole island's gonna explode." > $path/Sawyer
+#echo "You taste like fish biscuits." > $path/Kate
+#echo "I was not afraid of it." > $path/Eko
+#echo "So we saved the world together for a while, and that was lovely." > $path/.Desmond
+#
+#if [ "$event" = "P1" ]; then
+#   cp -v trouble-cmd1 /usr/local/sbin/penny
+#   chmod -v 755 /usr/local/sbin/penny
+#   cp -v test1/P1-flag-command /usr/local/bin/flag
+#   chmod -v 755 /home/ana
+#   echo Get off the island alive. > ~ana/.plan
+#else
+#   cp -v trouble-cmd1 /usr/local/bin/desmond
+#   chmod -v 755 /usr/local/bin/desmond
+#
+#   cp -v test1/T1-flag-command /usr/local/bin/flag
+#   chmod -v 755 /home/danielle
+#   echo Find her daughter Alex. > ~danielle/.plan
+#fi
+#
+#
+#echo penny > P1-commands
+#echo desmond >> P1-commands
+#
+#chmod 750 /home/cis90/*
+#
+#echo "Don't forget to create /etc/cis90-passwd"
+#echo "And also setup Shakespeare quotes files"
+
+exit

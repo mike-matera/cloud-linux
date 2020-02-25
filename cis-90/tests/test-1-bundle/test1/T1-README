@@ -1,0 +1,106 @@
+Steps for setting up Real Test 1
+
+Canvas
+
+1) Import Test 1 (real) from last term.
+
+2) Adjust start time (last hour of Lesson 6) and end time 11:59 PM same day.
+
+3) Configure accomodations.
+
+son-of-opus (use son alias of Opus-II to login)
+
+  As supersuser:
+
+  1) Update and upgrade as necessary
+
+  2) Delete old student accounts and add new student accounts
+     cd cis90
+     run: ./get-opus-account-files 
+     run: ./get-prune-opus-accounts
+     run: ./get-fix-opus-names
+     (the new accounts will be locked)
+
+  Note: You can control whether or not students can login using the lock-cis90 
+        and unlock-cis90 scripts in /root/cis90.  This can be done manually or 
+        scheduled with the at command.  For example if you want to unlock 
+        son-of-opus at the last hour of Lesson 6 and lock again at midnight the same day:
+
+        Fall term:
+        echo "/root/cis90/unlock-cis90" | at 3:00pm oct 2
+        echo "/root/cis90/lock-cis90" | at midnight oct 3
+
+        Spring term:
+        echo "/root/cis90/unlock-cis90" | at 11:00am mar 6
+        echo "/root/cis90/lock-cis90" | at midnight mar 7
+
+  3) If necessary put T1-flag-command in /usr/local/sbin as flag
+
+  4) Test geocache file (IP address and mystery file) using dog account:
+     su - simben90
+     flag
+     cat geocache
+     (check the mystery file exists)
+     exit 
+
+sun-hwa-vii
+
+1) Update/upgrade as needed.
+
+2) Delete old student accounts, add new ones, remove drops, fix names:
+     cd ~/test-accounts
+     run: ./get-opus-account-files     
+     run: ./get-prune-opus-accounts
+     run: ./get-fix-opus-names
+     (the new accounts will be locked)
+
+     Note: You can control whether or not students can login using the lock-cis90
+        and unlock-cis90 scripts in /root.  This can be done manually or
+        scheduled with the at command.  For example if you want to unlock 
+        sun-hwa-vii at the last hour of Lesson 6 and lock again at midnight the same day:
+
+        Fall term:
+        echo "/root/unlock-cis90" | at 3:00pm oct 2
+        echo "/root/lock-cis90" | at midnight oct 3
+
+        Spring term:
+        echo "/root/unlock-cis90" | at 11:00pm mar 6
+        echo "/root/lock-cis90" | at midnight mar 7 
+
+
+3) cd ~/test1
+   ./tweak-uids T1
+
+4) Cause some path based trouble
+   cd
+   ./trouble-T1
+
+5) Make a collection of files of random types
+   cd ~/test1
+   ./make-mfiles T1
+
+6) Set up test
+   cd ~/test1/shakespeare
+   ./setup-shakespeare T1
+
+
+opus-ii
+
+  1) Schedule or manually run the following script (and arguments) to run when the test starts:
+
+     manually run: ~/cis90/test01/q29/mail-q29-T1 2 q
+     or echo "~/cis90/test01/q29/mail-q29-T1 2 q" | at 3:00PM wed
+
+     This sends the email students need to answer Q29.
+
+Test the test!
+
+  Test everything using the questions on the Canvas quiz "Real Test 1" and one of the dog accounts
+  on son-of-opus and sun-hwa-vii.   
+
+  Update Q16 on Canvas to reflect the actual number lines output.  Note this changes every term
+  with a different student headcount.  Running the get-prune-opus-accounts above should be done
+  before editing the Q16 question text as this may reduce the number of student accounts.
+
+  Update Q22 so the date matches the size of the /usr/share/doc/banshee/copyright file on sun-hwa-vii.  
+  The size of this file can change after upgrades.

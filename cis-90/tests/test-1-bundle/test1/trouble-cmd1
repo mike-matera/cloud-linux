@@ -1,0 +1,9 @@
+#!/bin/bash
+echo '*****************************************'
+echo I am the $(basename $0) command
+echo "  " I am on your path
+echo "  " My pathname is $0
+echo "  " As a command, this is all I do.
+echo "  " Good luck on the CIS 90 test!
+echo '*****************************************'
+exit

@@ -1,0 +1,276 @@
+#!/bin/bash
+
+#
+# Set up files for Shakespeare test questions
+#
+# usage setup-shakespeare [ P1 | T1 ]
+#
+targetTest=$1
+
+grep island /etc/group
+if [ "$?" != "0" ]; then
+  echo "No island group exists"
+  exit 2
+fi
+
+
+quotesDir=quotes
+lostGroup=$(grep island /etc/group | cut -f3 -d":")
+testName=T1
+practiceTestName=P1
+sampleCmd=sample-cmd
+
+function getUserInfo () {
+   name=$(grep "^$user:" /etc/passwd | cut -f5 -d":")
+   home=$(grep "^$user:" /etc/passwd | cut -f6 -d":")
+   first=$(echo $name | cut -f1 -d" ")
+   last=$(echo $name | cut -f2 -d" ")
+}
+
+
+
+
+case $targetTest in
+p1 | P1) test=$practiceTestName
+         lsOptions=t
+	 hiddenFile1=Kara
+	 hiddenFile1Data="Sorry, I was just venting. Accurately."
+	 hiddenFile2=.Thrace
+	 hiddenFile2Data="Starbuck to all Vipers - do not fire... repeat, do not fire! I am a friendly, okay? We're all friendlies. So, let's just... be friendly."
+
+         ;;
+t1 | T1) test=$testName
+         lsOptions=S
+	 hiddenFile1=Saul 
+	 hiddentFile1Data="Which side are we on? We're on the side of the demons, Chief. We are evil men in the gardens of paradise, sent by the forces of death to spread devastation and destruction wherever we go. I'm surprised you didn't know that."
+	 hiddenFile2=.Tigh
+	 hiddentFile2Data="My name is Saul Tigh. I'm an officer in the Colonial Fleet. Whatever else I am, whatever else it means, that's the man I want to be. And if I die today, that's the man I'll be."
+         ;;
+*)       echo Try again and specify test
+         echo Usage: $0 \[ P1 \| T1 \]
+         exit 1
+         ;;
+esac
+
+numQuotes=$(ls -$lsOptions $quotesDir | wc -l)
+numLostAccounts=$(grep $lostGroup /etc/passwd | wc -l)
+numCis90Accounts=$(grep cis90 /etc/passwd | wc -l)
+
+if [ "$numQuotes" -lt "$numCis90Accounts" ]; then
+  echo "Not enough quotes for each studnet"
+  exit 2
+fi
+
+if [ "$numLostAccounts" -lt "$numCis90Accounts" ]; then
+  echo "Not enough Lost character accounts for each studnet"
+  exit 2
+fi
+
+
+grep $practiceTestName /etc/group
+if [ "$?" != "0" ]; then
+  echo "No $practiceTestName group exists"
+  exit 2
+fi
+
+grep $testName /etc/group
+if [ "$?" != "0" ]; then
+  echo "No $practiceTestName group exists"
+  exit 2
+fi
+
+read -p "Should have found island, P1, T1 groups. Enter to continue " buffer
+
+grep ":$lostGroup:" /etc/passwd 
+if [ "$?" != "0" ]; then
+  echo "No gid=$lostGroup users in /etc/passwd"
+  exit 2
+fi
+read -p "Should have found Lost users. Enter to continue " buffer
+
+# Clean up any previous test files
+find /home/cis90 -group $practiceTestName -exec rm -rv {} \; 
+find /home/cis90 -group $testName -exec rm -rv {} \; 
+read -p "Should have deleted previous test files, Enter to continue " buffer
+
+# Review quotes
+echo "Number of quotes = " $(ls -$lsOptions $quotesDir | wc -l)
+quotes=$(ls -$lsOptions $quotesDir)
+echo $quotes
+for quote in $quotes
+do
+   echo -n $quote ": "
+   tail -n1 $quotesDir/$quote
+done
+echo "Number of quotes = " $(ls -$lsOptions $quotesDir | wc -l)
+read -p "Should have listed quotes, Enter to continue " buffer
+
+# Review CIS 90 users
+echo "Number of accounts = " $(grep cis90 /etc/passwd | wc -l)
+cis90Users=$(grep cis90 /etc/passwd | cut -f1 -d":")
+echo $cis90Users
+for cis90User in $cis90Users
+do
+   user=$cis90User; getUserInfo 
+   echo $first $last $home
+done
+read -p "Should have listed CIS 90 users, Enter to continue " buffer
+
+# Review Lost users
+echo "Number of Lost accounts = " $(grep $lostGroup /etc/passwd | wc -l)
+lostUsers=$(grep $lostGroup /etc/passwd | sort -R | cut -f1 -d":")
+echo $lostUsers
+for lostUser in $lostUsers
+do
+   user=$lostUser; getUserInfo 
+   echo $first $last $home
+done
+read -p "Should have listed Lost users, Enter to continue " buffer
+
+# Set the owner of each Shakespeare quote file to a Lost character
+set $quotes
+for lostUser in $lostUsers
+do
+   user=$lostUser; getUserInfo 
+   if [ ! $1 = "" ]; then
+      chown -v $lostUser:$test $quotesDir/$1
+   fi
+   shift
+done
+read -p "Should have listed owners of quotes, Enter to continue " buffer
+
+# Intialize accounts
+for cis90User in $cis90Users
+do
+   user=$cis90User; getUserInfo
+   if [ -f "$home/.bash_history" ]; then
+     echo Emptying $home/.bash_history
+     > $home/.bash_history
+   fi
+   if [ -f "$home/geocache" ]; then
+     echo Removing $home/geocache
+     rm -v $home/geocache
+   fi
+done
+read -p "Should have emptied .bash_history and removed geocache files, Enter to continue " buffer
+
+# Copy one Shakespeare quote file to each student's home directory 
+# and create a link to it using their last name
+set $quotes
+for cis90User in $cis90Users
+do
+   user=$cis90User; getUserInfo 
+   unlink $home/$last   
+   cp -vp $quotesDir/$1 $home
+   ln -sv $home/$1 $home/$last
+   chgrp -vh $test $home/$last
+   shift
+done
+read -p "Should have copied quotes to student home directories, Enter to continue " buffer
+
+# Create commands file containing three commands for Q10 and Q11
+for cis90User in $cis90Users
+do
+   user=$cis90User; getUserInfo
+   # Select local bin directory for "first name" command
+   case $test in
+     P1) localBinDir=$home/bin ;;
+     T1) localBinDir=$home/.local/bin ;;
+   esac
+   mkdir -p $localBinDir
+   # Put "first name" command in it
+   firstNameLowerCase=$(echo $first | tr '[:upper:]' '[:lower:]')
+   cp $sampleCmd $localBinDir/$firstNameLowerCase
+   chown -vR $cis90User:$test $localBinDir
+
+   # Put names of "lost character" commands in file named commands
+   case $test in
+     P1) cat ~/test1/P1-commands > $home/commands ;;
+     T1) cat ~/test1/T1-commands > $home/commands ;;
+   esac
+
+   # Put name of "first name" command in file named commands
+   echo $firstNameLowerCase >> $home/commands
+   chown -v $cis90User:$test $home/commands
+done
+echo "commands file now contains:"
+cat $home/commands
+read -p "Should have setup commands file, Enter to continue " buffer
+
+# Create a "deep" set of subdirectories using their first name
+# and place their two hidden files at the bottom.
+for cis90User in $cis90Users
+do
+   user=$cis90User; getUserInfo 
+   
+   # Put BG files in deeply nested pit
+   nestedDirs="Start/here/$first/and/keep/going/down/to/the/bottom"
+   mkdir -p $home/$nestedDirs
+
+   file1=$home/$nestedDirs/$hiddenFile1
+   echo $hiddenFile1Data > $file1   
+   randomNum=$(( ( RANDOM % 100 )  + 1 ))
+   for i in $(eval echo {1..$randomNum})
+   do 
+      echo "<==" $randomNum lines inserted for $first $last "==>" >> $file1
+   done
+   echo $hiddenFile1Data >> $file1   
+
+   file2=$home/$nestedDirs/$hiddenFile2
+   echo $hiddenFile2Data > $file2   
+   randomNum=$(( ( RANDOM % 100 )  + 1 ))
+   for i in $(eval echo {1..$randomNum})
+   do 
+      echo "<==" $randomNum lines inserted for $first $last "==>" >> $file2
+   done
+   echo $hiddenFile2Data >> $file2   
+
+   startDir=$(echo $nestedDirs | cut -f1 -d"/")
+   chown -R $cis90User:$test $home/$startDir
+done
+ls -ld /home/cis90/*/Start
+read -p "Should have created deep nested directories, Enter to continue " buffer
+
+# Let students list each other's files
+chmod -v 750 /home/cis90/*
+chsh -s /bin/ksh libby
+chsh -s /bin/csh rose
+read -p "Should have setup lost character shells, Enter to continue " buffer
+
+# Add extra file for extra credit globbing question
+case $test in
+  P1) # Not used yet
+      echo "This one too s'il vous plait" > /home/cis90/simben/everyone
+      ;;
+  T1) echo "This one too s'il vous plait" > /home/cis90/simben/cogrands
+      tail /home/cis90/simben/cogrands
+      ;;
+esac
+read -p "Should have setup extra file for globbing, Enter to continue " buffer
+
+# Setup flag commands
+cat /etc/cis90/mfiles | wc -l
+echo should be 150 mystery files
+cp -v ~/test1/$test-flag-command /usr/local/bin/flag
+read -p "Should have setup test specific flag command, Enter to continue " buffer
+
+# Setup lost character commands and files
+case $test in
+  P1) lostCmd1=$(head -n1 ~/test1/P1-commands | tail -n1)
+      lostCmd2=$(head -n2 ~/test1/P1-commands | tail -n1)
+      cp -v $sampleCmd /usr/local/sbin/$lostCmd1
+      chmod -v 755 /usr/local/sbin/$lostCmd1
+      chmod -v 755 /home/ana
+      echo Get off the island alive. > ~ana/.plan
+      ;;
+  T1) lostCmd1=$(head -n1 ~/test1/T1-commands | tail -n1)
+      lostCmd2=$(head -n2 ~/test1/T1-commands | tail -n1)
+      cp -v $sampleCmd /usr/local/bin/$lostCmd1
+      chmod -v 755 /usr/local/bin/$lostCmd1
+      chmod -v 755 /home/danielle
+      echo Find her daughter Alex. > ~danielle/.plan
+      ;;
+esac
+read -p "Should have setup lost commands and files, Enter to continue " buffer
+
+exit 0

@@ -1,0 +1,45 @@
+#!/bin/bash
+#
+# Test T1
+#
+# Install on real test systems in different directory than
+# used for practice test.
+#
+# Create a geocache file and select a random text file
+#
+# Usage: flag
+#
+# Dependencies: run make-mfiles on sun-hwa's
+#
+
+marker=geocache
+name=$(grep $LOGNAME /etc/passwd | cut -f5 -d":")
+uid=$(grep $LOGNAME /etc/passwd | cut -f3 -d":")
+let index=$uid-$(id -u cis90)+42
+first=$(echo $name | cut -f1 -d" ")
+
+
+hostname=$(hostname -s)
+case $hostname in
+  son-of-opus)
+    echo You did it $name, you made it to $(hostname -s)\!
+    file=$(ls -S /usr/share/doc/*/README | head -n $index | tail -n1)
+    ;;
+  sun-hwa-vii)
+    echo "Congratulations $first, you have arrived on $hostname!"
+    file=$(cat /etc/cis90/mfiles | head -n $index | tail -n1)
+    ;;
+  *)
+    echo "$hostname welcomes the arrival of $name"
+    file=$(ls -S /usr/share/doc/*/README | head -n $index | tail -n1)
+    ;;
+esac
+
+echo "==>" $name was here "<==" > ~/$marker
+echo "  " Location: $(hostname -s) >> ~/$marker
+echo "  " IP: $(ifconfig eth0 | grep inet | awk '{print $2}' | cut -d':' -f2) >> ~/$marker
+echo "  " Date: $(date) >> ~/$marker
+echo "  " Mystery file: $file >> ~/$marker
+
+exit 0
+

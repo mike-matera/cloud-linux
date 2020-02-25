@@ -1,0 +1,67 @@
+#!/bin/bash
+# Trouble T1
+#
+# This script needs a /etc/cis90-passwd file that contains
+# all the CIS 90 accounts fro Opus
+#
+
+event=T1
+path="/var/u/are/still/on/an/island/far/far/away"
+
+# Clean up old trouble
+# ./trouble-none
+
+## By maximus --- Copy from here to /etc 
+mkdir -p /etc/.trouble/bin 
+mkdir -p /etc/.trouble/profile.danielle
+cp -R test-config/bin/* /etc/.trouble/bin 
+cp -R test-config/etc/profile.d /etc/.trouble/profile.d
+cp test-config/motd /etc/.trouble/.motd
+
+# Setup motd 
+cp test-misc/motd /etc/motd 
+
+# Make new trouble
+cp -v /etc/.trouble/profile.d/z-cis90-$event.sh /etc/profile.d/
+chmod -v 755 /etc/.trouble/bin/$event
+
+# This is now done in test setup script
+#mkdir -p $path
+#echo "We were all brought here for a reason." > $path/John
+#echo "It's Other 101, gotta learn Latin." > $path/Juliet
+#echo "Dude, I just lied to a samuri." > $path/Hugo
+#echo "A twelve-year-old Ben Linus brought me a chicken salad sandwich. How do you think I'm doing?" > $path/.Sayid
+#echo "If you say live together, die alone to me Jack, I'm gonna punch you in your face" > $path/.Rose
+#
+#if [ "$event" = "P1" ]; then
+#  lostUserOnPath=penny
+#  lostUserNotOnPath=desmond
+#  pathDir=/usr/local/sbin
+#  chmod -v 755 /home/ana
+#  echo Get off the island alive. > ~ana/.plan
+#else
+#  lostUserOnPath=Kate
+#  lostUserNotOnPath=Jack
+#  pathDir=/usr/local/bin
+#  cp -v test1/$event-flag-command /usr/local/bin/flag
+#  chmod -v 755 /home/danielle
+#  echo Find her daughter Alex. > ~danielle/.plan
+#fi
+#
+#cp -v test1/$event-flag-command /usr/local/bin/flag
+#chgrp $event /usr/local/bin/flag
+#
+#cp -v test1/trouble-cmd1 $pathDir/$lostUserOnPath
+#chmod -v 755 $pathDir/$lostUserOnPath
+#chgrp $event $pathDir/$lostUserOnPath
+#
+#echo $lostUserOnPath > test1/$event-commands
+#echo $lostUserNotOnPath >> test1/$event-commands
+#
+#chmod 750 /home/cis90/*
+#
+#echo
+#echo "Don't forget to create /etc/cis90-passwd"
+#echo "And also setup Shakespeare quotes files"
+
+exit

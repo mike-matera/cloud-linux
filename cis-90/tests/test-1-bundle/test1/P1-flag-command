@@ -1,0 +1,35 @@
+#!/bin/bash
+#
+# Test P1
+#
+# Create a geocache file and select a random text file
+#
+# Usage: flag
+
+marker=geocache
+name=$(grep $LOGNAME /etc/passwd | cut -f5 -d":")
+uid=$(grep $LOGNAME /etc/passwd | cut -f3 -d":")
+let index=$uid-1200
+file=$(ls -S /usr/share/doc/*/README | head -n $index | tail -n1)
+first=$(echo $name | cut -f1 -d" ")
+
+echo "==>" $name was here "<==" > ~/$marker
+echo "  " Location: $(hostname -s) >> ~/$marker
+echo "  " IP: $(ifconfig | grep -m 1 "inet" | awk '{print $2}' | cut -d':' -f2) >> ~/$marker
+echo "  " Date: $(date) >> ~/$marker
+echo "  " Mystery file: $file >> ~/$marker
+
+hostname=$(hostname -s)
+case $hostname in
+  daughter-of-opus)
+    echo "Welcome $first, nice to see you here on $hostname!"
+    ;;
+  sun-hwa-iv)
+    echo "You did it $name, you made it to $hostname!"
+    ;;
+  *)
+    echo "$hostname welcomes the arrival of $name"
+    ;;
+esac
+exit 0
+

@@ -1,0 +1,70 @@
+#/bin/bash
+#
+# Make random file types for test question
+#
+# usage:  make-mfiles (P1|T1)
+
+test=$1
+
+if [ "$test" = "" ]; then
+  echo "Usage: make-mfiles (P1|T1)"
+  exit
+elif [ "$test" = "P1" ]; then
+  regFileDir=/usr/lib
+elif [ "$test" = "T1" ]; then
+  regFileDir=/lib
+else
+  echo "Usage: make-mfiles (P1|T1)"
+  exit
+fi
+
+
+# regular files (use /usr/lib instead of /lib on sun-hwa-iv)
+su -c "find $regFileDir -type f 2> /dev/null" -s /bin/sh simben90 | head -n150 | tail -n50 > /tmp/mfiles
+
+# directories
+su -c "find /usr/share -type d 2> /dev/null" -s /bin/sh simben90 | head -n120 | tail -n50 >> /tmp/mfiles
+
+# symbolic links
+su -c "find /etc -type l 2> /dev/null" -s /bin/sh simben90 | head -n120 | tail -n50 >> /tmp/mfiles
+
+# block special files
+su -c "find /dev -type b 2> /dev/null" -s /bin/sh simben90 | head -n120 | tail -n50 >> /tmp/mfiles
+
+# character special files
+su -c "find /dev -type c 2> /dev/null" -s /bin/sh simben90 | head -n120 | tail -n50 >> /tmp/mfiles
+
+# Randomly order list of files
+sort -R /tmp/mfiles > /etc/cis90/mfiles
+#rm /tmp/mfiles
+
+# Count and make sure Benji can do a long listing of each random file
+numF = 0; numD=0; numL=0; numB=0; numC=0
+for i in $(cat /etc/cis90/mfiles); do
+  su -c "ls -ld $i" -s /bin/sh simben90
+  fileType=$(ls -ld $i | cut -c1)
+  case $fileType in
+    -) let "numF++"
+       ;;
+    d) let "numD++"
+       ;;
+    l) let "numL++"
+       ;;
+    b) let "numB++"
+       ;;
+    c) let "numC++"
+       ;;
+  esac
+done
+
+echo
+echo "File /etc/cis90/mfiles contains $(wc -l /etc/cis90/mfiles) files"
+echo
+echo "  Regular files = $numF"
+echo "  Directory files = $numD"
+echo "  Symbolic Link files = $numL"
+echo "  Block Special files = $numB"
+echo "  Character Special files = $numC"
+
+exit
+

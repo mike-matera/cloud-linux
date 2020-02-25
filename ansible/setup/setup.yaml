@@ -16,6 +16,7 @@
         - 192.168.100.14 excalibur excalibur.cis.cabrillo.edu
         - 192.168.100.15 lexington lexington.cis.cabrillo.edu 
         - 192.168.100.20 sun-hwa-v sun-hwa-v.cis.cabrillo.edu
+        - 192.168.100.21 sun-hwa-vii sun-hwa-vii.cis.cabrillo.edu
         
     - name: Fix opus3 in /etc/hosts.  
       lineinfile:
@@ -330,7 +331,7 @@
     - name: Setting the hostname 
       hostname: 
         name: sun-hwa-v.cis.cabrillo.edu       
-    - name: Installing motd on freedom
+    - name: Installing motd on sun-hwa-v
       copy:
         src: motd/sun-hwa-v.txt
         dest: /etc/motd
@@ -347,3 +348,34 @@
         src: skel/sun-hwa-v-skel.tar
         dest: /etc/student-skel
 
+- hosts: sun-hwa-vii.cis.cabrillo.edu
+  tasks:
+    - name: Setting the hostname 
+      hostname: 
+        name: sun-hwa-vii.cis.cabrillo.edu       
+    - name: Remove motd messages.
+      file:
+        path: '/etc/update-motd.d/{{ item }}'
+        state: absent
+      loop:
+        - 50-landscape-sysinfo
+        - 80-esm
+        - 90-updates-available
+        - 95-hwe-eol
+        - 98-fsck-at-reboot
+        - 10-help-text
+        - 50-motd-news
+        - 80-livepatch
+        - 91-release-upgrade
+        - 97-overlayroot
+        - 98-reboot-required
+    - name: Copy the test bundle 
+      copy: 
+        src: ../cis-90/tests/test-1-bundle/
+        dest: /root
+        remote_src: no 
+        mode: preserve 
+    - name: Run the setup script. 
+      shell: 
+        chdir: /root
+        cmd: ./trouble-T1

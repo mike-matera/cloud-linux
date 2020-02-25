@@ -1,0 +1,4 @@
+#! /bin/sh 
+
+# Put /etc/motd at the end. 
+cat /etc/motd 

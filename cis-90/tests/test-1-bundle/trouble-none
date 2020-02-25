@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Clean up old login trouble changes
+rm -f /etc/profile.d/z-cis90-*
+chmod 600 /etc/.trouble/bin/*
+echo removed test profile and locked .trouble/bin directory; sleep 2
+
+#Remove Test 1 changes
+rm -rf /var/u /etc/u
+rm -f /usr/local/bin/*
+rm -f /usr/local/sbin/*
+hash -r
+echo removed test 1 system files; sleep 2
+
+#cp ~/banner /usr/local/bin/
+find /home/cis90 -group P1 -exec rm -rv {} \;
+find /home/cis90 -group T1 -exec rm -rv {} \;
+echo removed test 1 home directory files; sleep 2
+
+#Remove Test 2 changes
+rm -rv /Arctic /Antarctic
+find /usr /opt -type f -group P2 -exec rm -v {} \;
+find /usr /opt -type f -group T2 -exec rm -v {} \;
+echo removed test 2 system files; sleep 2
+
+find /home/cis90 -maxdepth 2 -group P2 -exec rm -rv {} \;
+find /home/cis90 -maxdepth 2 -group T2 -exec rm -rv {} \;
+echo removed test 2 home directory files; sleep 2
+
+echo Trouble undone
+sleep 2
+
+exit
