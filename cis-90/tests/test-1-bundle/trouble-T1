@@ -17,6 +17,7 @@ mkdir -p /etc/.trouble/profile.danielle
 cp -R test-config/bin/* /etc/.trouble/bin 
 cp -R test-config/etc/profile.d /etc/.trouble/profile.d
 cp test-config/motd /etc/.trouble/.motd
+cp test1/T1-flag-command /usr/local/bin/flag
 
 # Setup motd 
 cp test-misc/motd /etc/motd 

@@ -1,5 +1,9 @@
 all:
   children:
+    mail-servers:
+      hosts:
+        opus3.cis.cabrillo.edu:
+        sun-hwa-vii.cis.cabrillo.edu:
     login-servers:
       hosts:
         opus3.cis.cabrillo.edu:

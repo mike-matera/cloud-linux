@@ -8,7 +8,7 @@
         password: "{{ item.password }}"
         groups: "{{ item.groups }}"
         home: "{{ item.home }}"
-        skeleton: /etc/student-skel
+        #skeleton: /etc/student-skel
         shell: /bin/bash
         append: yes
       loop: "{{ users | flatten(levels=1) }}"
