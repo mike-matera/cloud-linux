@@ -68,30 +68,60 @@
           [default]
           region = us-east-1
 
+# - hosts: all
+#   become: true
+#   name: Partition /dev/sdc 
+#   tasks:
+#     - name: Create a partition table on /dev/sdc
+#       parted:
+#         device: /dev/sdc 
+#     - name: Create /dev/sdc1 
+#       parted:
+#         device: /dev/sdc 
+#         number: 1
+#         state: present 
+#     - name: Create a ext4 filesystem on /dev/sdc1
+#       filesystem:
+#         fstype: ext4
+#         dev: /dev/sdc1
+#     - name: Create the /data/sdc1 directory
+#       file:
+#         path: /data/sdc1
+#         state: directory
+#         mode: '0755'        
+#     - name: Adding mount point /dev/sdc1 on /data/sdc1
+#       mount:
+#         path: /data/sdc1
+#         src: /dev/sdc1
+#         fstype: ext4
+#         state: mounted
+
 - hosts: all
-  become: true
-  name: Partition /dev/sdc 
+  become: true 
+  name: Install Dokuwiki 
+  tags: [dokuwiki]
   tasks:
-    - name: Create a partition table on /dev/sdc
-      parted:
-        device: /dev/sdc 
-    - name: Create /dev/sdc1 
-      parted:
-        device: /dev/sdc 
-        number: 1
-        state: present 
-    - name: Create a ext4 filesystem on /dev/sdc1
-      filesystem:
-        fstype: ext4
-        dev: /dev/sdc1
-    - name: Create the /data/sdc1 directory
-      file:
-        path: /data/sdc1
-        state: directory
-        mode: '0755'        
-    - name: Adding mount point /dev/sdc1 on /data/sdc1
-      mount:
-        path: /data/sdc1
-        src: /dev/sdc1
-        fstype: ext4
-        state: mounted
+  - name: Installing Apache and PHP
+    become: true
+    apt:
+      pkg:
+      - apache2
+      - php 
+  - name: Create the /var/www/html/dokuwiki
+    file:
+      path: /var/www/html/dokuwiki
+      state: directory
+      mode: '0775'
+      owner: root
+      group: www-data
+  - name: Install Dokuwiki
+    unarchive:
+      src: https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz
+      dest: /var/www/html/dokuwiki
+      remote_src: yes
+      owner: root
+      group: www-data
+      mode: g+w 
+      extra_opts:
+        - --strip 
+        - "1"
