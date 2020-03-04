@@ -1,0 +1,14 @@
+---
+- hosts: all
+  tasks:
+    - name: Create the check5 program. 
+      copy:
+        src: resources/check5
+        dest: /usr/local/bin/check5
+        owner: root
+        group: root 
+        mode: '0755'
+    - name: Extract the depot into /home/cis90
+      unarchive:
+        src: resources/depot.tar.xz
+        dest: /home/cis90
