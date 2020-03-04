@@ -1,4 +1,4 @@
-# Lab 5: Managing Files
+# Managing Files
 
 The goal of this lab is to become proficient with system commands for copying, moving, renaming, creating and removing files within your home directory.
 
@@ -144,7 +144,7 @@ Copying works just like moving except that a second file is created, the content
 
 	You have just copied the file `hosts` from root's `/etc` directory to your own personal `etc` directory. Verify that the file is in your `etc` directory.
 
-1. Now use the `cp` command to copy the file `sonnet6` from /home`/cis90/depot` directory to your `Shakespeare` directory. (Notice that your `Shakespeare` directory doesn't have a `sonnet6` in it.)
+1. Now use the `cp` command to copy the file `sonnet6` from `/home/cis90/depot` directory to your `Shakespeare` directory. (Notice that your `Shakespeare` directory doesn't have a `sonnet6` in it.)
 
 1. Like the `mv` command, the `cp` command is also destructive. If the target file exists, it will be destroyed, and copied over. If you want the `cp` command to warn you about destroying a target file, then you must use the `-i` option. Try this in your home directory:
 
@@ -211,20 +211,38 @@ Removing files is inherently destructive in nature. Unix does not give any warni
 
 1. Remove your `Sonnets` directory and its contents.
 
-## Part VI - Linking Files
+## Turn In 
 
-Linking files is a way of giving additional names to an existing file. You are not duplicating data, just adding another name into your directory.
+There's a program to help you check your work called `check5`. Run it and it tells you what steps you did correctly and which ones need fixing. Her's how it looks:
 
-1. I told you I would get your `bigfile` back for you. The file can be found in the `/home/cis90/depot` directory. Rather than copying it from there, let's do a hard link to it. Use the following commands from your home directory:
+```bash 
+$ check5
+================================
+Making-Directories-Step-2
+ 
+Output from ls -F . follows:
+bin/		    class/	 edits/   Lab2.1/     mail/  newscript*
+butt		    dead.letter  etc/	  letter      mbox   poems/
+cis90.contribution  docs/	 Hidden/  letter.bak  misc/  TestFile
+ 
+Directory /home/cis90/simben90/edits was found --- OK ---
+Directory /home/cis90/simben90/docs was found --- OK ---
+Directory /home/cis90/simben90/etc was found --- OK ---
+ 
+You should see edits, docs, etc directories
+Continue?
+```
 
-	`ls -l ../depot/bigfile`
+Hit the `Enter` key to continue. If you see something that needs fixing, exit the program with `Ctrl-C`. After you fix the problem restart the checker. When you finish you'll see a screen like the following:
 
-1. Notice the link count field, the owner and the size of the file. Now enter:
+```bash
+==============================================================
+Submit this tar file on Canvas!
+==============================================================
 
-	`ln ../depot/bigfile .`
+I have created a tar file of your home directory in: 
 
-	You have just made a link to `bigfile` in your home directory. Do a long listing of `bigfile`. What is the link count now? Who owns it?
+/tmp/files-simben90-3o340p.tar
+```
 
-	You now have access to rsimms' `bigfile`, as if it is in your directory.
-
-1. Change directory to your `etc` directory and link the `motd` to the name `greeting`. Use the `ln` and the filenames as the two arguments. Use the `ls -li` command to verify your success.
+A different file will be created for you every run. Submit the file on Canvas.
