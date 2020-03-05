@@ -87,7 +87,7 @@ c22="You should see both bigfile files hard linked (same inode) owned by rsimms"
 v23='Linking-Files-Step-2 li etc f etc/greeting ok f etc/motd ok'
 c23="You should see greeting hard linked to motd (same inode)"
 
-for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14  16 17 18 19 20 21 22 23 
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14  16 17 18 19 20 21
 do
 	line=$(eval "echo \${$(echo v${i})}");
 	comment=$(eval "echo \${$(echo c${i})}");
