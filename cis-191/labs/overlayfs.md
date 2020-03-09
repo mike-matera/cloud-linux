@@ -70,7 +70,7 @@ overlay         10098432 1508992   8573056  15% /mnt/target
 
 ## Step 4: Add a New Poem 
 
-Add the following poem into `/mnt/target/Neruda/if_you_forget_me`:
+Add the following poem into `/mnt/target/Poems/Neruda/if_you_forget_me`:
 
 ```
 I want you to know
