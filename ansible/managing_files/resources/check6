@@ -15,15 +15,15 @@ read -p "Press Enter to continue" COMMENT0
 clear
 S1="Step 3"
 echo $S1
-ls -l /home/$dir/$i/uhistory ~mmatera/uhistory
-echo "Your uhistory file should be the same size as Rich's <====="
+ls -l /home/$dir/$i/check5 ~mmatera/check5
+echo "Your check5 file should be the same size as Rich's <====="
 read -p "Press Enter to continue" COMMENT0
 
 clear
 S2="Step 5"
 echo $S2
-ls -l /home/$dir/$i/uhistory
-echo " r--r--r--, uhistory permissions should be 444 <====="
+ls -l /home/$dir/$i/check5
+echo " r--r--r--, check5 permissions should be 444 <====="
 read -p "Press Enter to continue" COMMENT0
 
 clear
