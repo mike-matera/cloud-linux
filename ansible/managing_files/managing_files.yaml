@@ -13,3 +13,10 @@
       unarchive:
         src: resources/depot.tar.xz
         dest: /home/cis90
+    - name: Create the check6 program. 
+      copy:
+        src: resources/check6
+        dest: /usr/local/bin/check6
+        owner: root
+        group: root 
+        mode: '0755'
