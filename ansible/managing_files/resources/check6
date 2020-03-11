@@ -1,0 +1,162 @@
+#!/bin/bash
+dir=cis90
+username=$1
+i=${username%90}
+if [ "$i" = "" ]; then 
+  i=${LOGNAME%90}
+fi
+
+
+clear
+echo Please resize your terminal window to be wider and taller
+read -p "Press Enter to continue" COMMENT0
+
+
+clear
+S1="Step 3"
+echo $S1
+ls -l /home/$dir/$i/uhistory ~rsimms/uhistory
+echo "Your uhistory file should be the same size as Rich's <====="
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S2="Step 5"
+echo $S2
+ls -l /home/$dir/$i/uhistory
+echo " r--r--r--, uhistory permissions should be 444 <====="
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S3="Step 8"
+echo $S3
+ls -ld /home/$dir/$i/misc 
+echo " rwxrwxrwx, misc/ should be 777 <====="
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S4="Step 9a"
+echo $S4
+ls -ld /home/$dir/$i/[pP]oems
+echo " rwxr-xr-x, poems/ should be 755 <====="
+echo " ";  echo " "
+S4="Step 9b"
+echo $S4
+ls -ld /home/$dir/$i/[pP]oems/*
+echo " rwxr-xr-x, poems/*/ should be 755 <====="
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S5="Step 10"
+echo $S5
+ls -l /home/$dir/$i/poems/*/*
+echo " r--r--r--, poems/*/* should be 444 <====="
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S6="Step 11"
+echo $S6
+ls -ld /home/$dir/$i/bin
+echo " rwxr-x---, bin/ should be 750 <====="
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S7="Step 12"
+echo $S7
+ls -l /home/$dir/$i/bin/*
+echo " r-xr-x---, bin/* should be 550, EXCEPT enlightenment which should be 554 (Step 17) <=====" 
+read -p "Press Enter to continue" COMMENT0
+
+ clear
+S8="Step 13"
+echo $S8
+ls -ld /home/$dir/$i/class/{labs,tests}
+echo "                     > users < the group ID on class/*/ should be users  <=====" 
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S9="Step 14a"
+echo $S9
+ls -ld /home/$dir/$i/class
+echo " rwx--x---, class should be 710 <====="; echo " "
+echo " "
+S9="Step 14b"
+echo $S9
+ls -ld /home/$dir/$i/class/labs 
+echo " r-x-wx---, class/labs should be 530 <====="; echo " "
+echo " "
+S9="Step 14c"
+echo $S9
+ls -ld /home/$dir/$i/class/tests 
+echo " rwx------, class/tests should be 700 <====="; echo " "
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S10="Step 15"
+echo $S10
+ls -l /home/$dir/$i/class/{labs,tests}/*
+echo " rw-------, class/*/* should be 600<====="
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S11="Step 16a"
+echo $S11
+ls -ld /home/$dir/$i/edits
+echo " rwx------, edits/ should be 700 <====="
+echo " "
+S11="Step 16b"
+echo $S11
+ls -l /home/$dir/$i/edits/*
+echo " rw----r--, edits/* should be 604 <====="
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S12="Step 17"
+echo $S12
+ls -l /home/$dir/$i/misc
+echo " rw-r--r--, misc/* should have read for owner, group and others. Note: mystery will be 777 <=====" 
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S13="Step 19a"
+echo $S13
+ls -ld /home/$dir/$i/old
+echo " rw-rw-r--, old should be 664 <====="
+echo " "
+S13="Step 19b"
+echo $S13
+ls -ld /home/$dir/$i/olddir
+echo " rwxrwxr-x, olddir/ should be 775 <=====" 
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S14="Step 21a"
+echo $S14
+ls -ld /home/$dir/$i/new
+echo " rw-rw-rw-, new should be 666 <====="; echo " "
+echo " "
+S14="Step 21a"
+echo $S14
+ls -ld /home/$dir/$i/newdir
+echo " rwxrwxrwx, newdir/ should be 777 <=====" 
+read -p "Press Enter to continue" COMMENT0
+
+clear
+S15="Step 23"
+echo $S15
+ls -ld /home/$dir/$i/newer
+echo " ---------, newer, should be 000 <====="
+read -p "Press Enter to continue" COMMENT0
+
+clear
+temptar=$(mktemp /tmp/files-$USER-XXXXXX.tar)
+tar -cf $temptar * 1>/dev/null 2>&1
+echo "=============================================================="
+echo Submit this tar file on Canvas\!
+echo "=============================================================="
+echo ""
+echo "I have created a tar file of your home directory in: "
+echo "" 
+echo $temptar
+echo ""
+
+exit

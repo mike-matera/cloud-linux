@@ -1,6 +1,6 @@
 # Lesson 5 Commands 
 
-This page has the commands for Leson 5. They are:
+This page has the commands for Lesson 5. They are:
 
 | Command | Action | 
 | --- | --- | 
