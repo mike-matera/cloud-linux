@@ -15,7 +15,7 @@ read -p "Press Enter to continue" COMMENT0
 clear
 S1="Step 3"
 echo $S1
-ls -l /home/$dir/$i/uhistory ~rsimms/uhistory
+ls -l /home/$dir/$i/uhistory ~mmatera/uhistory
 echo "Your uhistory file should be the same size as Rich's <====="
 read -p "Press Enter to continue" COMMENT0
 
