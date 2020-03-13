@@ -96,32 +96,32 @@
 #         fstype: ext4
 #         state: mounted
 
-- hosts: all
-  become: true 
-  name: Install Dokuwiki 
-  tags: [dokuwiki]
-  tasks:
-  - name: Installing Apache and PHP
-    become: true
-    apt:
-      pkg:
-      - apache2
-      - php 
-  - name: Create the /var/www/html/dokuwiki
-    file:
-      path: /var/www/html/dokuwiki
-      state: directory
-      mode: '0775'
-      owner: root
-      group: www-data
-  - name: Install Dokuwiki
-    unarchive:
-      src: https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz
-      dest: /var/www/html/dokuwiki
-      remote_src: yes
-      owner: root
-      group: www-data
-      mode: g+w 
-      extra_opts:
-        - --strip 
-        - "1"
+# - hosts: all
+#   become: true 
+#   name: Install Dokuwiki 
+#   tags: [dokuwiki]
+#   tasks:
+#   - name: Installing Apache and PHP
+#     become: true
+#     apt:
+#       pkg:
+#       - apache2
+#       - php 
+#   - name: Create the /var/www/html/dokuwiki
+#     file:
+#       path: /var/www/html/dokuwiki
+#       state: directory
+#       mode: '0775'
+#       owner: root
+#       group: www-data
+#   - name: Install Dokuwiki
+#     unarchive:
+#       src: https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz
+#       dest: /var/www/html/dokuwiki
+#       remote_src: yes
+#       owner: root
+#       group: www-data
+#       mode: g+w 
+#       extra_opts:
+#         - --strip 
+#         - "1"
