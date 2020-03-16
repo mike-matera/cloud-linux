@@ -213,7 +213,7 @@ Removing files is inherently destructive in nature. Unix does not give any warni
 
 ## Turn In 
 
-There's a program to help you check your work called `check5`. Run it and it tells you what steps you did correctly and which ones need fixing. Her's how it looks:
+There's a program to help you check your work called `check5`. Run it and it tells you what steps you did correctly and which ones need fixing. Here's how it looks:
 
 ```bash 
 $ check5

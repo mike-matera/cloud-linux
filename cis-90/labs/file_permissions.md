@@ -125,7 +125,18 @@ Log on to `opus3` so that you have a command line shell at your service. Be sure
 
 ## Submittal
 
-You have now finished the lab. To submit your work to be counted for this lab, you must run the `submit` command from your home directory.
+There's a program to help you check your work called `check6`. Run it and it tells you what steps you did correctly and which ones need fixing. 
 
-Run `check6` to check your work and make sure you didn't forget anything. Run `verify` to doublecheck you submitted your lab for grading.
+Hit the `Enter` key to continue. If you see something that needs fixing, exit the program with `Ctrl-C`. After you fix the problem restart the checker. When you finish you'll see a screen like the following:
 
+```bash
+==============================================================
+Submit this tar file on Canvas!
+==============================================================
+
+I have created a tar file of your home directory in: 
+
+/tmp/files-simben90-3o340p.tar
+```
+
+A different file will be created for you every run. Submit the file on Canvas.
