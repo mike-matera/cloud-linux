@@ -1,11 +1,10 @@
 #!/bin/bash
 dir=cis90
 username=$1
-i=${username%90}
+i=${username}
 if [ "$i" = "" ]; then 
-  i=${LOGNAME%90}
+  i=${LOGNAME}
 fi
-
 
 clear
 echo Please resize your terminal window to be wider and taller
@@ -16,7 +15,7 @@ clear
 S1="Step 3"
 echo $S1
 ls -l /home/$dir/$i/check5 ~mmatera/check5
-echo "Your check5 file should be the same size as Rich's <====="
+echo "Your check5 file should be the same size as Mike's <====="
 read -p "Press Enter to continue" COMMENT0
 
 clear
