@@ -30,11 +30,11 @@ When the `-name` option and its argument are omitted; all files are displayed.
 
 1. Filter out the error messages by redirecting `stderr` to a file called `errors` in your home directory:
 
-    `find .. -name old 2\> errors`
+    `find .. -name old 2> errors`
 
 1. Another useful option to the find command is `-user` which takes an argument of a user's name or id #. With this command you can find all the files that you own on the entire system and save them in a text file. Since we may get some error messages for directories we don't have permission for, let's also redirect the errors to the "bit bucket". This command may take a minute or so.
 
-    `find / -user $LOGNAME \> myfiles 2\> /dev/null`
+    `find / -user $LOGNAME > myfiles 2> /dev/null`
 
 ## The grep command
 
@@ -68,7 +68,7 @@ Often we are just interested in the number of lines in a file, so we use the -l 
 
 1. Let `wc` count the number of lines in Shakespeare's sonnets:
 
-    `wc -l poems/Sha\*/son\`*
+    `wc -l poems/Sha\*/son\*`
 
     Notice they all have the same number of lines?
 
@@ -112,7 +112,7 @@ Can be used to check the spelling in text files.
 
 1. Sort the `fruit` file in reverse order and save the results to `tiurf`
 
-    `sort -r fruit \> tiurf`
+    `sort -r fruit > tiurf`
 
 ## The tee command
 
