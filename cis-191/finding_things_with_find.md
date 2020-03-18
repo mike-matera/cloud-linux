@@ -1,6 +1,6 @@
-The find command is one of the most useful and confusing commands in UNIX. It's used to find files and directories. This tutorial contains some useful tips and recipes for finding the things you want.
+# Finding Files with `find` 
 
-## Using Find 
+The find command is one of the most useful and confusing commands in UNIX. It's used to find files and directories. This tutorial contains some useful tips and recipes for finding the things you want.
 
 Every find command works like this:
 
