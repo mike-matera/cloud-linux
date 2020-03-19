@@ -19,6 +19,7 @@ all:
         opus3.cis.cabrillo.edu:
         intrepid.cis.cabrillo.edu:
         sun-hwa-vii.cis.cabrillo.edu:
+        jupyter.cis.cabrillo.edu:
     debian:
       hosts:
         enterprise.cis.cabrillo.edu:

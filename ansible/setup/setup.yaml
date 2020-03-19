@@ -17,6 +17,7 @@
         - 192.168.100.15 lexington lexington.cis.cabrillo.edu 
         - 192.168.100.20 sun-hwa-v sun-hwa-v.cis.cabrillo.edu
         - 192.168.100.21 sun-hwa-vii sun-hwa-vii.cis.cabrillo.edu
+        - 192.168.100.90 jupyter jupyter.cis.cabrillo.edu
         
     - name: Fix opus3 in /etc/hosts.  
       lineinfile:
@@ -64,6 +65,7 @@
           - python3-pip
           - sysvbanner
           - emacs
+          - spell 
 
 - hosts: debian
   tasks:
@@ -381,3 +383,11 @@
       shell: 
         chdir: /root
         cmd: ./trouble-T1
+
+- hosts: jupyter.cis.cabrillo.edu
+  tags: 
+    - jupyter
+  tasks:
+    - name: Setting the hostname 
+      hostname: 
+        name: jupyter.cis.cabrillo.edu       

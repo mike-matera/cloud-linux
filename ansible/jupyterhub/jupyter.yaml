@@ -1,0 +1,122 @@
+---
+- hosts: jupyter.cis.cabrillo.edu 
+  name: Install JupyterHub on this server 
+  become: yes
+  tasks:
+    - name: Install packages. 
+      apt:
+        update_cache: yes
+        pkg:
+          - python3-pip
+          - python3-venv
+          - npm
+          - nodejs
+          - nginx
+
+    - name: Install Python wheel. 
+      pip:
+        virtualenv: /opt/jupyterhub
+        virtualenv_command: /usr/bin/python3 -m venv
+        name:
+          - wheel 
+    - name: Install JupyterHub.
+      pip:
+        virtualenv: /opt/jupyterhub
+        virtualenv_command: /usr/bin/python3 -m venv
+        name:
+          - jupyterhub 
+          - jupyterlab 
+    - name: Install JS components.
+      npm:
+        name: configurable-http-proxy
+        global: yes
+
+    - name: Create the JupyterHub configuration
+      file:
+        path: /opt/jupyterhub/etc/jupyterhub
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+    - name: Create default JupyterHub configuration 
+      shell: /opt/jupyterhub/bin/jupyterhub --generate-config 
+      args:
+        chdir: /opt/jupyterhub/etc/jupyterhub
+        creates: /opt/jupyterhub/etc/jupyterhub/jupyterhub_config.py        
+    - name: Set JupyterLab to the default interface
+      lineinfile:
+        path: /opt/jupyterhub/etc/jupyterhub/jupyterhub_config.py
+        regexp: 'c.Spawner.default_url'
+        line: c.Spawner.default_url = '/lab' 
+    - name: Set JupyterLab URL
+      lineinfile:
+        path: /opt/jupyterhub/etc/jupyterhub/jupyterhub_config.py
+        regexp: 'c.JupyterHub.bind_url'
+        line: c.JupyterHub.bind_url = 'http://:8000/jupyter'
+
+    - name: Create the JupyterHub service 
+      file:
+        path: /opt/jupyterhub/etc/systemd
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+    - name: Write JupyterHub serivce file. 
+      blockinfile:
+        path: /opt/jupyterhub/etc/systemd/jupyterhub.service
+        create: yes
+        block: |
+          [Unit]
+          Description=JupyterHub
+          After=syslog.target network.target
+
+          [Service]
+          User=root
+          Environment="PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/opt/jupyterhub/bin"
+          ExecStart=/opt/jupyterhub/bin/jupyterhub -f /opt/jupyterhub/etc/jupyterhub/jupyterhub_config.py
+
+          [Install]
+          WantedBy=multi-user.target
+    - name: Install JupyterHub service. 
+      file: 
+        src: /opt/jupyterhub/etc/systemd/jupyterhub.service 
+        dest: /etc/systemd/system/jupyterhub.service
+        owner: root
+        group: root
+        state: link
+    - name: Enable and start JupyterHub
+      systemd:
+        name: jupyterhub
+        enabled: yes
+        state: started
+
+    - name: Configure nginx 
+      blockinfile:
+        path: /etc/nginx/sites-available/default
+        insertbefore: "^\\s*location\\s+/\\s+{"
+        marker: "# {mark} ANSIBLE jupyter location"
+        block: | 
+          location /jupyter/ {    
+            proxy_pass http://127.0.0.1:8000;
+            proxy_redirect   off;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+          }
+    - name: Configure nginx 
+      blockinfile:
+        path: /etc/nginx/sites-available/default
+        insertbefore: "^\\s*server\\s+{"
+        marker: "# {mark} ANSIBLE map directive"
+        block: | 
+          map $http_upgrade $connection_upgrade {
+              default upgrade;
+              '' close;
+          }
+    - name: Restart nginx
+      systemd:
+        name: nginx
+        state: restarted
