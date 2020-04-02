@@ -77,17 +77,19 @@ The fields are:
 
 ## Step 4: Create a Group 
 
-Add the following line to `/etc/group`
+Add the following lines to `/etc/group`
 
 ```
-maiar:x:2000:
+noldor:x:2000:
+teleri:x:2001:galadriel
 ```
 
 The fields are: 
 
-  1. `maiar`: Group name. 
+  1. `noldor`: Group name. 
   2. `x`: Always `x` 
   3. `2000`: Group ID
+  4. Group members separated by commas
   
 ## Step 5: Create a Home Directory 
 
@@ -100,7 +102,7 @@ $ sudo cp -R /etc/skel /home/galadriel
 The directory is owned by `root`. Use `chown` to fix it: 
 
 ``` 
-$ sudo chown -R galadriel:maiar /home/galadriel/
+$ sudo chown -R galadriel:noldor /home/galadriel/
 ```
 
 ## Step 6: Test Your Work
@@ -113,6 +115,12 @@ Password:
 ```
 
 > Don't use sudo to do this test!
+
+See what groups Galadriel is in: 
+
+```
+$ groups 
+``` 
 
 ## Turn In 
 

@@ -29,7 +29,7 @@ if __name__ == '__main__':
     main()
 ```
 
-This script opens a bunch of files, burns up CPU time and wastes memory --and nothing else. You can run `py_pig.h` using `python3`:
+This script opens a bunch of files, burns up CPU time and wastes memory --and nothing else. You can run `py_pig.py` using `python3`:
 
 ```
 $ python3 ./py_pig.py &
