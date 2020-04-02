@@ -58,7 +58,7 @@ The syntax of the `grep` command is:
 
 1. Can you combine the `file` command with `grep` to list all text files in your home directory?
 
-    `file \* | grep text`
+    `file * | grep text`
 
 ## The wc command
 
@@ -68,7 +68,7 @@ Often we are just interested in the number of lines in a file, so we use the -l 
 
 1. Let `wc` count the number of lines in Shakespeare's sonnets:
 
-    `wc -l poems/Sha\*/son\*`
+    `wc -l poems/Sha*/son*`
 
     Notice they all have the same number of lines?
 
@@ -124,7 +124,7 @@ Notice how the misspelled words came to the screen and also went to the file `wo
 
 1. Now let's use the tee command to get a sorted list of the misspelled words in all of Shakespeare's sonnets and count how many there are all at the same time. Change to your home directory and use the `tee` command to collect the intermediary results:
 
-    `spell poems/Shakespeare/son\* | sort | tee words | wc -l`
+    `spell poems/Shakespeare/son* | sort | tee words | wc -l`
 
     Display the file `words` to see all the misspelled words.
 
