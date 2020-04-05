@@ -17,13 +17,18 @@
         - 192.168.100.15 lexington lexington.cis.cabrillo.edu 
         - 192.168.100.20 sun-hwa-v sun-hwa-v.cis.cabrillo.edu
         - 192.168.100.21 sun-hwa-vii sun-hwa-vii.cis.cabrillo.edu
-        - 192.168.100.90 jupyter jupyter.cis.cabrillo.edu
         
     - name: Fix opus3 in /etc/hosts.  
       lineinfile:
         path: /etc/hosts
         regexp: 'opus3'
         line: 172.19.100.2   opus3 opus3.cis.cabrillo.edu
+
+    - name: Fix jupyter in /etc/hosts.  
+      lineinfile:
+        path: /etc/hosts
+        regexp: 'jupyter'
+        line: 172.19.100.3   jupyter jupyter.cis.cabrillo.edu
 
     - name: Add the cis90 group.
       group:
