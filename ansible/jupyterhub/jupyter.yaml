@@ -134,11 +134,11 @@
     - name: "Generate Let's Encrypt private key"
       shell: "openssl genrsa 4096 | sudo tee /etc/letsencrypt/keys/{{ domain_name }}.key"
     - name: "Generate Let's Encrypt CSR"
-      shell: "openssl req -new -sha256 -key /etc/letsencrypt/keys/{{ domain_name }}.key -subj \"/CN={{ domain_name }}\" -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf \"\n[SAN]\nsubjectAltName=DNS:{{ domain_name }},DNS:www.{{ domain_name }}\")) | sudo tee /etc/letsencrypt/csrs/{{ domain_name }}.csr"
+      shell: "openssl req -new -sha256 -key /etc/letsencrypt/keys/{{ domain_name }}.key -subj \"/CN={{ domain_name }}\" -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf \"\n[SAN]\nsubjectAltName=DNS:{{ domain_name }}\")) | sudo tee /etc/letsencrypt/csrs/{{ domain_name }}.csr"
       args:
         executable: /bin/bash
     - name: "Begin Let's Encrypt challenges"
-      letsencrypt:
+      acme_certificate:
         acme_directory: "{{ acme_directory }}"
         acme_version: "{{ acme_version }}"
         account_key_src: "{{ letsencrypt_account_key }}"
@@ -150,6 +150,9 @@
         fullchain_dest: "{{ letsencrypt_certs_dir }}/fullchain_{{ domain_name }}.crt"
         remaining_days: 91
       register: acme_challenge_your_domain
+    - debug:
+        var: acme_challenge_your_domain
+        verbosity: 1
     - name: "Create .well-known/acme-challenge directory"
       file:
         path: /var/www/html/.well-known/acme-challenge
@@ -157,17 +160,18 @@
         owner: root
         group: root
         mode: u=rwx,g=rx,o=rx
-    - name: "Implement http-01 challenge files"
+    - name: "Placce http-01 challenge files."
       copy:
-        content: "{{ acme_challenge_your_domain['challenge_data'][item]['http-01']['resource_value'] }}"
-        dest: "/var/www/html/{{ acme_challenge_your_domain['challenge_data'][item]['http-01']['resource'] }}"
+        dest: /var/www/html/{{ item.key }}/{{ item.value['http-01']['resource'] }}
+        content: "{{ item.value['http-01']['resource_value'] }}"
         owner: root
         group: root
         mode: u=rw,g=r,o=r
-      with_items:
-      - "{{ domain_name }}"
+      loop: "{{ acme_challenge_your_domain.challenge_data | dictsort }}"
+      when: acme_challenge_your_domain is changed
+
     - name: "Complete Let's Encrypt challenges"
-      letsencrypt:
+      acme_certificate:
         acme_directory: "{{ acme_directory }}"
         acme_version: "{{ acme_version }}"
         account_key_src: "{{ letsencrypt_account_key }}"
