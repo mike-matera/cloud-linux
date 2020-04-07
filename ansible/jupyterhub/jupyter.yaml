@@ -160,9 +160,9 @@
         owner: root
         group: root
         mode: u=rwx,g=rx,o=rx
-    - name: "Placce http-01 challenge files."
+    - name: "Place http-01 challenge files."
       copy:
-        dest: /var/www/html/{{ item.key }}/{{ item.value['http-01']['resource'] }}
+        dest: /var/www/html/{{ item.value['http-01']['resource'] }}
         content: "{{ item.value['http-01']['resource_value'] }}"
         owner: root
         group: root

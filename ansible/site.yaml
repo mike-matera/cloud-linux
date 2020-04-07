@@ -1,0 +1,12 @@
+---
+# Deploy all of my Linux-based infrastructure. 
+
+- name: Apply common configuration across all nodes. 
+  hosts: all
+  tags:
+    - setup
+  remote_user: root 
+  roles:
+    - common 
+
+- import_playbook: cis90.yaml
