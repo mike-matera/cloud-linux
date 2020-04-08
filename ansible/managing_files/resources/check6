@@ -1,161 +1,170 @@
 #!/bin/bash
-dir=cis90
-username=$1
-i=${username}
-if [ "$i" = "" ]; then 
-  i=${LOGNAME}
+
+
+if [ "$1" == "" ]; then 
+	home=$HOME
+else
+	tempdir=$(mktemp -d)
+	trap 'rm -rf $tempdir' EXIT 
+	tar -C $tempdir -xvf "$1" 
+	home=$tempdir
 fi
 
-clear
+cd $home
+echo "HOME IS $home"
+
+if [ -z "$tempdir" ]; then clear; fi 
 echo Please resize your terminal window to be wider and taller
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S1="Step 3"
 echo $S1
-ls -l /home/$dir/$i/check5 ~mmatera/check5
+ls -l $home/check5 ~mmatera/check5
 echo "Your check5 file should be the same size as Mike's <====="
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S2="Step 5"
 echo $S2
-ls -l /home/$dir/$i/check5
+ls -l $home/check5
 echo " r--r--r--, check5 permissions should be 444 <====="
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S3="Step 8"
 echo $S3
-ls -ld /home/$dir/$i/misc 
+ls -ld $home/misc 
 echo " rwxrwxrwx, misc/ should be 777 <====="
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S4="Step 9a"
 echo $S4
-ls -ld /home/$dir/$i/[pP]oems
+ls -ld $home/[pP]oems
 echo " rwxr-xr-x, poems/ should be 755 <====="
 echo " ";  echo " "
 S4="Step 9b"
 echo $S4
-ls -ld /home/$dir/$i/[pP]oems/*
+ls -ld $home/[pP]oems/*
 echo " rwxr-xr-x, poems/*/ should be 755 <====="
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S5="Step 10"
 echo $S5
-ls -l /home/$dir/$i/poems/*/*
+ls -l $home/poems/*/*
 echo " r--r--r--, poems/*/* should be 444 <====="
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S6="Step 11"
 echo $S6
-ls -ld /home/$dir/$i/bin
+ls -ld $home/bin
 echo " rwxr-x---, bin/ should be 750 <====="
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S7="Step 12"
 echo $S7
-ls -l /home/$dir/$i/bin/*
+ls -l $home/bin/*
 echo " r-xr-x---, bin/* should be 550, EXCEPT enlightenment which should be 554 (Step 17) <=====" 
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
- clear
+ if [ -z "$tempdir" ]; then clear; fi 
 S8="Step 13"
 echo $S8
-ls -ld /home/$dir/$i/class/{labs,tests}
+ls -ld $home/class/{labs,tests}
 echo "                     > users < the group ID on class/*/ should be users  <=====" 
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S9="Step 14a"
 echo $S9
-ls -ld /home/$dir/$i/class
+ls -ld $home/class
 echo " rwx--x---, class should be 710 <====="; echo " "
 echo " "
 S9="Step 14b"
 echo $S9
-ls -ld /home/$dir/$i/class/labs 
+ls -ld $home/class/labs 
 echo " r-x-wx---, class/labs should be 530 <====="; echo " "
 echo " "
 S9="Step 14c"
 echo $S9
-ls -ld /home/$dir/$i/class/tests 
+ls -ld $home/class/tests 
 echo " rwx------, class/tests should be 700 <====="; echo " "
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S10="Step 15"
 echo $S10
-ls -l /home/$dir/$i/class/{labs,tests}/*
+ls -l $home/class/{labs,tests}/*
 echo " rw-------, class/*/* should be 600<====="
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S11="Step 16a"
 echo $S11
-ls -ld /home/$dir/$i/edits
+ls -ld $home/edits
 echo " rwx------, edits/ should be 700 <====="
 echo " "
 S11="Step 16b"
 echo $S11
-ls -l /home/$dir/$i/edits/*
+ls -l $home/edits/*
 echo " rw----r--, edits/* should be 604 <====="
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S12="Step 17"
 echo $S12
-ls -l /home/$dir/$i/misc
+ls -l $home/misc
 echo " rw-r--r--, misc/* should have read for owner, group and others. Note: mystery will be 777 <=====" 
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S13="Step 19a"
 echo $S13
-ls -ld /home/$dir/$i/old
+ls -ld $home/old
 echo " rw-rw-r--, old should be 664 <====="
 echo " "
 S13="Step 19b"
 echo $S13
-ls -ld /home/$dir/$i/olddir
+ls -ld $home/olddir
 echo " rwxrwxr-x, olddir/ should be 775 <=====" 
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S14="Step 21a"
 echo $S14
-ls -ld /home/$dir/$i/new
+ls -ld $home/new
 echo " rw-rw-rw-, new should be 666 <====="; echo " "
 echo " "
 S14="Step 21a"
 echo $S14
-ls -ld /home/$dir/$i/newdir
+ls -ld $home/newdir
 echo " rwxrwxrwx, newdir/ should be 777 <=====" 
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
+if [ -z "$tempdir" ]; then clear; fi 
 S15="Step 23"
 echo $S15
-ls -ld /home/$dir/$i/newer
+ls -ld $home/newer
 echo " ---------, newer, should be 000 <====="
-read -p "Press Enter to continue" COMMENT0
+if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
-clear
-temptar=$(mktemp /tmp/files-$USER-XXXXXX.tar)
-tar -cf $temptar * 1>/dev/null 2>&1
-echo "=============================================================="
-echo Submit this tar file on Canvas\!
-echo "=============================================================="
-echo ""
-echo "I have created a tar file of your home directory in: "
-echo "" 
-echo $temptar
-echo ""
+if [ -z "$tempdir" ]; then 
+  clear
+  temptar=$(mktemp /tmp/files-$USER-XXXXXX.tar)
+  tar -cf $temptar * 1>/dev/null 2>&1
+  echo "=============================================================="
+  echo Submit this tar file on Canvas\!
+  echo "=============================================================="
+  echo ""
+  echo "I have created a tar file of your home directory in: "
+  echo "" 
+  echo $temptar
+  echo ""
+fi
 
 exit

@@ -5,16 +5,15 @@
 # c<num>=<what to look for when grading>
 # 
 
-dir=cis90
-homedirname=${LOGNAME%90}   # Strip 90 off the end
-
 if [ "$1" == "" ]; then 
-	home=/home/$dir/$homedirname
+	home=$HOME
 else
-	home=/home/$dir/$1
+	tempdir=$(mktemp -d)
+	trap 'rm -rf $tempdir' EXIT 
+	tar -C $tempdir -xvf "$1" 
+	home=$tempdir
 fi
 
-home=$HOME
 cd $home
 
 v1='Making-Directories-Step-2 F .  d edits ok d docs ok d etc ok'
@@ -94,7 +93,9 @@ do
 	set $(echo $line)
 	
 	step=$1
-	clear
+	if [ -z "$tempdir" ]; then 
+		clear
+	fi
 	echo " "; echo "================================"; echo $step; echo " "
 	shift
         option=$1
@@ -147,20 +148,23 @@ do
         	shift
 	done
 	echo " "; echo $comment
-	read -p "Continue?" buffer
+	if [ -z "$tempdir" ]; then 
+		read -p "Continue?" buffer; 
+	fi
 done
-clear
 
-temptar=$(mktemp /tmp/files-$USER-XXXXXX.tar)
-tar -cf $temptar * 1>/dev/null 2>&1
-echo "=============================================================="
-echo Submit this tar file on Canvas\!
-echo "=============================================================="
-echo ""
-echo "I have created a tar file of your home directory in: "
-echo "" 
-echo $temptar
-echo ""
+if [ -z "$tempdir" ]; then 
+	temptar=$(mktemp /tmp/files-$USER-XXXXXX.tar)
+	tar -cf $temptar * 1>/dev/null 2>&1
+	echo "=============================================================="
+	echo Submit this tar file on Canvas\!
+	echo "=============================================================="
+	echo ""
+	echo "I have created a tar file of your home directory in: "
+	echo "" 
+	echo $temptar
+	echo ""
+fi 
 
 exit
 
