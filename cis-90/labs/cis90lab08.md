@@ -47,7 +47,7 @@ We will now use the `at` command to submit the work you have just done. Since th
 ```
 at 11:59pm
 at> cat files.out bigshell > lab08
-at> cp lab08 /home/mmatera/turnin/cis90/lab08.$LOGNAME
+at> cp lab08 /home/mmatera/turnin/lab08.$LOGNAME
 at> <Ctrl-D>
 ```
 
