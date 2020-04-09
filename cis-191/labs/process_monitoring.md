@@ -2,7 +2,14 @@
 
 When a machine is misbehaving you need to use tools to find answers. In this lab you'll download a program that'll ask you questions that you can answer using `ps` and other tools.
 
-Download the grading script with the command:
+You need to install some infrastructure before you begin:
+
+```
+$ sudo apt install python3-pip 
+$ pip3 install --user -U http://www.lifealgorithmic.com/dist/lifealgorithmic-0.0.2.tar.gz
+```
+
+Then download the grading script with the command:
 
 ```
 $ wget http://opus.cis.cabrillo.edu/cis191/process_challenge.py
