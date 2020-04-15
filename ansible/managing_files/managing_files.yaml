@@ -20,3 +20,10 @@
         owner: root
         group: root 
         mode: '0755'
+    - name: Create the check9 program. 
+      copy:
+        src: resources/check9
+        dest: /usr/local/bin/check9
+        owner: root
+        group: root 
+        mode: '0755'
