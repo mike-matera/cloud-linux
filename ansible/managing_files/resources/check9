@@ -4,7 +4,7 @@
 
 thisProgram=$(basename $0)
 stroke="good job!"
-turninDir=/home/mmatera/turnin/cis90
+turninDir=/home/mmatera/turnin
 lab="Lab 9"
 
 if [ "$1" == "" ]; then 
@@ -19,7 +19,7 @@ else
 fi
 
 cd $home
-echo "HOME IS $home"
+echo "HOME IS $homeDir"
 
 function abort () {
   echo
@@ -259,12 +259,8 @@ function checkLab9File () {
   turnedInFile="$homeDir/lab09"
   checkFileExists $turnedInFile "Check that lab9 file exists"
   horizontalLine
-  echo Count the lines of home, small_town, words, women, vocab
-  wc -l $homeDir/bin/home $homeDir/edits/{small_town,words,women,vocab}
-  echo
-
-  echo "Count the lines of home, small_town, words, women, vocab AND index.html (extra credit)"
-  wc -l $homeDir/bin/home $homeDir/edits/{small_town,words,women,vocab} $homeDir/cis90_html/index.html
+  echo Count the lines of home, small_town, words, women
+  wc -l $homeDir/bin/home $homeDir/edits/{small_town,words,women}
   echo
 
   echo "Count the number of lines in the lab09 file:"
@@ -285,11 +281,8 @@ function checkLab9File () {
   echo; echo -n "Check that woman file is included in lab09 file"
   checkFileContains $turnedInFile "Now is the time" 
 
-  echo; echo -n "Check that vocab file is included in lab09 file"
-  checkFileContains $turnedInFile "De winter komt eraan"
-
-  echo; echo -n "Check email for successful submittal"
-  checkFileContains /var/mail/$LOGNAME "Your lab09.$LOGNAME submittal was received"
+  echo; echo -n "Check for successful submittal"
+  checkFileContains $turninDir/lab09.$LOGNAME "SMALL"
 
 }
 
@@ -311,9 +304,19 @@ function checkExtraCredit () {
   rm /tmp/$$
 }
 
-echo
-echo "Please make your window taller and wider"
-pause
+function saveTarFile() {
+  temptar=$(mktemp /tmp/files-$USER-XXXXXX.tar)
+  tar -cf $temptar * 1>/dev/null 2>&1
+  echo "=============================================================="
+  echo Submit this tar file on Canvas\!
+  echo "=============================================================="
+  echo ""
+  echo "I have created a tar file of your home directory in: "
+  echo "" 
+  echo $temptar
+  echo ""
+  pause
+}
 
 PTS="Points off [0]: "
 
@@ -329,10 +332,9 @@ do
     2 = Check small_town file
     3 = Check words file
     4 = Check women file
-    5 = Check vocab file
-    6 = Check lab09 file
-    7 = Check EVERYTHING (1-6 above)
-    8 = Check Extra Credit
+    5 = Check lab09 file
+    6 = Check EVERYTHING (1-6 above)
+    8 = Save your progress in a tar file 
     9 = exit
 "
   read -p "    Enter selection: " reply
@@ -345,18 +347,19 @@ do
     ;;
     4) checkWomenFile
     ;;
-    5) checkVocabFile 
+#    5) checkVocabFile 
+#    ;;
+    5) checkLab9File
     ;;
-    6) checkLab9File
-    ;;
-    7) checkHomeFile
+    6) checkHomeFile
        checkSmallTownFile
        checkWordsFile
        checkWomenFile
-       checkVocabFile 
        checkLab9File
     ;;
-    8) checkExtraCredit
+    #8) checkExtraCredit
+    #;;
+    8) saveTarFile  
     ;;
     9) break
     ;;

@@ -77,8 +77,7 @@ To get credit for this lab, you must send me all the files that you have created
     1. `words`
     1. `small_town`
     1. `women`
-    1. `vocab`
 
-1. Copy your `lab09` file to the `/home/mmatera/turnin/cis90` directory renaming it as `lab09.$LOGNAME`. This can be done in a single command.
+1. Copy your `lab09` file to the `/home/mmatera/turnin` directory renaming it as `lab09.$LOGNAME`. This can be done in a single command.
 
 You can submit as many times as you like up to the deadline. Run `check9` to check your work and make sure you didn't forget anything.
