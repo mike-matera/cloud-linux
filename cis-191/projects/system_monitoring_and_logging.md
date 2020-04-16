@@ -4,7 +4,7 @@ In this project you'll examine a Linux machine to answer summary information and
 
 ## Examining the System  
 
-For this project you will execute commands that show you what's going on with a system. You can do this lab on your VM, opus or any other Linux system. For each question you will submit a screenshot of the command and its output showing the answer to the question:
+For this project you will execute commands that show you what's going on with a system. You can do this lab on your VM, opus or any other Linux system. For each question you will submit a screenshot of the command and its output showing the answer to the question (or copy and paste text from the terminal):
 
   - When was the last time the system booted (what date and time)?
   - What is the average number of disk I/O requests that the system has made since boot?
