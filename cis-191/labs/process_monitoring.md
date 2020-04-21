@@ -9,10 +9,10 @@ $ sudo apt install python3-pip
 $ pip3 install --user -U http://www.lifealgorithmic.com/dist/lifealgorithmic-0.0.2.tar.gz
 ```
 
-Then download the grading script with the command:
+Then download the challenge script using the link below: 
 
-```
-$ wget http://opus.cis.cabrillo.edu/cis191/process_challenge.py
+```eval_rst 
+:download:`process_challenge.py`
 ```
 
 Then run it:
