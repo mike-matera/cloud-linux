@@ -28,7 +28,7 @@ Log on to Opus so that you have a command line shell at your service. Start this
 
 1. Now exit out of the child shell by typing `Ctrl-D`. What is the prompt now? What does this tell you about the effect changes made by children have on their parents?
 
-### `.bashrc` and `.bash_profile` Files
+### The `.bashrc` File
 
 Aliasing is a mechanism provided by the bash shell that allows you to define your own commands, or to redefine UNIX commands. Alias definitions should be stored in your `.bashrc` file Normally, `.bashrc` is a file that you own and you are free to change. On Opus3 I accidentally made your `.bashrc` a symlink. You have to fix that.
 
