@@ -15,23 +15,17 @@ $ sudo apt update
 Now you're ready to install `ntop`:
 
 ```
-$ sudo apt install ntop 
+$ sudo apt install ntopng 
 ```
 
-## Step 3: Configure `ntop`
-
-The `ntop` command has a configuration helper that runs when you install it. During the install you should see a menu. The menu will ask what interfaces you want `ntop` to listen to. Replace `none` with `enp0s3`.
-
-Set the administrator password to anything you like. I suggest `Cabri11o`. 
-
-## Step 4: Check `ntop`
+## Step 3: Check `ntop`
 
 How do you know if `ntop` is running? There are a few ways:
 
 Ask `systemctl` for status:
 
 ```
-$ systemctl status ntop 
+$ systemctl status ntopng 
 ● ntop.service - LSB: Start ntop daemon
    Loaded: loaded (/etc/init.d/ntop; bad; vendor preset: enabled)
    Active: active (running) since Thu 2019-04-25 15:20:21 UTC; 57s ago
@@ -59,12 +53,12 @@ LISTEN     0      128                                                         ::
 
 Let's move the `ntop` port to `80` so we can see `ntop` from our host machine. 
 
-## Configure `ntop`
+## Step 4: Configure `ntop`
 
-The configuration for `ntop` is simple. You can find the configuration in `/etc/default/ntop`. Edit the file and change the setting shown below: 
+The configuration for `ntop` is simple. You can find the configuration in `/etc/ntopng.conf`. Edit the file and change the setting shown below: 
 
 ```
-GETOPT="-w 80"
+-w=80
 ```
 
 Use `systemctl` to restart `ntop`:
@@ -85,13 +79,38 @@ LISTEN     0      128                                                         ::
 
 Perfect! 
 
-## Look at `ntop`
+## Step 5: Look at `ntop`
 
 If you reconfigured `ntop` you should be able to visit the URL below and see it running:
 
 http://localhost:8080
 
 Take a screenshot of `ntop`
+
+## Installing Packages with Ansible 
+
+This play installs and configures `ntopng`: 
+
+```yaml
+- hosts: all
+  name: Install packages
+  become: true
+  tasks:
+    - name: Install ntopng
+      package:
+        name:
+          - ntopng
+        state: latest
+    - name: Configure ntopng
+      lineinfile:
+        path: /etc/ntopng.conf
+        regexp: '^-w='
+        line: -w=80
+    - name: Restart ntopng
+      service:
+        name: ntopng
+        state: restarted
+```
 
 ## Turn In 
 
