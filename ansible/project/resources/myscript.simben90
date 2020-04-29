@@ -1,0 +1,290 @@
+#!/bin/bash
+#
+# CIS 90 simple script project
+# Rich Simms
+# May 20, 2006
+#
+
+progress ()
+{  # Print accelerating dots showing "progress"
+   #echo -n "...";
+   k=5
+   for ((i=k; $i>0; i=$i-1)) do
+     sleep .$((i));\
+     for ((j=k-i; $j>0; j=$j-1)) do
+       echo -n "..."
+     done
+   done
+   sleep .2; echo "."
+}
+
+fake-dump ()
+{ # Print a pretend stack dump
+DELAY=.25
+echo " "; sleep $DELAY
+echo "*** ABNORMAL TERMINATION ***  by Operating System"; sleep $DELAY
+echo "Core ROM dump <e456-2b34> firmware activation code x4b"; sleep $DELAY
+echo "Alloc PC      Size     Blocks      Bytes    What"; sleep $DELAY
+echo "0x2AB2         192          1        192    IDB: disk info"; sleep $DELAY
+echo "0x70EC          92          2        184    Init"; sleep $DELAY
+echo "0xC916         128         50       6400    Boot ldr Cache"; sleep $DELAY
+echo "0x76ADE       4500          1       4500    CPE data"; sleep $DELAY
+echo "0x777A2        408          1        408    Init"; sleep $DELAY
+echo "0x777B2        116          1        116    Init"; sleep $DELAY
+echo "0xA4600         24          3         72    List"; sleep $DELAY
+echo "0xD9B5C         52          1         52    BIOS code"; sleep $DELAY
+echo "0xE0A00          0       3413    2072576    Pool mem"; sleep $DELAY
+echo "0xE0B00          0         28    2971680    Alloc Blocks"; sleep $DELAY
+echo "0xE0C00         40       3441     137640    CPU init"; sleep $DELAY
+echo "0xE0D00          0       3413    2072576    RAM init"; sleep $DELAY
+echo "0xE0F00          0         28    2971680    MB trriger"; sleep $DELAY
+}
+
+mikes_menu()
+{
+while true
+do
+    clear
+    echo -n "
+    $NAME, please Enter an option number from the list below:
+
+    1) Submenu 1
+    2) Submenu 2
+
+    or enter Q to Quit
+
+    Enter Your Choice: "
+        read RESPONSE
+        case $RESPONSE in
+
+          1)    #***************************************************
+	  ;;
+	  *)
+		return
+ 	  ;; 
+	esac
+done
+}
+
+# Get first name of use using finger and cut commands
+NAME=$(grep ${LOGNAME}:x /etc/passwd | cut -d: -f 5)
+
+#echo "Debug trace NAME=$NAME"; echo -n "Press Enter to continue: "; read ANSWER
+
+# Just in case above fails to get a first name
+if [ "$NAME" = "" ] || [ "$NAME" = " " ]; then
+  echo -n "What is your first name? "
+  read NAME
+fi
+
+while true
+do
+    clear
+    echo -n "
+    $NAME, please Enter an option number from the list below:
+
+    1) What is today?
+    2) The users on $HOSTNAME
+    3) Warning, don't go here!!
+    4) Sort current directory
+    5) Back pat eCards
+    6) Check IP forwarding status
+    7) Do multiple things 
+    8) Go to the submenu 
+
+    or enter Q to Quit
+
+    Enter Your Choice: "
+        read RESPONSE
+        case $RESPONSE in
+
+          1)    #***************************************************
+                #* Date and calendar stuff                         *
+                #***************************************************
+                echo "Processing request now, please be patient"
+                progress
+                echo "Success! The date has been determined"
+                echo -n "Are you ready to view the date [yes]?"
+                read ANSWER
+                if [ "$ANSWER" != "no" ]; then
+
+                   echo " "
+                   date "+Today is %A, %B %e"
+                   date "+It is week %U and day %j of the year %Y"
+                   echo " "
+                fi
+                if [ "$BIRTHDAY" != "" ]; then
+                   echo -n "$NAME, like to see your birth month [yes]?"
+                   read ANSWER
+                   if [ "$ANSWER" != "no" ]; then
+                        progress
+                        echo "You have been very patient!"
+                        echo "Here is your birth month: "
+                        echo " "
+                        MON=$( echo $BIRTHDAY | cut -c1-2 )
+                        YEAR=$( echo $BIRTHDAY | cut -c7-8 )
+                        cal $MON 19$YEAR
+                   fi
+                fi
+                ;;
+          2)    #***************************************************
+                #* Who and finger stuff                            *
+                #***************************************************
+                NUMBER=$(who | wc -l)
+                echo "There are $NUMBER users logged in."
+                echo -n "Would you like to know who they are [yes]?"
+                read ANSWER
+                if [ "$ANSWER" != "no" ]; then
+                  NUMBER=$(finger | wc -l)
+                  row=2
+                  while [ $row -le $NUMBER ]
+                  do
+                    # cycle through eacl ine of finger output
+                    # print the 2nd and 3rd fields which are the first
+                    # and last names.  Note echo is used to remove
+                    # duplicate blanks for cut to work properly
+                    echo $(finger | head -$row | tail -1) | cut -f2-3 -d' '
+                    row=$(( $row + 1 ))
+                  done
+                fi
+                ;;
+          3)    #**************************************************
+                #*  Emulate the  dangerous rm command             *
+                #**************************************************
+                echo "$NAME, the rm (remove) command is used to delete files."
+                echo "The -r (recursive) option is quite dangerous as it  "
+                echo "allows deleting not only files but directories and all"
+                echo "sub-directories below.  The rm -r / command is the most"
+                echo "destructive of all as this specifies deleting every file"
+                echo "and directory on the system!"
+                echo " "
+                echo "Lets explore now how the rm command works ..."
+                echo -n "What is the most important file or directory "
+                echo "on this system?"
+                read ANSWER
+                echo "Executing rm -r $ANSWER"
+                sleep .4
+                echo "Operation completed successfully"
+                echo " "
+                echo -n "What is the next most important file or "
+                echo "directory on this system?"
+                read ANSWER
+                echo "Executing rm -r $ANSWER"
+                sleep .4
+                echo "Operation completed successfully"
+                echo " "
+                echo "$NAME, which OS is better, Windows or Linux?"
+                read ANSWER
+                echo "Sorry $NAME, WRONG answer, executing rm -r / "
+                progress
+                echo "Operation completdddDDuggh..m01&/~%^^+~~~~.. . ..u=~y"
+                sleep 2
+                fake-dump
+                sleep 1
+                echo "No OS detected, entering BIOS boot loader module <e445>"
+                sleep .2
+                echo "Type magic to restore OS and any deleted files"
+                sleep .2
+                echo -n "ROM location 0x013e>"
+                read ANSWER
+                progress
+                echo "Operation completed succesfully"
+                sleep 1
+                echo "*****************************************************"
+                echo "* Important NOTICE:  All files and directories      *"
+                echo "* deleted were fictional.  No animals or files were *"
+                echo "* harmed or deleted while running this script.      *"
+                echo "* REMEMBER:  Never give out root's password and     *"
+                echo "* always backup your system !!                      *"
+                echo "*****************************************************"
+                ;;
+          4)    #*********************************************************
+                #*  Various ls sorting options                           *
+                #*********************************************************
+                echo "Lets sort and list your current directory."
+                echo -n "By name, date, size [size]? (or Q to quit): "
+                read ANSWER
+                while [ "$ANSWER" != "Q" ] && [ "$ANSWER" != "q" ]; do
+                if [ "$ANSWER" = "name" ]; then
+                        echo "Using: ls -l"; ls -l
+                elif [ "$ANSWER" = "date" ] ; then
+                        echo "Using: ls -lt"; ls -lt
+                else
+                        echo "Using: ls -lS"; ls -lS
+                fi
+                echo -n "By name, date, size [size]? (or Q to quit): "
+                read ANSWER
+                # echo "Debug trace (case4) ANSWER = $ANSWER"
+                done
+                ;;
+          5)    #***************************************************
+                #*  Use mail and banner to send eCard              *
+                #***************************************************
+                echo "eCard selections are:"
+                echo " a) The Great Job card"
+                echo " b) The Cool card"
+                echo " c) The Crazy card"
+                echo -n "Please select a, b, or c [c]: "
+                read ANSWER
+                echo "Mailing eCard to $LOGNAME"
+                if [ "$ANSWER" = "a" ]; then
+                  banner Great Job $NAME | mail -s "Great Job $NAME" $LOGNAME
+                elif [ "$ANSWER" = "b" ] ; then
+                  banner $NAME is Cool | mail -s "$NAME is cool" $LOGNAME
+                else
+                  banner $NAME is one crazy dude | mail -s "Crazy" $LOGNAME
+                fi
+                ;;
+          6)    #*******************************************************
+                #* Check IP routing status on local system             *
+                #*******************************************************
+                echo "Checking: /proc/sys/net/ipv4/ip_forward"
+                echo "On: $HOSTNAME"
+                progress
+                clear
+                if [ $(cat /proc/sys/net/ipv4/ip_forward) = 1 ]; then
+                        echo "Routing on $HOSTNAME is ON (1)"
+                        echo " "
+                        echo "*********************************"
+                        banner ON
+                else
+                        echo "Routing on $HOSTNAME is OFF (0)"
+                        echo " "
+                        echo "*********************************"
+                        banner OFF
+                fi
+                echo "*********************************"
+                ;;
+	  7)    # Added by mike... do more tings. 
+		# This is starter-00
+		echo Hello World
+
+		# This is starter-01 
+		clear
+		echo "Sample script: Starter-01"
+		echo "My name is: Xxxxx"
+		echo "My distro is:  Cxxxxx Lxxxx N"
+		echo
+		echo "My favorite dog poem is:"
+		head -n10 ~/poems/Anon/nursery | tail -n4
+		echo
+		echo Xxxxx
+		echo CAN DO
+		banner It
+
+                ;;
+  	    8 ) 
+		mikes_menu
+		;;
+          [qQ]) clear
+                exit 0
+                ;;
+          *)    #***********************************
+                # User selected unlisted option    *
+                #***********************************
+                echo "Not an option! Read the manual if needed and try again."
+                ;;
+        esac
+        echo -n "Hit the Enter key to return to menu "
+        read dummy
+done

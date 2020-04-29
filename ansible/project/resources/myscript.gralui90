@@ -1,0 +1,158 @@
+#!/bin/bash
+#
+# menu: A simple menu template
+#
+while true
+do
+        clear
+        echo -n "
+                Homer's CIS 90 Final Project
+        1) Color
+        2) My Find Command
+        3) More practice
+        4) Examples - test file attributes
+        5) Examples - simple if statement
+        6) Examples - another if statement
+        7) Examples - logic
+	8) Examples - cut command to get name from /etc/passwd
+        9) Hacking with the grep command
+        10) Exit
+
+        Enter Your Choice: "
+        read RESPONSE
+        case $RESPONSE in
+          1)    # Color
+                echo -n "What is your name? "
+                read NAME
+                echo -n "What is your favorite color? "
+                read COLOR
+                echo "Hi $NAME, your fravorite color is $COLOR"
+                ;;
+          2)    # My front-end for the find command
+                echo -n "Which user? "
+                read USER
+                echo -n "Starting in what directory? "
+                read DIR
+                NUM=$(find $DIR -user $USER 2> /dev/null | tee files.$USER | wc -l)
+                echo "BTW, that is $NUM files I found for you"
+                echo "The names are in files.$USER"
+                echo -n "Press Enter to see them now "
+                read ANSWER
+                cat files.$USER
+                ;;
+          3)    # Commands for Task 3
+                NAME=$(cat /etc/passwd | grep $LOGNAME | cut -f5 -d":" )
+                echo "Hello $NAME"
+                echo "$NAME, Do you like short or long dates?"
+                echo -n "Enter 1 for short or 2 for long: "
+                read ANSWER
+                if [ "$ANSWER" = 1 ]; then
+                        date '+%A'
+                else
+                        date '+%A, %B %d, %Y'
+                fi
+                ;;
+          4)    # Test file attributes
+                echo "The files in this directory are: "
+                ls -1
+                echo -n "Which file are you interested in? : "
+                read filename
+
+                echo "Here are some details about $filename:"
+                file $filename
+
+                if [ -f $filename ]; then
+                        echo $filename is a regular file
+                        echo "Here is long listing of the $filename" file:
+                        ls -l $filename
+                fi
+
+                if [ -d $filename ]; then
+                        echo $filename is a directory
+                        echo "Here is a long listing of the $filename directory:"
+                        ls -ld $filename
+                fi
+                ;;
+          5)    # Simple if statement
+                echo -n "Enter d or c: "
+                read answer
+
+                if [ "$answer" = "d" ]; then
+                        date
+                fi
+
+                if [ "$answer" = "c" ]; then
+                        cal
+                fi
+
+                ;;
+          6)    # Another if statement
+                echo -n "Enter d or c: "
+                read answer
+
+                if [ "$answer" = "d" ] || [ "$answer" = "D" ]; then
+                        date
+                fi
+
+                if [ "$answer" = "c" ] || [ "$answer" = "C" ]; then
+                        cal
+                fi
+
+                ;;
+
+
+          7)    # logic example
+                echo -n "Is the furnace "on" or off? "
+                read furnace
+                echo -n "Is there a fire in the fireplace (yes or no)? "
+                read fireplace
+
+                if [ "$furnace" = "on" ] && [ "$fireplace" = "yes" ]; then
+                        echo "It is really hot in here"
+                fi
+
+                if [ "$furnace" = "off" ] && [ "$fireplace" = "yes" ]; then
+                        echo "It is warm and smokey in here"
+                fi
+
+                if [ "$furnace" = "on" ] && [ "$fireplace" = "no" ]; then
+                        echo "It is warm in here"
+                fi
+
+                if [ "$furnace" = "off" ] && [ "$fireplace" = "no" ]; then
+                        echo "It is really freezing in here"
+                fi
+                ;;
+	   8)   # Using the cut command
+       		NAME=$(cat /etc/passwd | grep $LOGNAME | cut -f5 -d":" | cut -f1 -d" ")
+       		echo "Hello $NAME"
+       		date               
+		;;
+           9)    # Task 9 - grep command explored
+
+                # Simple grep for "beauty"
+                echo "Are you ready to search for beauty in the poems?"
+                read dummy
+                grep -h beauty /home/cis90/gralui90/Poems/*/*
+
+                # Same as before but counts matches too
+                echo "Ready to count them?"
+                read dummy
+                grep -h beauty /home/cis90/gralui90/Poems/*/* | wc -l
+
+                # Prompt user to supply search string and use color
+                echo "Enter a new string to search for"
+                read string
+                echo searching for '"'$string'"'
+                grep -h --color $string /home/cis90/gralui90/Poems/*/*
+                ;;
+          10)   exit 0
+                ;;
+          *)    echo "Please enter a number between 1 and 6"
+                ;;
+        esac
+
+        echo -n "Hit the Enter key to return to menu "
+        read dummy
+done
+
