@@ -42,41 +42,41 @@ $ uname -r
 Rename a copy of your kernel configuration file. You will turn it in with this project. Rename the configuration file from your kernel source directory like this:
 
 ```
-$ cp .config ~/kernel-configuration.txt
+$ cp .config /vagrant/kernel-configuration.txt
 ```
 
-## Recompile the scull Module 
+## Recompile the simple Module 
 
 The module you compiled for [Build a Custom Driver](../labs/build_a_custom_driver.md) was for your stock kernel. It can't be inserted into your new kernel because the versions don't match exactly. For this part recompile your module and install it into your new kernel's modules directory. Follow the instructions in the lab to build it. This command installs the module:
 
 ```
-$ sudo cp scull.ko /lib/modules/$(uname -r)/kernel/drivers/misc
+$ sudo cp simple.ko /lib/modules/$(uname -r)/kernel/drivers/misc
 $ sudo depmod -a
 ```
 
 If your module was copied into the right place `depmod` will find it and check it's module dependencies. Verify that it was found:
 
 ```
-$ grep scull /lib/modules/$(uname -r)/modules.dep
-kernel/drivers/misc/scull.ko:
+$ grep simple /lib/modules/$(uname -r)/modules.dep
+kernel/drivers/misc/simple.ko:
 ```
 
-The scull module has no dependencies but you can see that it's present in the modules.dep file. Now you can install the module with the preferred command:
+The simple module has no dependencies but you can see that it's present in the modules.dep file. Now you can install the module with the preferred command:
 
 ```
-$ sudo modprobe scull
-student@cis191-20:~/ldd3/scull$ lsmod | grep scull
-scull         20480 0
+$ sudo modprobe simple
+student@cis191-20:~/ldd3/simple$ lsmod | grep simple
+simple         20480 0
 ```
 
 Notice you don't need the *.ko extension! Make a copy of the modules.dep to turn in:
 
 ```
-$ cp /lib/modules/$(uname -r)/modules.dep ~/modules.dep
+$ cp /lib/modules/$(uname -r)/modules.dep /vagrant/modules.dep
 ```
 
 ## Turn In 
 
 Turn in your kernel configuration file and your module dependencies.
-  - kernel-configuration.txt
-  - modules.dep
+  - `kernel-configuration.txt`
+  - `modules.dep`
