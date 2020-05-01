@@ -54,5 +54,5 @@ $ lsmod | grep simple
 When you're done save the bottom lines of your kernel log to a file called `custom_driver.txt` like this:
 
 ```
-$ tail /var/log/kern.log > /vagrant/custom_driver.txt
+$ sudo tail /var/log/kern.log > /vagrant/custom_driver.txt
 ```
