@@ -10,10 +10,10 @@ Git is a source control management (SCM) tool that is popular with open source p
 $ git clone https://github.com/mike-matera/ldd3.git
 ```
 
-That will create an "ldd3" directory in the current directory. There are several drivers in that directory, the "scull" driver compiles and can be inserted into your kernel.
+That will create an "ldd3" directory in the current directory. There are several drivers in that directory, the "simple" driver compiles and can be inserted into your kernel.
 
 ```
-$ cd ldd3/scull
+$ cd ldd3/simple
 ```
 
 Once you're in the directory you invoke the "make" command to build the source:
@@ -22,31 +22,31 @@ Once you're in the directory you invoke the "make" command to build the source:
 $ make
 ```
 
-This creates scull.ko. The *.ko extension is used for kernel modules. You can insert the kernel module with the insmod command:
+This creates simple.ko. The *.ko extension is used for kernel modules. You can insert the kernel module with the insmod command:
 
 ```
-$ sudo insmod scull.ko
+$ sudo insmod simple.ko
 ```
 
 Check to verify that your module is inserted:
 
 ```
 $ lsmod
-$ lsmod | grep scull
+$ lsmod | grep simple
 ```
 
-Most drivers print a banner to the kernel log when they are inserted. Look at the kernel message buffer to see what the scull driver reported:
+Most drivers print a banner to the kernel log when they are inserted. Look at the kernel message buffer to see what the simple driver reported:
 
 ```
 $ dmesg | tail
 $ tail /var/log/kern.log
 ```
 
-Verify that you see the banner from the scull driver. Now remove the module from the kernel and verify that it's gone:
+Verify that you see the banner from the simple driver. Now remove the module from the kernel and verify that it's gone:
 
 ```
-$ sudo rmmod scull
-$ lsmod | grep scull
+$ sudo rmmod simple
+$ lsmod | grep simple
 ```
 
 ## Turn In 
@@ -54,5 +54,5 @@ $ lsmod | grep scull
 When you're done save the bottom lines of your kernel log to a file called `custom_driver.txt` like this:
 
 ```
-$ tail /var/log/kern.log > custom_driver.txt
+$ sudo tail /var/log/kern.log > /vagrant/custom_driver.txt
 ```

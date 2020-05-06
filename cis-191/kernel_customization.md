@@ -130,21 +130,29 @@ $ sudo apt update
 $ sudo apt install dpkg-dev 
 ```
 
-You should get the kernel source from the distribution you're using. Distributions customize their kernels with additional drivers that may not be in the mainline version. If the drivers aren't present you may see problems. You can use apt-get to fetch Ubuntu's kernel sources that match your current version:
+You should get the kernel source from the distribution you're using. Distributions customize their kernels with additional drivers that may not be in the mainline version. If the drivers aren't present you may see problems. You can use apt-get to fetch Ubuntu's kernel sources that match your current version. First you have to enable source packages in apt. Uncomment the following lines from `/etc/apt/sources.list`:
 
 ```
+deb-src http://archive.ubuntu.com/ubuntu bionic main restricted
+```
+
+Now use apt to fetch the kernel source: 
+
+```
+$ sudo apt update
 $ apt-get source linux
 ```
 
-> **NOTE** This command will initially fail. You must go update /etc/apt/sources.list to include source code repositories (the ones that start with deb-src). The lines are already in the file, but commented out. Delete the hash character (#) from the lines and rerun apt-get update. Notice you don't have to be root. You should compile the kernel as a non-root user (of course only root can install it). The apt-get source command will place the downloaded source in the current directory. Here's an example of what files are downloaded:
+Notice you don't have to be root. You should compile the kernel as a non-root user (of course only root can install it). The apt-get source command will place the downloaded source in the current directory. Here's an example of what files are downloaded:
 
 ```
-$ ls -l
-total 122480
-drwxrwxr-x 27 mike mike   12288 Dec 2 09:36 linux-3.13.0
--rw-rw-r-- 1 mike mike  8945126 Nov 9 16:36 linux_3.13.0-68.111.diff.gz
--rw-rw-r-- 1 mike mike   11787 Nov 9 16:36 linux_3.13.0-68.111.dsc
--rw-rw-r-- 1 mike mike 116419243 Feb 3 2014 linux_3.13.0.orig.tar.gz
+vagrant@ubuntu-bionic:~$ ls -l
+total 161180
+drwxrwxr-x 21 vagrant vagrant      4096 Apr 30 16:09 ldd3
+drwxrwxr-x 29 vagrant vagrant      4096 Apr 30 16:20 linux-4.15.0
+-rw-r--r--  1 vagrant vagrant   7370272 Apr 24  2018 linux_4.15.0-20.21.diff.gz
+-rw-r--r--  1 vagrant vagrant      7844 Apr 24  2018 linux_4.15.0-20.21.dsc
+-rw-r--r--  1 vagrant vagrant 157656459 Feb  8  2018 linux_4.15.0.orig.tar.gz
 ```
 
 The tar file is the mainline source code for your kernel version and the diff file contains the Ubuntu-specific changes. The apt-get source command automatically unzips the tar file and applies the changes. The directory created contains the modified source and is ready to go.
