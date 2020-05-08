@@ -1,4 +1,4 @@
-# Lab: Using a Vagrant Configuration Script 
+# (XXX: OLD) Lab: Using a Vagrant Configuration Script 
 
 In this lab you'll create a new Vagrant box based on the standard box for the class. You will edit the `Vagrantfile` to include setup instructions. The setup will automatically install the latest version of Docker. 
 

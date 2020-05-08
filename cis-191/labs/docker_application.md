@@ -2,13 +2,13 @@
 
 In this lab you'll see how to use a Dockerfile to create a custom container using the `docker build` command. 
 
-This lab expects that you're using the vagrant box that was built in the [Using a Vagrant Configuration Script](vagrant_configuration_script.md) lab. Or any box with Docker installed. You should have created your application in the [Create a Web Application](web_application.md) lab. 
+This lab expects that you're using the vagrant box with Docker installed. You should have created your application in the [Create a Web Application](web_application.md) lab. 
 
 ## Step 1: Create a `Dockerfile`
 
 Like with `Vagrantfile` a `Dockerfile` lives in its own directory. You will add the `Dockerfile` to the `~/MyApp` directory alongside the `app.py` file. Copy and paste the follwing into `Dockerfile`:
 
-```dockerfile
+```Dockerfile
 FROM ubuntu:latest
 MAINTAINER You "you@you.cis.cabrillo.edu"
 RUN apt-get update && apt-get install -y python3-pip iproute2
