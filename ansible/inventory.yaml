@@ -17,6 +17,11 @@ all:
         sun-hwa-v.cis.cabrillo.edu:
         sun-hwa-vii.cis.cabrillo.edu:
 
+    # Functional groups.
+    jupyterhub:
+      hosts:
+        jupyter.cis.cabrillo.edu:
+    
     # Type specific groups.
     centos:
       hosts:

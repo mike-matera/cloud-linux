@@ -9,4 +9,12 @@
   roles:
     - common 
 
-- import_playbook: cis90.yaml
+- name: Build Jupyterhub Servers. 
+  hosts: jupyter.cis.cabrillo.edu
+  tags:
+    - jupyter 
+  remote_user: root
+  roles:
+    - jupyterhub
+
+#- import_playbook: cis90.yaml
