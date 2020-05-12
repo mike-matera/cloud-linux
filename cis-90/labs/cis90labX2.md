@@ -251,5 +251,5 @@ You may find it helpful to have three Opus3 sessions running. In the first sessi
 Submit your final version of `labx2` as follows:
 
 ```bash
-$ cp labx2 /home/rsimms/turnin/cis90/labx2.$LOGNAME
+$ cp labx2 /home/mmatera/turnin/labx2.$LOGNAME
 ```

@@ -2,7 +2,7 @@
 
 In this lab you'll see how to use a Dockerfile to create a custom container using the `docker build` command. 
 
-This lab expects that you're using the vagrant box with Docker installed. You should have created your application in the [Create a Web Application](web_application.md) lab. 
+This lab expects that you're using the vagrant box with Docker installed. There is an Ansible playbook in this lab that will automate the installation of Docker. You should have created your application in the [Create a Web Application](web_application.md) lab. 
 
 ## Step 1: Create a `Dockerfile`
 
@@ -42,6 +42,35 @@ $ docker run -p 80:80 myapp
 You application is running, you can see it on the same URL as before: 
 
 > [http://localhost:8080](http://localhost:8080)
+
+## Ansible Playbook 
+
+This playbook installs Docker and adds the `vagrant` user to the `docker` group. 
+
+```yaml 
+- hosts: all 
+  name: Install Docker CE 
+  become: true 
+  tasks: 
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt: update_cache=yes name=docker-ce state=latest
+
+    - name: Add the vagrant user to the docker group.
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+```
 
 ## Turn In 
 
