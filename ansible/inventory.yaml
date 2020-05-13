@@ -16,6 +16,8 @@ all:
         lexington.cis.cabrillo.edu:
         sun-hwa-v.cis.cabrillo.edu:
         sun-hwa-vii.cis.cabrillo.edu:
+        sun-hwa-p3.cis.cabrillo.edu:
+        sun-hwa-t3.cis.cabrillo.edu:
 
     # Functional groups.
     jupyterhub:
@@ -35,6 +37,8 @@ all:
         opus3.cis.cabrillo.edu:
         intrepid.cis.cabrillo.edu:
         sun-hwa-vii.cis.cabrillo.edu:
+        sun-hwa-p3.cis.cabrillo.edu:
+        sun-hwa-t3.cis.cabrillo.edu:
     debian:
       hosts:
         enterprise.cis.cabrillo.edu:

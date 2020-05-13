@@ -16,6 +16,8 @@
     - { host: 'lexington', ipv4: '192.168.100.15' } 
     - { host: 'sun-hwa-v', ipv4: '192.168.100.20' } 
     - { host: 'sun-hwa-vii', ipv4: '192.168.100.21' }
+    - { host: 'sun-hwa-p3', ipv4: '192.168.100.30' } 
+    - { host: 'sun-hwa-t3', ipv4: '192.168.100.31' }
 
 - name: Make user for mmatera
   user:
@@ -29,8 +31,9 @@
     state: present
     key: '{{ item }}'
   with_file:
-    - files/opus.pub
     - files/mouthfeel.pub
+    - files/opus.pub
+    - files/opus3.pub
     - files/phoenix.pub
-    - files/tux.pub
     - files/turbine.pub
+    - files/tux.pub

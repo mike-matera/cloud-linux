@@ -17,4 +17,4 @@
   roles:
     - jupyterhub
 
-#- import_playbook: cis90.yaml
+- import_playbook: cis90.yaml
