@@ -151,7 +151,7 @@ zone "mike.cis.cabrillo.edu" {
 };
 ```
 
-> Replace mike.cis.cabrillo.edu with your domain!
+> *Replace mike.cis.cabrillo.edu with your domain!*
 
 Now create the records in your zone. The records belong in the file you named in the `file "...."` directive. Change the name in the example to a file named after your domain. In that file add the following DNS records:
 
@@ -449,6 +449,7 @@ opus$ dig NS mike.cis.cabrillo.edu @172.19.192.30
 opus$ dig NS mike.cis.cabrillo.edu @2607:f380:80f:f900:250:56ff:fe99:be69
 ```
 
+> ![](/static/icon_warning_small.png) 
 > Use your domain and IP addresses and don't forget to save your firewall!
 
 ## Update DHCP 
