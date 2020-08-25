@@ -1,6 +1,4 @@
----
 # Deploy all of my Linux-based infrastructure. 
-
 - name: Apply common configuration across all nodes. 
   hosts: all
   tags:
