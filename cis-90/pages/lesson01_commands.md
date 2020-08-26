@@ -6,25 +6,14 @@ The page has the commands for lesson 1. The commands for this lesson are:
 | --- | --- | 
 | `cal`	| Show calendar |
 | `date` | Show current time and date | 
+| `df` | Show the available disk space |
+| `free` | Show the available memory | 
 | `clear` | Clear the terminal screen | 
 | `hostname` | Show the host name of the computer being accessed |
-| `ps` | Show processes, including the name of the shell being run |
-| `uname` | Show the kernel name | 
-| `cat /etc/issue` | Usually shows distro (distribution) name |
 | `who` | Shows who is currently logged in | 
-| `tty` | Shows your terminal device | 
-| `id` | Show user info including username/UID and group/GID | 
 | `history` | Show previous commands | 
 | `ssh` | Connect and login to remote system | 
 | `exit` | Terminate your shell and log off | 
-
-## The Prompt 
-
-The prompt is how the terminal tells you that it's ready to take input. 
-
-<script id="asciicast-rQtZraNsIzsx4knBSbngeendu" src="https://asciinema.org/a/rQtZraNsIzsx4knBSbngeendu.js" async></script>
-
-The the video you see "mmatera@opus3:~$" in bright green. That's the prompt. Commands I type appear after the prompt. When I press the `Enter` key the command is executed. After the command is finished the propmpt returns. 
 
 ## The Anatomy of a Command 
 

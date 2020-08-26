@@ -1,4 +1,4 @@
-# Install Ubuntu Linux in Vagrant 
+# Install Ubuntu on Your Own Computer  
 
 In this lab you'll test your Vagrant installation by using it to create a Ubuntu VM. Vagrant makes it fast and easy to install a VM.
 
