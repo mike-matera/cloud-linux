@@ -5,6 +5,8 @@ cat <<EOF
  \/-=-\/
  (\_=_/)
   ~~ ~~  
-Welcome to Opus3
+
+Welcome to Opus
 Serving Cabrillo College
+
 EOF

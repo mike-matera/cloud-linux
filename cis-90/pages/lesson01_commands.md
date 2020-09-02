@@ -51,13 +51,16 @@ The Secure Shell (`ssh`) command connects your terminal to another computer. Whe
 $ ssh <user-name>@<computer-name>
 ```
 
-For example, this command logs me into opus3.
+For example, this command logs me into opus.
 
 ```bash
-$ ssh mmatera@opus3.cis.cabrillo.edu 
+$ ssh mmatera@opus.cis.cabrillo.edu 
 ```
+
+> **Note:** This semester we're using `opus.cis.cabrillo.edu` not `opus3`. 
 
 Here's a of how I login to opus3: 
 
 <script id="asciicast-nWkxAMoq8WWTBXR16HaVUarwy" src="https://asciinema.org/a/nWkxAMoq8WWTBXR16HaVUarwy.js" async></script>
+
 

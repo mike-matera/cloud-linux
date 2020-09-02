@@ -11,7 +11,7 @@ This lab supports:
 
 Of course, if you already have Linux as your operating system, you're ready to go! 
 
-## Windows 10
+## Step 1 (Windows 10):
 
 On Windows 10 you have two options: 
 
@@ -20,7 +20,7 @@ On Windows 10 you have two options:
 
 **Which one should you choose?** WSL uses more resources than PowerShell, but is superior because it's a real Linux command line and supports all of the commands that we will learn in the course. Unless your computer is very old I recommend following the instruction in the WSL link (I will demonstrate the procedure in class) as a first step. If for some reason it won't work for you use PowerShell. 
 
-## Older Windows 
+## Step 1 (Older Windows):
 
 Unfortunately, older versions of Windows do not support the SSH command in PowerShell and do not have WSL. If you are using older Windows please consider an upgrade, your machine is insecure and will certainly be hacked. It's only a matter of time. You have three options for doing course work: 
 
@@ -28,7 +28,7 @@ Unfortunately, older versions of Windows do not support the SSH command in Power
   - Install Linux or boot your machine with a Live image. ([Ubuntu guide](https://ubuntu.com/tutorials/try-ubuntu-before-you-install#1-getting-started))
   - Install PuTTY for SSH support. ([download](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html))
 
-## Macintosh OSX
+## Step 1: (Macintosh OSX):
 
 Since OSX Macintosh machines are based on FreeBSD, a UNIX operating system. Almost all of the commands you will learn in the class work natively on your Mac. You can open a terminal by looking in your Applications folder under Utilities. That's: 
 
@@ -36,7 +36,7 @@ Since OSX Macintosh machines are based on FreeBSD, a UNIX operating system. Almo
 
 You can also launch a terminal with the Command-T key sequence. 
 
-## Chromebook 
+## Step 1: (Chromebook):  
 
 Chromebooks run Linux but the Linux command prompt is inaccessible for security reasons. There are two options for Chromebooks: 
 
@@ -45,3 +45,20 @@ Chromebooks run Linux but the Linux command prompt is inaccessible for security 
 
 Just like WSL in Windows, Linux mode on the Chromebook installs a separate copy of Linux in a Virtual Machine. This requires more resources than installing the Secure Shell App but gives you full access to a real Linux command line. 
 
+## Step 2: SSH to Opus 
+
+I have created a server that's used for class assignments. The server is called `opus.cis.cabrillo.edu`. The SSH program makes a secure connection between your computer and opus. The secure connection enables you to run commands on opus. Using the command line on your computer run the following command: 
+
+```
+ssh <your-user-name>@opus.cis.cabrillo.edu 
+``` 
+
+> Replace `<your-user-name>` with the name assigned [here](/faq)
+
+**Do you notice that the prompt has changed?** 
+
+Take a screenshot of your opus shell. 
+
+## Turn In 
+
+Turn in the screenshot from step 2. 

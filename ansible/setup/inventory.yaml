@@ -1,33 +1,7 @@
 all:
   children:
-    mail-servers:
-      hosts:
-        opus3.cis.cabrillo.edu:
-        sun-hwa-vii.cis.cabrillo.edu:
-    login-servers:
-      hosts:
-        opus3.cis.cabrillo.edu:
-    centos:
-      hosts:
-        freedom.cis.cabrillo.edu:
-        sun-hwa-v.cis.cabrillo.edu:
-    mint:
-      hosts:
-        defiant.cis.cabrillo.edu:
     ubuntu:
       hosts:
-        opus3.cis.cabrillo.edu:
-        intrepid.cis.cabrillo.edu:
-        sun-hwa-vii.cis.cabrillo.edu:
-        jupyter.cis.cabrillo.edu:
-    debian:
-      hosts:
-        enterprise.cis.cabrillo.edu:
-    fedora:
-      hosts:
-        excalibur.cis.cabrillo.edu:
-    opensuse:
-      hosts:
-        lexington.cis.cabrillo.edu:
+        opus.cis.cabrillo.edu:
   vars:
-    ansible_user: root
+    ansible_user: ubuntu
