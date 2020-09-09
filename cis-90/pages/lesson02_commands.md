@@ -45,21 +45,21 @@ Commands are executed in stages. Understanding the stages is important to unders
 The most common mistakes are making a typo in a command or trying to execute a command that doesn't exist. Here's what the shell tells you when the search for a command fails: 
 
 ```bash 
-simben90@opus3:~$ bogus 
+simben90@opus:~$ bogus 
 bogus: command not found
 ```
 
 Remember the words `command not found`. They tell you that there's a problem with the command you entered. The message comes from step 3 when the search fails. 
 
 ```bash
-simben90@opus3:~$ cat nosuchfile
+simben90@opus:~$ cat nosuchfile
 cat: nosuchfile: No such file or directory
 ```
 
 In the example above `cat` failed to find the file. Here's another example of an error from `cat`: 
 
 ```bash
-simben90@opus3:~$ cat -x 
+simben90@opus:~$ cat -x 
 cat: invalid option -- 'x'
 Try 'cat --help' for more information.
 ```
