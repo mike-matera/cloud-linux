@@ -1,4 +1,4 @@
-# Networking Basics
+# Fundamental Networking Commands
 
 This how-to will acquaint you with the basic tools used to setup and establish networking on Ubuntu.
 
@@ -8,72 +8,42 @@ Do you know how to decipher a manual page? [Here's how](../../cis-191/decipherin
 
 ## Commands 
 
-  * ifconfig
+  * ip
   * hostname
   * arp
   * route
-  * netstat
+  * ss
+  * netplan
 
 ## Configuration 
 
-  * /etc/network/interfaces
+  * /etc/netplan
   * /etc/hosts
   * /etc/hostname
 
-## Network Settings 
+## Essential IP Information 
 
-The ifconfig command displays and alters networking parameters on Ethernet and Ethernet-like device in Linux. To determine the current configuration of Ethernet devices on your system run the command:
-
-```
-$ ifconfig
-ens192  Link encap:Ethernet HWaddr 5c:26:0a:60:57:de 
-     UP BROADCAST MULTICAST MTU:1500 Metric:1
-     RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-     TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-     collisions:0 txqueuelen:1000
-     RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
-     Interrupt:20 Memory:e6700000-e6720000
-lo    Link encap:Local Loopback 
-     inet addr:127.0.0.1 Mask:255.0.0.0
-     inet6 addr: ::1/128 Scope:Host
-     UP LOOPBACK RUNNING MTU:65536 Metric:1
-     RX packets:2403 errors:0 dropped:0 overruns:0 frame:0
-     TX packets:2403 errors:0 dropped:0 overruns:0 carrier:0
-     collisions:0 txqueuelen:0
-     RX bytes:275572 (275.5 KB) TX bytes:275572 (275.5 KB)
-```
-
-That will only show you the currently enabled devices. To see devices that are in the "down" state use the -a flag:
+The `ip` command is a multi-purpose tool for setting and viewing IP parameters. To determine the current configuration of Ethernet devices on your system run the command:
 
 ```
-$ ifconfig -a
+$ ip addr 
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc fq_codel state UP group default qlen 1000
+    link/ether 0e:77:ef:6e:a6:9d brd ff:ff:ff:ff:ff:ff
+    inet 10.192.1.101/24 brd 10.192.1.255 scope global dynamic eth0
+       valid_lft 2113sec preferred_lft 2113sec
+    inet6 2600:1f18:1d35:8f01:9ed0:1196:552d:ee37/128 scope global dynamic noprefixroute 
+       valid_lft 422sec preferred_lft 122sec
+    inet6 fe80::c77:efff:fe6e:a69d/64 scope link 
+       valid_lft forever preferred_lft forever
 ```
 
-You can configure an interface with the following lines:
-
-```
- ifconfig <ethX> <ip-address> netmask <netmask>
-```
-
-For example, the command below assigns the address 192.168.1.1 and netmask 255.255.255.0 to the ens192 interface:
-
-```
-$ ifconfig ens192 192.168.1.1 netmask 255.255.255.0
-```
-
-You can deactivate a device with:
-
-``` 
-ifconfig <interface-name> down
-```
-
-For example, to bring the ens192 interface down:
-
-```
-$ ifconfig ens192 down
-```
-
-Ifconfig changes immediately take effect but do not survive a reboot. In order to have changes stick after a reboot you must alter some configuration files on the system. On Ubuntu the configuration file is [/etc/network/interfaces](http://manpages.ubuntu.com/manpages/trusty/man5/interfaces.5.html). Here's an example:
+You can use `ip` to set a temporary IP address on an interface but that's risky on a VM! Changes made using `ip` immediately take effect but do not survive a reboot. In order to have changes stick after a reboot you must alter some configuration files on the system. On older Ubuntu the configuration file is [/etc/network/interfaces](http://manpages.ubuntu.com/manpages/trusty/man5/interfaces.5.html). Here's an example:
 
 ```
 # The loopback network interface
@@ -97,15 +67,25 @@ iface ens192 inet6 static
     netmask 64
 ```
 
-Making changes to the file does not immediately change the network interfaces. The ifup and ifdown command are similar to ifconfig, but they configure your interface according to the settings in your interfaces file. So, when you want to change your IP address settings the procedure is:
+More recent versions of Ubuntu use [Netplan](https://netplan.io/). Netplan is a tool that works on many different Linuxes. It *generates* the configuration that's right for the Linux you're using. Here's the an example of the Netplan configuration on your VM: 
 
-```
-$ ifdown <interface-name>
-# now edit /etc/network/interfaces
-$ ifup <interface-name>
+```yaml
+network:
+    ethernets:
+        eth0:
+            dhcp4: true
+            dhcp6: true
+            match:
+                macaddress: 0e:77:ef:6e:a6:9d
+            set-name: eth0
+    version: 2
 ```
 
-If you see an error you must correct it! If the error exists when the system starts your networking will not start and that slows down bootup.
+Making changes to the file does not immediately change the network interfaces. When you want to change your IP address settings the procedure is:
+
+1. Edit the Netplan configuration
+1. Run `netplan try` to test the configuration 
+1. If you can still see the prompt you're done. If not you have to wait and fix your settings. 
 
 ## Setting your Hostname 
 
@@ -142,25 +122,12 @@ ff02::2 ip6-allrouters
 
 The hosts file is where the special name "localhost" gets its meaning. Also, by adding the name of your computer to the hosts file Linux ensures you'll be able to refer to your computer by name even if it doesn't have a DNS entry. The hosts file takes precedence over DNS so if you place a host name in there Linux will use it without question. Be careful when you do that because it can cause some very hard to find problems.
 
-## ARP
+## ARP and ND
 
-In order to function all hosts need an ARP table and a routing table. This section introduces the commands in Linux that can view and alter those tables. You can view the ARP table with the following command.
-
-```
-arp -n
-```
-
-The `-n` argument tells the arp command not to lookup hostnames (this makes it faster, especially when you have network trouble). In rare occasions you may need to add or delete entries in the ARP table. You can do that with the following commands:
-
-Delete an entry:
-```
-arp -d <hostname>
-```
-
-Create an entry:
+In order to function all hosts need a neighbor table and a routing table. This section introduces the commands in Linux that can view and alter those tables. You can view the neighbor table with the following command.
 
 ```
-arp -s <hostname> <MAC Address>
+ip neigh
 ```
 
 ## Routing
@@ -168,7 +135,8 @@ arp -s <hostname> <MAC Address>
 You will need to be root to run the latter two commands. I strongly suggest avoiding them unless you're sure of what you're doing. Altering the routing table is often required when you want to manually establish a Linux computer on the network. You can display the routing table with either of the two commands:
 
 ```
-ip route  ip -6 route
+ip route  
+ip -6 route
 ```
 
 You can use those commands to determine what (if any) default gateway you have set. If you need to establish a default gateway use the following commands:
@@ -203,7 +171,11 @@ The file tells Linux where to find nameservers and what domain to search when a 
 # DO NOT EDIT THIS FILE BY HAND
 ```
 
-On Ubuntu this file is automatically written when you run the `ifup` and `ifdown` commands. Also, if you're using Ubuntu Desktop, there's an added level of complexity the `resolvconf` program. That program lets you control things from the desktop GUIs. Where's the fun in that?
+On modern Linuxes DNS lookups are handled by Systemd. Look closely at `/etc/resolv.conf` and you'll see that the loopback address is used. If you want to determine what DNS servers your VM uses you have to issue this command: 
+
+```
+$ systemd-resolve --status
+```
 
 ## Network Status
 

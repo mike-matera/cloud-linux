@@ -1,4 +1,4 @@
-# Using SSH 
+# Copying Files with SSH 
 
 ## Commands 
 
@@ -18,7 +18,7 @@ How you use SSH depends on your workstation's OS. Here are brief instructions fo
 Linux and MacOs have native SSH clients. You can SSH into your machine from the command line:
 
 ```
-$ ssh student@<vm-name>
+$ ssh <username>@<vm-name>
 ```
 
 You can also copy files from the command line:
@@ -27,14 +27,15 @@ You can also copy files from the command line:
 $ scp <source> <destination>
 ```
 
-Examples:
-
-```
 Copy a file to your VM:
 
+```
 $ scp /path/to/myfile student@<vm-name>:/path/to/destination
+```
+
 Copy a file file from your VM:
 
+```
 $ scp student@<vm-name>:/path/to/file /path/to/local/destination
 ```
 
@@ -49,61 +50,34 @@ Now you can use drag-and-drop to transfer files.
 ### On Old Windows (Windows 8 and older)
 
 Windows doesn't have a native SSH client. There are two programs you can download on Windows that will help you.
+
   - [PuTTY](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html)- Gives you command line access
   - [FileZilla](https://filezilla-project.org/)- Uses SFTP to move files
 
-WARNING: IF YOU DOWNLOAD FILEZILLA FROM SOURCEFORGE THE INSTALLER CONTAINS MALWARE.I recommend that you download the ZIP file, not the Windows installer. When you use drag-and-drop from FileZilla be sure to enter port number 22 at the top of the window. Otherwize FileZilla will attempt old-style insecure FTP.
+WARNING: IF YOU DOWNLOAD FILEZILLA FROM SOURCEFORGE THE INSTALLER CONTAINS MALWARE.I recommend that you download the ZIP file, not the Windows installer. When you use drag-and-drop from FileZilla be sure to enter port number 22 at the top of the window. Otherwise FileZilla will attempt old-style insecure FTP.
 
-### IPv4 or IPv6 
+### Capture and Download Packets 
 
-If you are inside of the CIS network (in rooms 828, 829 or the CIS area of the STEM center) you can access your VM directly via IPv4. If you're outside of the CIS network you may be able to access your VM directly depending on whether your Internet provider gives you an IPv6 address or not. Here's how to tell:
-
-```
-On Windows Command Prompt:
-
-> ipconfig /all
-On Mac/Linux:
-
-$ ip addr
-```
-
-If you see an IPv6 address that begins with the number "2" then you're all good with the 21st century. Otherwise you're stuck with IPv4.
-
-## Logging In 
-
-If you are directly connected you can login to your VM directly with SSH:
+Run the following command on your AWS VM: 
 
 ```
-you@yourmachine# ssh student@<vm-name>
- 
-<enter funny Cabrillo>
-
-student@ubuntu#
+$ sudo tcpdump -i eth0 -w lab.cap not port ssh
 ```
 
-If you are not directly connected you must login via Opus:
+The command captures packets (avoiding SSH packets) into a file called `lab.cap` in the current directory. It will run indefinitely so wait a minute or two and then hit Ctrl-C. When `tcpdump` finishes you should see something like this: 
 
 ```
-you@yourmachine# ssh -p 2220 <my-unix-username>@opus.cis.cabrillo.edu
- 
-<enter your UNIX password>
+$ sudo tcpdump -i eth0 -w lab.cap not port ssh 
+tcpdump: listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes
 
-you192@opus# ssh student@<vm-name>
- 
-<enter funny Cabrillo>
-
-student@ubuntu#
+^C
+30 packets captured
+30 packets received by filter
+0  packets dropped by kernel
 ```
 
-Use one of the above procedures to login to your VM.
+Download `lab.cap` onto your computer and open it with Wireshark. 
 
-## Transferring Files 
+## Turn In 
 
-Transferring files will be important for this class. You should know this procedure by heart. Unfortunately if you're using IPv4 like me there's extra steps. For this lab you'll bring the /etc/issue.net file onto your local computer, edit it and put it back. Be careful to follow these steps exactly.
-
-## Lab Questions 
-
-  - What is the IP address and hostname of your VM?
-  - List, in order, the machine and directory locations that your issue.net file traveled through in order for you to edit it. Use absolute paths, including for Mac and Windows if that's what you used.
-
-Turn in the answers to your lab questions on Canvas.
+Turn in your `lab.cap` file. 
