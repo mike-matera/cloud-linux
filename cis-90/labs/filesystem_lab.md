@@ -4,7 +4,7 @@ The goal of this lab is to become proficient with system commands for viewing th
 
 ## Warmup (not submitted or graded)
 
-Log on to the opus3 server so that you have a command line shell at your service. Be sure you are in your home directory to start this lab. You do not need to record or submit your answers for this section.
+Log on to the opus server so that you have a command line shell at your service. Be sure you are in your home directory to start this lab. You do not need to record or submit your answers for this section.
 
 - Display a listing of the files in your home directory. Are they in any special order?
 - Use `ls -a` to display the contents of directory `Lab2.0`

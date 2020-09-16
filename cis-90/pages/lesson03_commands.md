@@ -1,16 +1,13 @@
-# Commands that Manipulate Files
+# Commands for Files and Navigation
 
-The page has the commands for lesson 4. The commands for this lesson are: 
+The page has the commands for lesson 3. The commands for this lesson are: 
 
 | Command | Action | 
 | --- | --- | 
 | `cat` | View a text file. |
-| `more` | View a large text file one page at a time. |  
-| `less` | View a large text file using scrolling. `less` is an improved version of `more`. | 
-| `head` | View the first few lines of a text file. | 
-| `tail` | View the last few lines of a text file. | 
-| `wc` | Count the lines in a text file. | 
-| `xxd` | View the contents of a binary file. | 
+| `cd` | Change the working directory. | 
+| `ls` | List files in the working directory. | 
+| `pwd` | Show the working directory. | 
 
 ## The Current Directory 
 
@@ -82,53 +79,4 @@ $ cat /home/cis90/simben90/Poems/Angelou/bird
 ```
 
 The nice thing about an absolute path is that it works no matter where you are. The down side is that they are generally longer than a relative path. 
-
-## The `$PATH` Environment Variable 
-
-Where do commands come from? Commands are files that are located in Linux's system directories. A special environment varialbe `$PATH` controls where the shell looks for commands when you enter one. Use the `echo` command to show you the path: 
-
-```bash 
-$ echo $PATH
-/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-```
-
-The path is a list of directories separated by a colon (`:`). The above path has the following parts: 
-
-| Directory | About | 
-| --- | --- | 
-| `/usr/local/sbin` | Extra administrator commands. | 
-| `/usr/local/bin` | Extra commands. | 
-| `/usr/sbin` | Administrator commands. | 
-| `/usr/bin` | General commands. | 
-| `/usr/games` | Games |
-| `/usr/local/games` | Extra games. | 
-| `/snap/bin` | Commands installed by snap packages. | 
-
-> The `$PATH` is searched in order!
-
-### Try This 
-
-What happens when you delete your path? Try it.
-
-```bash 
-$ PATH="" 
-``` 
-
-Most commands are now unavailable! With no `$PATH` only shell built-in commands work. You can still use `cd`, `echo` and you can still set a variable. If you find that you have a broken `$PATH` you can fix it by ensuring *at least* the following directories are present: 
-
-1. `/bin`
-2. `/usr/bin`
-3. `/sbin`
-4. `/usr/sbin`
-
-Run a command to restore your path. 
-
-
-## Trapped on the Island 
-
-During the midterm you'll login to a special server. When you login you'll find a broken path. Can you restore your path and escape the island? 
-
-Try for yourself by logging in to: `sun-hwa-v.cis.cabrillo.edu`
-
-<script id="asciicast-SUJNNjm8EJFd7hmO9DRn9dtXz" src="https://asciinema.org/a/SUJNNjm8EJFd7hmO9DRn9dtXz.js" async></script>
 
