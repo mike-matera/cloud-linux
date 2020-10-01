@@ -2,6 +2,8 @@
 
 To complete this milestone you will install the `ntop` network monitoring program on your AWS VM. 
 
+> **WARNING:** The ntopng program uses a lot of memory. If you're using vscode your VM will become unresponsive. You have to do this milestone in a terminal.
+
 ## Step 1: Update
 
 Before you add any software you should always do an `apt update`:
@@ -65,6 +67,20 @@ Take a screenshot of `ntop`
 1. What packages does ntop depend on? 
 1. After you installed ntop what services are listening on TCP ports? 
 1. Do you think ntop is secure? Explain your answer. 
+
+## Clean Up 
+
+The ntop-ng program takes a lot of memory! After this week you won't use it again in this form so you should remove it once you've answered the question in the lab. This command removes ntop but not dependencies: 
+
+```
+$ sudo apt remove ntopng 
+``` 
+
+The dependencies are no longer necessary. You can remove unused dependencies with the command:
+
+```
+$ sudo apt autoremove 
+```
 
 ## Turn In 
 
