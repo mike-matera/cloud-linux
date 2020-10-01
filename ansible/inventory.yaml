@@ -18,6 +18,7 @@ all:
         sun-hwa-vii.cis.cabrillo.edu:
         sun-hwa-p3.cis.cabrillo.edu:
         sun-hwa-t3.cis.cabrillo.edu:
+        sun-hwa-t1.cis.cabrillo.edu:
 
     # Functional groups.
     jupyterhub:
@@ -39,6 +40,7 @@ all:
         sun-hwa-vii.cis.cabrillo.edu:
         sun-hwa-p3.cis.cabrillo.edu:
         sun-hwa-t3.cis.cabrillo.edu:
+        sun-hwa-t1.cis.cabrillo.edu:
     debian:
       hosts:
         enterprise.cis.cabrillo.edu:
