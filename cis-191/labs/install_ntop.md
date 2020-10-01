@@ -61,10 +61,10 @@ The configuration for `ntop` is simple. You can find the configuration in `/etc/
 -w=80
 ```
 
-Use `systemctl` to restart `ntop`:
+Use `systemctl` to restart `ntopng`:
 
 ```
-$ sudo systemctl restart ntop
+$ sudo systemctl restart ntopng
 ```
 
 Now check to see what port it's listening on: 
@@ -79,7 +79,7 @@ LISTEN     0      128                                                         ::
 
 Perfect! 
 
-## Step 5: Look at `ntop`
+## Step 5: Look at `ntopng`
 
 If you reconfigured `ntop` you should be able to visit the URL below and see it running:
 
