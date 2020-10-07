@@ -4,7 +4,7 @@ The goal of this lab is to become proficient with system commands for copying, m
 
 ## Procedure
 
-Log on to the `opus3` server so that you have a command line shell at your service. Be sure you are in your home directory to start this lab. We are going to reorganize the files in our home directory. This will involve making new subdirectories and moving files around. The questions asked during this procedure are for your clarification only. You will be graded on correctly performing the procedure. At the end of the lab you will submit your work using the submit command.
+Log on to the `opus` server so that you have a command line shell at your service. Be sure you are in your home directory to start this lab. We are going to reorganize the files in our home directory. This will involve making new subdirectories and moving files around. The questions asked during this procedure are for your clarification only. You will be graded on correctly performing the procedure. At the end of the lab you will submit your work using the submit command.
 
 ## Part I - Making Directories
 
