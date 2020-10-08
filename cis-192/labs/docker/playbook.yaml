@@ -1,0 +1,14 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Install Docker
+      apt:
+        update_cache: yes
+        pkg:
+          - docker.io
+
+    - name: Add vagrant to the docker group
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
