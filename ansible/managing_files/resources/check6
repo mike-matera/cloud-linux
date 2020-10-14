@@ -21,7 +21,7 @@ if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi
 if [ -z "$tempdir" ]; then clear; fi 
 S1="Step 3"
 echo $S1
-ls -l $home/check5 ~mmatera/check5
+ls -l $home/check5 /usr/local/bin/check5
 echo "Your check5 file should be the same size as Mike's <====="
 if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
@@ -97,57 +97,50 @@ echo " rwx------, class/tests should be 700 <====="; echo " "
 if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
 if [ -z "$tempdir" ]; then clear; fi 
-S10="Step 15"
-echo $S10
-ls -l $home/class/{labs,tests}/*
-echo " rw-------, class/*/* should be 600<====="
-if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
-
-if [ -z "$tempdir" ]; then clear; fi 
-S11="Step 16a"
+S11="Step 15a"
 echo $S11
 ls -ld $home/edits
 echo " rwx------, edits/ should be 700 <====="
 echo " "
-S11="Step 16b"
+S11="Step 15b"
 echo $S11
 ls -l $home/edits/*
 echo " rw----r--, edits/* should be 604 <====="
 if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
 if [ -z "$tempdir" ]; then clear; fi 
-S12="Step 17"
+S12="Step 16"
 echo $S12
 ls -l $home/misc
 echo " rw-r--r--, misc/* should have read for owner, group and others. Note: mystery will be 777 <=====" 
 if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
 if [ -z "$tempdir" ]; then clear; fi 
-S13="Step 19a"
+S13="Step 18a"
 echo $S13
 ls -ld $home/old
 echo " rw-rw-r--, old should be 664 <====="
 echo " "
-S13="Step 19b"
+S13="Step 18b"
 echo $S13
 ls -ld $home/olddir
 echo " rwxrwxr-x, olddir/ should be 775 <=====" 
 if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
 if [ -z "$tempdir" ]; then clear; fi 
-S14="Step 21a"
+S14="Step 20a"
 echo $S14
 ls -ld $home/new
 echo " rw-rw-rw-, new should be 666 <====="; echo " "
 echo " "
-S14="Step 21a"
+S14="Step 20a"
 echo $S14
 ls -ld $home/newdir
 echo " rwxrwxrwx, newdir/ should be 777 <=====" 
 if [ -z "$tempdir" ]; then read -p "Press Enter to continue" COMMENT0; fi 
 
 if [ -z "$tempdir" ]; then clear; fi 
-S15="Step 23"
+S15="Step 22"
 echo $S15
 ls -ld $home/newer
 echo " ---------, newer, should be 000 <====="

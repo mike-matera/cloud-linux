@@ -96,7 +96,7 @@ Now we will actually move some files from one directory to another, renaming som
 
 	The last argument must be a directory name, and all the preceding files will be moved into that directory - keeping their original names. Let's try it. Move the files: `text.err, text.fxd, small_town`, and `spellk` into the `edits` directory using the command:
 
-	`mv text small_town spellk edits`
+	`mv text* small_town spellk edits`
 
 	Check the results by listing the contents of the edits directory. Pretty fancy?
 

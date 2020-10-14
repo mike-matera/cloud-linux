@@ -1,14 +1,14 @@
-# File Permissions Lab
+# File Permissions Project
 
-In this lab you will learn how to assign permissions to files and directories to provide a measure of security and privacy to your files on a multiuser system.
+In this project you will learn how to assign permissions to files and directories to provide a measure of security and privacy to your files on a multi-user system.
 
 ## Before You Begin
 
-- Be sure to make the changes to your home directory asked for in the [Navigating the Filesystem](filesystem_lab.md) lab. This lab assumes the new names and directory structures.
+- Be sure to make the changes to your home directory asked for in the [Navigating the Filesystem](filesystem_lab.md) and [Managing Files](managing_files.md) labs. This lab assumes the new names and directory structures.
 
 ## Procedure
 
-Log on to `opus3` so that you have a command line shell at your service. Be sure you are in your home directory to start this lab. Using the `chgrp`, and `chmod` commands, you will modify the permissions on files and subdirectories in your home directory.
+Log on to `opus` so that you have a command line shell at your service. Be sure you are in your home directory to start this lab. Using the `chgrp`, and `chmod` commands, you will modify the permissions on files and subdirectories in your home directory.
 
 1. From your home directory, do a long listing with the `ls -l` command.
 	- Who owns these files? 
@@ -16,7 +16,7 @@ Log on to `opus3` so that you have a command line shell at your service. Be sure
 	- How can you distinguish file entries from directory entries?
 
 
-1. Do a long listing of the file, `/home/mmatera/check5`. 
+1. Do a long listing of the file, `/usr/local/bin/check5`. 
  	- Who owns it?
 	- Can you move the file to your home directory? Why or why not?
 	- Can you copy the file to your home directory? Why or why not?
@@ -41,7 +41,7 @@ Log on to `opus3` so that you have a command line shell at your service. Be sure
 
 	`chmod -x misc`
 
-	Do short and long listings of the _misc_ directory using the `ls` and `ls -l` commands.
+	Do short and long listings of the `misc` directory using the `ls` and `ls -l` commands.
 
 	Try to display the contents of the fruit file with the command:
 
@@ -59,7 +59,7 @@ Log on to `opus3` so that you have a command line shell at your service. Be sure
 
 	Display the contents of the `fruit` file.
 
-1. Change back to your home directory and set the _misc_ directory to full permissions:
+1. Change back to your home directory and set the `misc` directory to full permissions:
 
 	`chmod 777 misc`
 
@@ -86,12 +86,6 @@ Log on to `opus3` so that you have a command line shell at your service. Be sure
 	For the `labs` subdirectory, set permissions to `530`.
 
 	For the `tests` subdirectory, take away all permissions from group and others, leaving full permission for owner.
-
-1. Make all ordinary files under `class/labs` and `class/tests` be:
-
-	- read-write for owner
-	- no permissions for group and
-	- no permissions for others.
 
 1. For the `edits` directory, give yourself full permission, but no permission for group or others.
 
