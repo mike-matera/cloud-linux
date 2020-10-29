@@ -147,7 +147,7 @@ CMD ["hello.py"]
 Build your custom container with the command:
 
 ```
-$ docker build -t myapp:test1 
+$ docker build -t myapp:test1 .
 ```
 
 Notice that the customization is being done automatically!
@@ -157,7 +157,7 @@ Notice that the customization is being done automatically!
 Let's try running your application: 
 
 ```
-$ docker run -it --rm myapp:test1 
+$ docker run -it --rm -p 5000:5000 myapp:test1 
 ```
 
 ### Step 2.3: Update `hello.py`

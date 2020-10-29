@@ -10,5 +10,5 @@ This page has the commands for Lesson 7. They are:
 | `spell` | Spell check a document | 
 | `wc` | Count words (this week has new ways to use `wc`) | 
 | `tee` | Split output to the screen and a file | 
-| `cut` | Cut lines using a delimeter | 
+| `cut` | Cut lines using a delimiter | 
 

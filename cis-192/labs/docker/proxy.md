@@ -43,7 +43,7 @@ Now create a `Dockerfile` with instructions to customize the configuration:
 
 ```Dockerfile 
 FROM nginx:stable
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY default.conf /etc/nginx/conf.d/default.conf
 ```
 
 Build your container using `docker build`:

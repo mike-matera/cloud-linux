@@ -1,14 +1,14 @@
-# Lab 7: Input and Output
+# Input and Output
 
 The goal of this lab is to gain proficiency in using I/O redirection to perform tasks on the system. You will combine commands you have learned in this course using shell redirection, pipes and tees to perform a variety of tasks on the system.
 
-## Before you Begin
-
-- Be sure to make the changes to your home directory asked for in Lab 5. This lab assumes the new names and directory structures.
+> <strong>Before you Begin</strong>
+>
+> Be sure to make the changes to your home directory asked for in the [file permissions project](file_permissions.md). This lab assumes the new names and directory structures.
 
 ## Procedure
 
-Log on to opus3 so that you have a command line shell at your service. Be sure you are in your home directory to start this lab. We are going to experiment with how commands get their input and what they do with their output. Then we will perform a series of tasks by combining commands together and saving the output to a file.
+Log on to opus so that you have a command line shell at your service. Be sure you are in your home directory to start this lab. We are going to experiment with how commands get their input and what they do with their output. Then we will perform a series of tasks by combining commands together and saving the output to a file.
 
 ## The find command
 
@@ -118,9 +118,9 @@ Can be used to check the spelling in text files.
 
 1. At times, you may want to see the results of a command on your screen as well as saving those results to a file. This may be accomplished using the `tee` command which takes one source of input (stdin) and writes that input to two outputs: stdout and to a file named as a command line argument. Change to the `Shakespeare` directory and run the command:
 
-`spell sonnet1 | tee words`
+    `spell sonnet1 | tee words`
 
-Notice how the misspelled words came to the screen and also went to the file `words`.
+    Notice how the misspelled words came to the screen and also went to the file `words`.
 
 1. Now let's use the tee command to get a sorted list of the misspelled words in all of Shakespeare's sonnets and count how many there are all at the same time. Change to your home directory and use the `tee` command to collect the intermediary results:
 
@@ -136,7 +136,7 @@ For your lab07, we are going to analyze your past 125 commands.
 
     `date > lab07`
 
-1. Create a file that lists your past 125 commands:
+1. Create a file that lists your past 200 commands:
 
     `history 200 > cmds`
 
@@ -178,11 +178,9 @@ For your lab07, we are going to analyze your past 125 commands.
 
     Do you see the date, the three command counts, the misspelled words, the files you own, and all the commands you used to do this lab? If not you should repeat the steps above.
 
-1. You are almost done with this lab. Congratulate yourself by mailing the banner message, GOOD WORK to your mailbox:
+1. You are almost done with this lab. Congratulate yourself with a banner message:
 
-    `banner Good Work | mail -s "Pat on the Back" $LOGNAME`
-
-    Notice how the -s option to the `mail` command allows you to specify a subject for your message.
+    `banner Good Work >> lab07`
 
 ## Submittal
 

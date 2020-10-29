@@ -4,11 +4,11 @@ In this lab you will use the `ps` command to monitor processes as you create the
 
 ## Procedure
 
-Log on to opus3 so that you have a command line shell at your service. Be sure you are in your home directory to start this lab.
+Log on to opus so that you have a command line shell at your service. Be sure you are in your home directory to start this lab.
 
 1. Run the C shell program `csh`. Did your prompt change?
 
-1. Now run the Bourne shell `sh`. Different prompt again?
+1. Now run the Dash shell `sh`. Different prompt again?
 
 1. Run the `ps` command to see that you have three shell processes running.
 
@@ -36,9 +36,9 @@ Log on to opus3 so that you have a command line shell at your service. Be sure y
 
 1. This time enter the following command:
 
-```
-find $HOME > files.out 2>/dev/null &
-```
+	```
+	find $HOME > files.out 2>/dev/null &
+	```
 
 ## Submittal
 
@@ -51,7 +51,7 @@ at> cp lab08 /home/mmatera/turnin/lab08.$LOGNAME
 at> <Ctrl-D>
 ```
 
-**Note: You don't type the `at>` portion. For the `<Ctrl-D>` hold down the `Ctrl` key and tap the `D` key which must be entered as the first character on the last line.** If you get a warning message from the `at` command about using the Bourne shell to execute your job, that is ok. The next morning you should see the file, `lab08` in your home directory and have an email acknowledging receipt of your lab. You can submit as many times as you like. After you submit you will receive an email on opus3. Read this email to verify whether your submission succeeded or failed. 
+**Note: You don't type the `at>` portion. For the `<Ctrl-D>` hold down the `Ctrl` key and tap the `D` key which must be entered as the first character on the last line.** If you get a warning message from the `at` command about using the Bourne shell to execute your job, that is ok. The next morning you should see the file, `lab08` in your home directory and have an email acknowledging receipt of your lab. You can submit as many times as you like. After you submit you will receive an email on opus. Read this email to verify whether your submission succeeded or failed. 
 
 I will enter your grade into Canvas. You don't have to submit there. 
 

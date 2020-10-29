@@ -30,6 +30,8 @@
         pkg:
           - tree
           - zsh
+          - csh
+          - tcsh
           - python3-pip
           - sysvbanner
           - emacs
