@@ -22,9 +22,9 @@ $ dig router.mike.cis.cabrillo.edu @localhost
 
 The query argument can has two parts. What type of query you want to make and what you are looking for. Common query types are:
 
-  * A and AAAA: Address records for IPv4 and IPv6 respectively
-  * NS: Find a nameserver for a domain
-  * MX: Find a mail server for a domain
+* A and AAAA: Address records for IPv4 and IPv6 respectively
+* NS: Find a nameserver for a domain
+* MX: Find a mail server for a domain
 
 Some examples:
 
