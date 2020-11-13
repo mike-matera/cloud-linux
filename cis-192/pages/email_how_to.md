@@ -1,44 +1,24 @@
 # Email How To 
 
-This lesson will take you through setting up Postfix on your router. Email is first killer app of the Internet. Sending and receiving email on your own domain is an important business and marketing tool. You don't have to install your own MTA to have email on a custom domain, but you should know how.
+This lesson will take you through setting up Postfix on your instance. Email is first killer app of the Internet. Sending and receiving email on your own domain is an important business and marketing tool. You don't have to install your own MTA to have email on a custom domain, but you should know how.
 
-The lecture slides are [here](https://docs.google.com/presentation/d/1pN1RbnkOkWiaBJ5_Vu1goIbMKqwUlW0QVNz6vaIwGxI/edit?usp=sharing).
+> AWS does not allow outgoing mail! 
 
 ## Commands 
 
-  * apt-get
+  * apt
   * dpkg-reconfigure
 
 ## Configuration 
 
-  * /etc/named/db.<yourdomain>
+  * DNS
+  * Firewall
 
 ## Further Reading 
 
 There are multiple mail agents that you can use in Ubuntu. Each with it's pros and cons. The default MTA is Postfix. Here's Ubuntu's official Postfix documentation: 
 
  * [https://help.ubuntu.com/community/Postfix](https://help.ubuntu.com/community/Postfix)
-
-## Install Postfix 
-
-Setting up postfix itself is quite easy. You must first install it:
-
-```
-infra$ sudo apt-get install postfix
-```
-
-The installation will trigger a menu. Make the following choices: 
-
-  1. Internet Site 
-  2. System name: Your domain name. (e.g. mike.cis.cabrillo.edu)
-
-If you want to get the menu again you can run the following command:
-
-```
-infra$ dpkg-reconfigure postfix
-```
-
-The menu from `dpkg-reconfigure` has more options. Leave them at their defaults. 
 
 ## Setup DNS Records 
 
@@ -74,26 +54,52 @@ gmail.com.		3599	IN	MX	40 alt4.gmail-smtp-in.l.google.com.
 The answer contains a prioritized list of the servers that handle mail for gmail.com. Servers are supposed to pick the lowest number first. In order to handle mail you must modify your DNS records to contain a mail server. Here's what I did to my zone file to add support for a mail server:
 
 ```
-@               IN MX   10      mail
-mail            IN AAAA <infra-ipv6>
-@               IN TXT  "v=spf1 ip6:<infra-ipv6>/128 -all"
+@               IN MX   10      www
+@               IN TXT  "v=spf1 ip6:<my-ipv6>/128 ip:<my-ipv4>/32 -all"
 ```
 
-The first entry is the MX or mail server record. That contains the name of my domain (abbreviated @) and the name of the mail server (mail). Since my mail server is my infra server the record points to the IPv6 address of my infra server. Finally I've added an SPF record stating that I can send email from my infra-server IPv6 address and that's it!
+The first entry is the MX or mail server record. That contains the name of my domain (abbreviated @) and the name of the mail server (which, since you only have one server is shared with `www`). I've added an SPF record stating that I can send email from my instances address and that's it! This is unfortunately redundant because AWS instances are not allowed to send email. 
 
 ## Checking Your DNS Records 
 
-Once you have your DNS record setup you should check to make sure that other hosts on the Internet can find your mail server. Use dig for that:
+Build your container locally to make sure your DNS records work before publishing them to your AWS instance. Depending on what port you choose for testing purposes you'll do a dig like this:
 
 ```
-infra$ dig MX <yourdomain>.cis.cabrillo.edu @localhost
+$ dig MX <yourdomain>.cis.cabrillo.edu @localhost -p <localport>
+```
+
+When you're satisfied that it's working tag and push your container, then run it on your AWS instance. Check to make sure that other hosts on the Internet can find your mail server. Use dig for that:
+
+```
+$ dig MX <yourdomain>.cis.cabrillo.edu 
 ```
 
 You should see an answer with the proper email address. Also, check your SPF record:
 
 ```
-infra$ dig TXT <yourdomain>.cis.cabrillo.edu @localhost
+$ dig TXT <yourdomain>.cis.cabrillo.edu 
 ```
+
+## Install Postfix 
+
+Setting up postfix itself is quite easy. You must first install it:
+
+```
+$ sudo apt install postfix
+```
+
+The installation will trigger a menu. Make the following choices: 
+
+  1. Internet Site 
+  2. System name: Your domain name. (e.g. mike.cis.cabrillo.edu)
+
+If you want to get the menu again you can run the following command:
+
+```
+$ dpkg-reconfigure postfix
+```
+
+The menu from `dpkg-reconfigure` has more options. Leave them at their defaults. 
 
 ## Checking Your Mail Logs 
 
@@ -107,19 +113,17 @@ Will contain the record of any failed attempts to deliver email. That's a very u
 
 ## Allowing Inbound Mail Connections 
 
-The firewall on your router doesn't allow incoming mail. To do that you'll need to open port 25 in the IPv6 FORWARD chain. You'll need to do that for packets destined for the EUI-64 of your infra server. The command to do that is:
-
- * Filter FORWARD chain:
-   * Destination IPv6: The IPv6 of your infra server
-   * State: NEW
-   * Protocol: TCP
-   * Port: 25
-   * ACCEPT 
-
-You cannot receive email using IPv4 because you don't have a real public address. You can check to be sure that it's working using telnet from Opus or Tux
+The firewall on your instance doesn't allow incoming mail. To do that you'll need to open port 25 (or SMTP). The command to do that is:
 
 ```
-opus$ telnet <infra-server-ipv6-address> 25
+$ sudo ufw allow smtp 
 ```
 
-Don't forget to save your firewall after you've made this change!!
+> Don't forget to update your AWS security group if necessary. 
+
+You can check to be sure that it's working using telnet from Opus or Tux
+
+```
+opus$ telnet <instance-ip-address> 25
+```
+
