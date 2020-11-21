@@ -15,7 +15,7 @@ Here's the step-by-step instructions:
 3. Type `s` for setup
 4. Type `c` for Config 
 5. Navigate with the arrow keys and `Enter` to select Personal Name 
-6. Set User Domain to `oups3.cis.cabrillo.edu`
+6. Change your name
 7. Type `e` to exit setup 
 8. Type `y` to save your settings 
 
@@ -30,7 +30,7 @@ I've sent everyone a message. Use `alpine` to read and reply to the message I se
 Alpine is the easy way. The older `mail` program. The `mail` program is driven by simpler menus. It can also be used to send a message from the command line. The following command will send me an email with the subject, "Hello Mike."
 
 ```bash 
-$ mail -s "Hello Mike" mmatera@opus3.cis.cabrillo.edu 
+$ mail -s "Hello Mike" mmatera@opus.cis.cabrillo.edu 
 ```
 
 The `mail` program will ask for a list of people to send a carbon copy to. You can leave that blank. Type your message and when you're done type `ctrl-d`. Look at the procedure below: 

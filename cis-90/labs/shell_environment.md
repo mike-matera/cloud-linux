@@ -22,11 +22,11 @@ Log on to Opus so that you have a command line shell at your service. Start this
 
 1. Reset the PS1 variable by entering the following command:
 
-	`PS1="Yes master: "`
+	`PS1="At your service: "`
 
 	What happens to your primary prompt?
 
-1. Now exit out of the child shell by typing `Ctrl-D`. What is the prompt now? What does this tell you about the effect changes made by children have on their parents?
+1. Now exit out of the child shell by typing `exit`. What is the prompt now? What does this tell you about the effect changes made by children have on their parents?
 
 ### The `.bashrc` File
 
