@@ -1,4 +1,4 @@
-# Lab 9: Editing files with vi
+# Lab 11: Editing files with vi
 
 In this lab you will use the vi editor to create new files and edit existing files.
 
