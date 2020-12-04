@@ -147,18 +147,18 @@ Let's add a Python application to our site. We'll reuse the Hello app from a few
 
 That will build and run our HelloService container. 
 
-## Step 6: Add a Proxy Server 
+## Step 8: Add a Proxy Server 
 
 Finally, it's time to glue all of our services together. We want them to all be accessible from a single host. We'll use a front-end load balancer and proxy to enable access to different parts of our application. The [Caddy](https://caddyserver.com/) web server is fast, easy, efficient and made for containerization. Create a directory called `Proxy` and put two file in it `Dockerfile` and `Caddyfile`. 
 
-### Step 6.1: Dockerfile 
+### Step 8.1: Dockerfile 
 
 ```Dockerfile 
 FROM caddy:2
 COPY Caddyfile /etc/caddy/Caddyfile
 ```
 
-### Step 6.2: Caddyfile 
+### Step 8.2: Caddyfile 
 
 ``` 
 # The name of your host:
@@ -182,7 +182,7 @@ route /static/* {
 reverse_proxy * wordpress:80
 ```
 
-## Step 6.3: Add the Proxy 
+## Step 8.3: Add the Proxy 
 
 Now let's add the proxy service to our `docker-compose.yaml` file. 
 
@@ -202,7 +202,18 @@ Now let's add the proxy service to our `docker-compose.yaml` file.
 
 Caddy enable SSL by default so we must expose 80 and 443. The dependencies say that we should not start the proxy server until all of the other services are ready. 
 
-## Step 7: Test the Stack
+## Step 8.4: Remove Port 8000 From the Wordpress Configuration 
+
+> Important! You stack won't start unless you do this!
+
+Remove the following lines from the configuration of the `wordpress` container: 
+
+```
+     ports:
+       - "8000:80"
+```
+
+## Step 9: Test the Stack
 
 Now let's test the full stack. 
 
@@ -214,10 +225,10 @@ $ docker-compose up
 If it works the following URL will be available: 
 
 1. Wordpress: [https://localhost:8443/](https://localhost:8443/)
-1. HelloApp: [https://localhost:8443/hello](https://localhost:8443/hello)
-1. Files in `/var/www`: [https://localhost:8443/static](https://localhost:8443/static)
+1. HelloApp: [https://localhost:8443/hello](https://localhost:8443/hello/)
+1. Files in `/var/www`: [https://localhost:8443/static](https://localhost:8443/static/)
 
-## Step 8: Go to Production 
+## Step 10: Go to Production 
 
 Moving the stack to your AWS machine takes a few tweaks. Do the following: 
 
