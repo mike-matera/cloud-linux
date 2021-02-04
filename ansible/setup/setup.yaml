@@ -37,16 +37,12 @@
           - emacs
           - spell 
 
-    - name: Upload the skeleton files. 
-      file:
-        path: /etc/student-skel
-        state: directory
-        mode: '0755'
-
     - name: Create the student skel directory. 
       unarchive:
-        src: skel/student-skel.tar
+        src: http://www.lifealgorithmic.com/_static/cis-90/student-skel.tar 
         dest: /etc/student-skel
+        remote_src: yes 
+        mode: '0755'
 
 - hosts: opus.cis.cabrillo.edu
   become: true
