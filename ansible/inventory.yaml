@@ -19,6 +19,7 @@ all:
         sun-hwa-p3.cis.cabrillo.edu:
         sun-hwa-t3.cis.cabrillo.edu:
         sun-hwa-t1.cis.cabrillo.edu:
+        sun-hwa-t2.cis.cabrillo.edu:
 
     # Functional groups.
     jupyterhub:

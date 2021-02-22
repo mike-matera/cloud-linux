@@ -77,20 +77,22 @@ def make_files():
     Inside of "Files" you will see 10 files named after islands. Each island 
     file contains the name of the ocean it is in. Reorganize the files so 
     that they are in directories named after their oceans. The resulting 
-    directory structure should look like this: 
+    directory structure should be relative to the working directory of 
+    the test (probably your home direcory) and look like this: 
 
-      Oceans/
-        Atlantic/
-        Pacific/
-        ... 
+    (wd)/
+       Oceans/
+         Atlantic/
+         Pacific/
+         ... 
 
     The "Oceans" directory should be in the current directory. Set the 
     permissions on the island files as described below:
 
-      1. No islands should be readable or writable by others
+      1. No islands should be readable, writable or executable by others
       2. Pacific islands should be r/w for the user and read only for the group
       3. Atlantic islands should r/w for the user an no group access 
-      4. Indian islands should read only for the user 
+      4. Indian islands should read only for the user and no group access
       5. Fictional islands should be read only for the user and group.
 
     """
@@ -138,7 +140,7 @@ def deep_file():
 @test.question(10)
 def this_process():
     """
-    What is the process ID of this process?
+    What is the process ID of the midterm process?
     """
     got = input("Enter the PID? ") 
     assert int(got) == os.getpid(), """That's not correct."""
