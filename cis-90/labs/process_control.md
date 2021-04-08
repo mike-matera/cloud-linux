@@ -30,11 +30,11 @@ Log on to opus so that you have a command line shell at your service. Be sure yo
 
 	(Hit the Enter key to get your prompt back)
 
-1. Now log out by entering the `exit` command.
+1. Now log out by entering the `exit` command. Are you able to exit? 
 
-1. Log back in and use `ps` to check on the app process. Is it there? What happened?
+1. Now kill the `app` command using a separate window. 
 
-1. This time enter the following command:
+1. Enter the following command:
 
 	```
 	find $HOME > files.out 2>/dev/null &
