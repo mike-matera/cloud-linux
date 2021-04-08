@@ -51,6 +51,15 @@
         - 91-release-upgrade
         - 97-overlayroot
         - 98-reboot-required
+
+# Add old test infrastructure
+- hosts: sun-hwa-t1.cis.cabrillo.edu
+  name: 'Customize sun-hwa-t1'
+  remote_user: root 
+  tags: 
+    - sun-hwa-t1
+    - cis90
+  tasks:
     - name: Copy the test bundle 
       copy: 
         src: ../cis-90/tests/test-1-bundle/
@@ -63,6 +72,37 @@
         cmd: ./trouble-T1
 
 
+# Add new test infrastructure
+- hosts: sun-hwa-t1.cis.cabrillo.edu
+  name: 'Add new test infrastructure'
+  remote_user: root 
+  tags: 
+    - sun-hwa-t1
+    - cis90
+    - newtest
+  tasks:
+    - name: Check out the lifealgorithmic infrastructure.
+      git:
+        repo: 'https://github.com/mike-matera/lifealgorithmic-tools.git'
+        dest: /opt/lifealgorithmic
+    - name: Install the lifealgorithmic infrastructure.
+      pip:
+        name: file:///opt/lifealgorithmic
+        extra_args: -e 
+    - name: Copy the test program
+      copy: 
+        src: ../cis-90/tests/midterm-1-sp21/midterm-1-sp21.py
+        dest: /root
+        remote_src: no 
+        mode: preserve 
+    - name: Compile the test. 
+      shell: |
+        armor midterm-1-sp21.py
+        cp midterm-1-sp21 /usr/local/bin
+      args:
+        chdir: /root
+
+# Add users
 - hosts: sun-hwa-t1.cis.cabrillo.edu
   name: 'Customize sun-hwa-t1'
   remote_user: root 

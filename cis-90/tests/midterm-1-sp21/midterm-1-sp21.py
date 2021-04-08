@@ -293,7 +293,7 @@ def midterm_sp2021() :
     '''
 
     print(midterm_sp2021.__doc__)
-    test.run(debug=True)
+    test.run(debug=False)
     print("All done!\n\n")    
 
 
