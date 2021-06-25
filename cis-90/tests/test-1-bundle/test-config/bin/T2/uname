@@ -1,7 +1,0 @@
-#!/bin/bash
-oldcmd=`basename $0`
-newcmd=`echo $oldcmd | rev`
-echo
-echo "Mu Ha Ha Ha ! ! !"
-echo
-exit

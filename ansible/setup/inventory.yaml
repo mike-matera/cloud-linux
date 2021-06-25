@@ -1,7 +1,0 @@
-all:
-  children:
-    ubuntu:
-      hosts:
-        opus.cis.cabrillo.edu:
-  vars:
-    ansible_user: ubuntu
