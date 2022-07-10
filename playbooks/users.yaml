@@ -23,7 +23,7 @@
   name: Add users and groups
   become: true
   tasks:
-    - include_vars: users/users.yaml
+    - include_vars: users-data.yaml
 
     - name: Add the cis90 group.
       group:
