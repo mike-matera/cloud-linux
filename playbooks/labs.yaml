@@ -1,0 +1,13 @@
+- hosts: all
+  name: Install Labs
+  become: true
+  roles:
+    - zork 
+    - { role: labscript, source: labs/scavenge.py, dest: /usr/local/bin/scavenge }
+    - { role: labscript, source: labs/fslab.py, dest: /usr/local/bin/fslab }
+    - { role: labscript, source: labs/fileslab.py, dest: /usr/local/bin/fileslab }
+    - { role: labscript, source: labs/islands.py, dest: /usr/local/bin/islands }
+    - { role: labscript, source: labs/islands2.py, dest: /usr/local/bin/islands2 }
+    - { role: labscript, source: labs/iolab.py, dest: /usr/local/bin/iolab }
+    - { role: labscript, source: labs/bosslab.py, dest: /usr/local/bin/bosslab }
+    - { role: labscript, source: labs/processlab.py, dest: /usr/local/bin/processlab }

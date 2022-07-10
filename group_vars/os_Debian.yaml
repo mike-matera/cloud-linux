@@ -1,0 +1,6 @@
+packages:
+  - python3-pip 
+  - git
+  - zlib1g-dev
+  - libffi-dev
+  

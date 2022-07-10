@@ -1,0 +1,28 @@
+
+- hosts: all
+  name: Generate host groups by distro.
+  tasks:
+    - name: Classify hosts depending on their OS distribution
+      group_by:
+        key: os_{{ ansible_facts['distribution'] }}
+
+- hosts: os_Ubuntu 
+  name: Update package cache on Ubuntu
+  become: true
+  tasks:
+    - ansible.builtin.apt:
+        update_cache: yes
+
+- hosts: all
+  become: true
+  name: Install packages.
+  tasks: 
+    - ansible.builtin.package:
+        name:
+          "{{ packages }}"
+        state: latest
+    - ansible.builtin.pip:
+        name: 
+          - git+https://github.com/mike-matera/lifealgorithmic-tools.git
+          - git+https://github.com/mike-matera/PyScramble.git
+        extra_args: --upgrade

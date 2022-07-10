@@ -1,0 +1,4 @@
+#! /bin/bash 
+
+frotz /opt/zork1/DATA/ZORK1.DAT
+

@@ -1,0 +1,50 @@
+#
+# Add users and groups to hosts 
+#
+- hosts: all 
+  name: Create student skeleton directory 
+  become: true
+  tasks:
+    - name: Untar the skeleton 
+      ansible.builtin.file:
+        path: /etc/cis90-skel
+        state: directory 
+        mode: '755'
+    - name: Untar the skeleton 
+      ansible.builtin.unarchive:
+        src: files/cis90-skel.tar
+        dest: /etc/cis90-skel 
+    - name: Copy existing skel files.
+      ansible.builtin.shell: 
+        cmd: cp $(find /etc/skel -type f) /etc/cis90-skel
+        creates: /etc/cis90-skel/.bashrc
+  
+- hosts: all
+  name: Add users and groups
+  become: true
+  tasks:
+    - include_vars: users/users.yaml
+
+    - name: Add the cis90 group.
+      group:
+        name: cis90
+        state: present
+
+    - name: Add user groups.
+      group:
+        gid: "{{ item.uid }}"
+        name: "{{ item.name }}"
+      loop: "{{ users | flatten(levels=1) }}"
+
+    - name: Add user accounts.
+      user:
+        uid: "{{ item.uid }}"
+        group: "{{ item.name }}"
+        name: "{{ item.name }}"
+        comment: "{{ item.comment }}"
+        home: "/home/cis90/{{ item.name }}"
+        groups: ['users', 'cis90']
+        skeleton: /etc/cis90-skel
+        shell: /bin/bash
+        append: yes
+      loop: "{{ users | flatten(levels=1) }}"

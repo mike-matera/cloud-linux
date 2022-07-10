@@ -1,5 +1,0 @@
-plugin: gcp_compute
-projects:
-  - terraform-tutorial-1284
-auth_kind: serviceaccount
-service_account_file: ../secrets/google-credential.json

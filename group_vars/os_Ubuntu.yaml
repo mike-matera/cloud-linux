@@ -1,0 +1,15 @@
+packages:
+  - python3-pip 
+  - git
+  - tree 
+  - bsdmainutils
+  - dictionaries-common
+  - wamerican
+  - iputils-ping
+  - mtr
+  - zsh 
+  - ksh 
+  - tcsh 
+  - csh
+  
+  
