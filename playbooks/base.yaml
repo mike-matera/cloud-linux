@@ -10,6 +10,11 @@
   name: Update package cache on Ubuntu
   become: true
   tasks:
+    - lineinfile:
+        path: /etc/apt/apt.conf.d/proxy99.conf
+        create: yes
+        regexp: '^Acquire::http::Proxy'
+        line: Acquire::http::Proxy "http://rack0.maas:8000/";
     - ansible.builtin.apt:
         update_cache: yes
 
