@@ -24,7 +24,7 @@ canvas = Canvas()
 canvas_users = { user.pw_name: user for user in canvas.unix_users('cis-90', 'cis-91') } 
 
 helm_install = """helm -n arya install {user} cloud-native-server/cloud-server \
-    --values values.yaml --set-file ssh.ca_key=./ca_key,ssh.ca_key_pub=./ca_key.pub \
+    --values values.yaml --set-file ssh.ca_key=./secrets/ca_key,ssh.ca_key_pub=./secrets/ca_key.pub \
     --set user={user} --set privileged=false \
     --set service.port={port}
     """
