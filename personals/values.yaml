@@ -1,0 +1,6 @@
+
+service:
+  type: LoadBalancer
+  loadBalancerIP: 172.30.5.242
+  annotations:
+    metallb.universe.tf/allow-shared-ip: share-me-arya

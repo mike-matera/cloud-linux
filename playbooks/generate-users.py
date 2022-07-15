@@ -22,7 +22,16 @@ parser.add_argument('course', nargs='+',
 
 args = parser.parse_args()
 
-canvas = Canvas(os.environ['CANVAS_API_URL'], os.environ['CANVAS_API_KEY'])
+canvas = None
+if os.environ.get('CANVAS_API_URL') is not None and os.environ.get('CANVAS_API_KEY') is not None:
+    canvas = Canvas(os.environ['CANVAS_API_URL'], os.environ['CANVAS_API_KEY'])
+else:
+    canvas_cfg_file = pathlib.Path(pathlib.Path(os.environ['HOME']) / '.canvasapi')
+    logging.info(f"Loading canvas config file: {canvas_cfg_file}")
+    with open(canvas_cfg_file) as fh:
+        canvas_cfg = yaml.load(fh, Loader=yaml.Loader)
+    canvas = Canvas(canvas_cfg['API_URL'], canvas_cfg['API_KEY']) 
+
 
 m = re.search(pattern='(\d+)$', string=args.group)
 course_number = m.group(1)
