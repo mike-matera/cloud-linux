@@ -1,9 +1,8 @@
-#! python3 
-
 """
 Generate personal Linux servers for students. 
 """
 
+import time
 import json
 import subprocess
 import argparse 
@@ -11,7 +10,7 @@ import argparse
 from cloud_linux.canvas import Canvas 
 
 parser = argparse.ArgumentParser(description='Make personal servers from a Canvas course.')
-parser.add_argument('operator', choices=['update', 'restart', 'stop', 'purge'],
+parser.add_argument('operator', choices=['update', 'upgrade', 'stop', 'purge'],
                     help='What to do.')
 
 args = parser.parse_args()
@@ -23,11 +22,14 @@ helm_users = json.loads(
 canvas = Canvas() 
 canvas_users = { user.pw_name: user for user in canvas.unix_users('cis-90', 'cis-91') } 
 
-helm_install = """helm -n arya install {user} cloud-native-server/cloud-server \
+helm_install = """helm -n arya {op} {user} cloud-native-server/cloud-server \
     --values values.yaml --set-file ssh.ca_key=./secrets/ca_key,ssh.ca_key_pub=./secrets/ca_key.pub \
-    --set user={user} --set privileged=false \
-    --set service.port={port}
+    --set user={user} \
+    --set service.port={port} 
     """
+#    && sleep 5 \
+#    && kubectl -n arya wait --for=condition=ready --timeout=10m pod -l app.kubernetes.io/instance={user}
+#    """
 
 helm_uninstall = """helm -n arya uninstall {user}"""
 
@@ -35,6 +37,7 @@ if args.operator == 'update':
     # Create users who are missing. 
     for user in set(canvas_users.keys()) - { x["name"] for x in helm_users }:
         subprocess.run(helm_install.format(
+            op='install',
             user=user,
             port=canvas_users[user].tcp_port,
         ), shell=True, check=True)
@@ -45,14 +48,10 @@ if args.operator == 'update':
             user=user
         ), shell=True, check=True)
 
-elif args.operator == 'restart':
-    ## XXX: Broekn!
+elif args.operator == 'upgrade':
     for user in { x["name"] for x in helm_users }:
-        subprocess.run(helm_uninstall.format(
-            user=user
-        ), shell=True, check=True)
-
         subprocess.run(helm_install.format(
+            op='upgrade',
             user=user,
             port=canvas_users[user].tcp_port,
         ), shell=True, check=True)

@@ -1,4 +1,10 @@
 
+homeStorageClassName: openebs-hostpath
+
+#customizeRepo: "https://github.com/mike-matera/cloud-linux.git" 
+#customizeRepoCommand: "cd playbooks && ./base.sh"
+privileged: true
+
 service:
   type: LoadBalancer
   loadBalancerIP: 172.30.5.242
