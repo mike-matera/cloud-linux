@@ -19,7 +19,7 @@
         update_cache: yes
 
 - hosts: all
-  become: true
+  become: false
   name: Install packages.
   tasks: 
     - ansible.builtin.package:
