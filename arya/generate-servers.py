@@ -25,11 +25,10 @@ canvas_users = { user.pw_name: user for user in canvas.unix_users('cis-90', 'cis
 helm_install = """helm -n arya {op} {user} cloud-native-server/cloud-server \
     --values values.yaml --set-file ssh.ca_key=./secrets/ca_key,ssh.ca_key_pub=./secrets/ca_key.pub \
     --set user={user} \
-    --set service.port={port} 
+    --set service.port={port} \
+    && sleep 5 \
+    && kubectl -n arya wait --for=condition=ready --timeout=10m pod -l app.kubernetes.io/instance={user}
     """
-#    && sleep 5 \
-#    && kubectl -n arya wait --for=condition=ready --timeout=10m pod -l app.kubernetes.io/instance={user}
-#    """
 
 helm_uninstall = """helm -n arya uninstall {user}"""
 
