@@ -19,15 +19,19 @@
         update_cache: yes
 
 - hosts: all
-  become: false
+  become: true
   name: Install packages.
   tasks: 
     - ansible.builtin.package:
         name:
           "{{ packages }}"
         state: latest
+
+- hosts: all
+  become: false
+  name: Install Python packages.
+  tasks: 
     - ansible.builtin.pip:
         name: 
           - git+https://github.com/mike-matera/lifealgorithmic-tools.git
           - git+https://github.com/mike-matera/PyScramble.git
-        extra_args: --upgrade
