@@ -12,54 +12,18 @@ import crypt
 import hashlib 
 import yaml 
 
-from canvasapi import Canvas
+from cloud_linux.canvas import Canvas 
 
-parser = argparse.ArgumentParser(description='Add users from a Canvas course.')
-parser.add_argument('group',
-                    help='Unix group for the users.')
-parser.add_argument('course', nargs='+',
-                    help='Canvas Course IDs')
+canvas = Canvas() 
 
-args = parser.parse_args()
-
-canvas = None
-if os.environ.get('CANVAS_API_URL') is not None and os.environ.get('CANVAS_API_KEY') is not None:
-    canvas = Canvas(os.environ['CANVAS_API_URL'], os.environ['CANVAS_API_KEY'])
-else:
-    canvas_cfg_file = pathlib.Path(pathlib.Path(os.environ['HOME']) / '.canvasapi')
-    logging.info(f"Loading canvas config file: {canvas_cfg_file}")
-    with open(canvas_cfg_file) as fh:
-        canvas_cfg = yaml.load(fh, Loader=yaml.Loader)
-    canvas = Canvas(canvas_cfg['API_URL'], canvas_cfg['API_KEY']) 
-
-
-m = re.search(pattern='(\d+)$', string=args.group)
-course_number = m.group(1)
-
-users = []
-for course_id in args.course:
-    course = canvas.get_course(course_id)
-    for user in course.get_users(include=['first_name', 'last_name']):
-        t = { 
-            ord("'"): "",
-            ord("."): "",
-            ord("-"): "",
-            ord(" "): "",
-            ord('"'): "",
-        }
-
-        first = user.first_name.translate(t)
-        last = user.last_name.translate(t)
-
-        user_data = {}
-        user_data['comment'] = f"{first} {last[0]}." 
-        first_bound = min(3, len(first))
-        last_bound = min(3, len(last))
-        user_data['name'] = last[0:last_bound].lower() + first[0:first_bound].lower() + course_number
-        user_data['uid'] = int.from_bytes(hashlib.sha1((str(user.id) + args.group).encode('utf-8')).digest(),
-                byteorder='big'
-            ) % (1 << 32)
-        user_data['groups'] = ['users', args.group]
-        users.append(user_data)
+for course in ['cis-90']:
+    users = [ {
+            'name': user.pw_name,
+            'comment': user.comment, 
+            'groups': ['users', course],
+            'uid': user.uid,
+            'uid': user.uid,
+        } for user in canvas.unix_users(course) 
+    ]
 
 print(yaml.dump({'users': users}))
