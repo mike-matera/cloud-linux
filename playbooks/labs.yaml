@@ -1,4 +1,13 @@
 - hosts: all
+  become: true
+  name: Install Python globally.
+  tasks: 
+    - ansible.builtin.pip:
+        name: 
+          - git+https://github.com/mike-matera/lifealgorithmic-tools.git
+          - git+https://github.com/mike-matera/PyScramble.git
+
+- hosts: all
   name: Install Labs
   become: true
   roles:
