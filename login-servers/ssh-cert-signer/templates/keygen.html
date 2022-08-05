@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Generate a Certificate</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        </head>
+    <body>
+        <div class="container-fluid" style="width: 50%; margin-top: 5em;">
+            <h1>Welcome to Opus!</h1>
+            <p>Serving Cabrillo College</p>
+            <h2>Hello {{ username }}</h2>
+            <p>This page will generate a signed SSH certificate based on your public key. Copy and paste your public key into the box below. The certificate will enable you to login to Opus and Arya.</p>
+            <p>Ater you click "Submit" a file will be downloaded. Copy it to your SSH configuration as shown in class.</p>
+            <form action="/" method="POST">
+                <div class="mb-3">
+                  <label for="pubkey" class="form-label">Public Key:</label>
+                  <input type="text" class="form-control" id="pubkey" name="pubkey" value="{{ pubkey }}">
+                </div>
+                {% if error %}
+                <div class="mb-3">
+                    <div style="color: red;">
+                        {{ error }}
+                    </div>
+                </div>  
+                {% endif %}
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <input type="hidden" id="token" name="token" value="{{ token }}"">
+            </form>
+            <div>
+                <br><br>
+                <pre style="word-wrap: break-word;">{{ cert }}</pre>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    </body>
+</html>

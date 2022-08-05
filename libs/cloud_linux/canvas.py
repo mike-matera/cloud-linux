@@ -10,6 +10,7 @@ import yaml
 import canvasapi
 import typing 
 import hashlib 
+from collections import namedtuple
 
 class UnixUser(canvasapi.user.User):
     """
@@ -50,6 +51,8 @@ class Canvas(canvasapi.Canvas):
     Extensions that I keep re-writing for making Canvas easier to use.     
     """
 
+    CourseUser = namedtuple("CourseUser", "course user")
+
     def __init__(self, base_url:str = None, access_token:str = None) -> canvasapi.Canvas:
         """
         Get a Canvas instance with optional environment or file configuration. 
@@ -82,11 +85,22 @@ class Canvas(canvasapi.Canvas):
             if matcher is None or matcher(course):
                 yield course 
 
-    def unix_users(self, *args) -> typing.Generator[UnixUser, None, None]: 
+    def unix_users(self, *args, matcher=None) -> typing.Generator[UnixUser, None, None]:
+        """
+        Deprecate.
+        """
         for course_id in args:
             for course in self.find_course(lambda x: course_id.lower() in x.course_code.lower()):
-                yield from course.get_users()
+                return (user for user in course.get_users() if matcher is None or matcher(user))
 
+    def course_users(self, *args, matcher=None) -> typing.Generator[CourseUser, None, None]: 
+        for course_id in args:
+            for course in self.find_course(lambda x: course_id.lower() in x.course_code.lower()):
+                yield from (
+                    Canvas.CourseUser(course=course, user=user) 
+                    for user in course.get_users() 
+                    if matcher is None or matcher(user)
+                )
 
 # Monkey patch the Canvas API to give me the users I want.
 canvasapi.user.User = UnixUser

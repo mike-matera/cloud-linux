@@ -3,10 +3,18 @@ homeStorageClassName: ssd-ha
 
 customizeRepo: "https://github.com/mike-matera/cloud-linux.git" 
 customizeRepoCommand: "cd playbooks && ./base.sh"
-privileged: true
+privileged: false
 
 service:
   type: LoadBalancer
   loadBalancerIP: 172.30.5.242
   annotations:
     metallb.universe.tf/allow-shared-ip: share-me-arya
+
+resources: 
+  requests:
+    cpu: 2000m
+    memory: 16Gi
+  limits:
+    cpu: 4000m
+    memory: 32Gi
