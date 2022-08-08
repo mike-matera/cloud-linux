@@ -5,6 +5,7 @@
     - ansible.builtin.pip:
         name: 
           - git+https://github.com/mike-matera/PyScramble.git
+          - git+https://github.com/mike-matera/cloud-linux.git
 
 - hosts: all
   name: Install Labs
