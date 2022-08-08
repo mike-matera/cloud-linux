@@ -5,9 +5,9 @@ import pathlib
 import grp 
 import random 
 
-from lifealgorithmic.secrets import vault
-from lifealgorithmic.linux.test import test, ask as input
-from lifealgorithmic.linux.files import randpath, make_flag, random_big_file, \
+from cloud_linux.secrets import vault
+from cloud_linux.labs.test import test, ask as input
+from cloud_linux.labs.files import randpath, make_flag, random_big_file, \
     check_files, setup_files, random_big_dir
 
 vault.setkey("blarny234")

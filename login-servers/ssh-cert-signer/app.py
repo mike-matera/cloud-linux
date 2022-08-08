@@ -40,13 +40,8 @@ def make_key():
     return flask.render_template('index.html')
 
   # Validate Token
-  box = nacl.secret.SecretBox(crypt_key)
   try:
-    data = json.loads(
-      box.decrypt(
-        base64.b64decode(token)
-      )
-    )
+    data = decode_token(token, crypt_key)
     logging.debug(f"Sign key for: {data}")
   except Exception as e:
     logging.warning(e)
@@ -72,14 +67,23 @@ def make_key():
 
       return flask.send_file(temppath / 'id_rsa-cert.pub', as_attachment=True)
 
-
-if __name__ == '__main__':
-  token = base64.b64encode(
-      nacl.secret.SecretBox(crypt_key).encrypt(json.dumps({
-          'user': sys.argv[2],
-          'class': sys.argv[3],
-          'port': sys.argv[4],
+def encode_token(user, key):
+  """Make a token."""
+  return base64.b64encode(
+      nacl.secret.SecretBox(key).encrypt(json.dumps({
+          'user': user,
       }).encode('utf-8'))
     ).decode('utf-8')
+
+def decode_token(token, key):
+  """Get the token data."""
+  return json.loads(
+    nacl.secret.SecretBox(key).decrypt(
+      base64.b64decode(token)
+    )
+  )
+
+if __name__ == '__main__':
+  token = encode_token(sys.argv[2], crypt_key)
   print(f"Token: {token}")
   print(f"URL: {sys.argv[1]}/?token={urllib.parse.quote(token)}")

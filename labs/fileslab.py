@@ -6,9 +6,9 @@ import stat
 import pathlib
 from random import random 
 
-from lifealgorithmic.secrets import vault
-from lifealgorithmic.linux.test import test, ask as input 
-from lifealgorithmic.linux.files import randpath, random_big_file
+from cloud_linux.secrets import vault
+from cloud_linux.labs.test import test, ask as input 
+from cloud_linux.labs.files import randpath, random_big_file
 
 vault.setkey("blarny234")
 vault.setfile(f'{os.environ["HOME"]}/.fileslab')
@@ -33,7 +33,7 @@ def directory_inode(dir):
 @test.question
 def first_word():
     """
-    I just created a file called "bigfile" in the current directory. What is the first word in it? 
+    I just created a file called "~/bigfile" in the current directory. What is the first word in it? 
     """
     bigfile = random_big_file()
     with open(bigfile) as fh:

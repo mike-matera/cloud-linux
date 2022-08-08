@@ -4,8 +4,8 @@ from re import sub
 import subprocess
 import psutil 
 
-from lifealgorithmic.secrets import vault
-from lifealgorithmic.linux.test import test, ask as input
+from cloud_linux.secrets import vault
+from cloud_linux.labs.test import test, ask as input
 
 vault.setkey("blarny234")
 vault.setfile(f'{os.environ["HOME"]}/.scavenger')

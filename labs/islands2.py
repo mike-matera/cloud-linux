@@ -6,9 +6,9 @@ import os
 from random import random 
 import grp
 
-from lifealgorithmic.secrets import vault
-from lifealgorithmic.linux.test import test, ask as input
-from lifealgorithmic.linux.files import setup_files, check_files
+from cloud_linux.secrets import vault
+from cloud_linux.labs.test import test, ask as input
+from cloud_linux.labs.files import setup_files, check_files
 
 vault.setkey("blarny234")
 vault.setfile(f'{os.environ["HOME"]}/.islands2')

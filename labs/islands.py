@@ -7,9 +7,9 @@ import stat
 import pathlib
 from random import random 
 
-from lifealgorithmic.secrets import vault
-from lifealgorithmic.linux.test import test 
-from lifealgorithmic.linux.files import setup_files, check_files
+from cloud_linux.secrets import vault
+from cloud_linux.labs.test import test 
+from cloud_linux.labs.files import setup_files, check_files
 
 vault.setkey("blarny234")
 vault.setfile(f'{os.environ["HOME"]}/.islands')

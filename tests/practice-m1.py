@@ -7,9 +7,9 @@ import pathlib
 from random import random 
 from re import sub
 
-from lifealgorithmic.secrets import vault
-from lifealgorithmic.linux.test import test, ask as input
-from lifealgorithmic.linux.files import randpath, make_flag, random_big_file
+from cloud_linux.secrets import vault
+from cloud_linux.labs.test import test, ask as input
+from cloud_linux.labs.files import randpath, make_flag, random_big_file
 
 vault.setkey("blarny234")
 #vault.setfile(f'{os.environ["HOME"]}/.bosslab')
@@ -52,25 +52,28 @@ def distro():
 @test.question
 def flag_file():
     """
-    I've created a file in your home directory called "flag". 
+    I've (re)created a file in your home directory called "flag". 
     Inside the flag file there's the name of a secret file. 
     
     What's the secret file?
     """
-    make_flag()
+    f = make_flag()
     if debug:
-        print("DEBUG:", vault.get('flag.secret'))
+        print("DEBUG:", f['secret'])
     got = input().strip()
-    assert got == vault.get('flag.secret'), """That's not correct."""
+    assert got == f['secret'], """That's not correct."""
 
 
 @test.question
 def flag_path():
     """
+    I've (re)created a file in your home directory called "flag". 
+    Inside the flag file there's the name of a secret file. 
+
     What is the absolute path of the flag file?
     """
-    make_flag()
-    exp = pathlib.Path("flag").resolve()
+    f = make_flag()
+    exp = pathlib.Path(f['path']).resolve()
     if debug:
         print("DEBUG:", exp)
     got = input().strip()
@@ -95,10 +98,13 @@ def file_size(file):
 @test.question
 def flag_inode():
     """
+    I've (re)created a file in your home directory called "flag". 
+    Inside the flag file there's the name of a secret file. 
+
     What is the inode number of the flag file?
     """
-    make_flag()
-    exp = os.stat(vault.get('flag.path'))[stat.ST_INO]
+    f = make_flag()
+    exp = os.stat(f['path'])[stat.ST_INO]
     if debug:
         print("DEBUG:", exp)
     got = int(input())

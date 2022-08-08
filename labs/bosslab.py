@@ -7,9 +7,9 @@ import pathlib
 import random 
 import subprocess
 
-from lifealgorithmic.secrets import vault
-from lifealgorithmic.linux.test import test, ask as input
-from lifealgorithmic.linux.files import randpath, \
+from cloud_linux.secrets import vault
+from cloud_linux.labs.test import test, ask as input
+from cloud_linux.labs.files import randpath, \
     random_big_dir, setup_files, check_files
 
 vault.setkey("blarny234")
@@ -97,10 +97,10 @@ def delete_by_contents(count, basedir):
 
 
 def main():
-    delete_the_ms(points=5, count=500, basedir="./Rando")
-    delete_the_quotes(points=5, count=500, basedir="./Rando")
+    delete_the_ms(points=5, count=500, basedir="~/Rando")
+    delete_the_quotes(points=5, count=500, basedir="~/Rando")
     deep_file(points=5, message=randpath.random_file())
-    delete_by_contents(points=5, count=500, basedir="./Rando")
+    delete_by_contents(points=5, count=500, basedir="~/Rando")
 
     print(f"Your score is {test.score} of {test.total}")
     print("Your confirmation code is:", vault.confirmation({'score': test.score}))

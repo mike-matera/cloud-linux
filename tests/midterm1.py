@@ -9,9 +9,9 @@ import random
 from re import sub
 import atexit 
 
-from lifealgorithmic.secrets import vault
-from lifealgorithmic.linux.test import test, ask as input
-from lifealgorithmic.linux.files import randpath, make_flag, random_big_file
+from cloud_linux.secrets import vault
+from cloud_linux.labs.test import test, ask as input
+from cloud_linux.labs.files import randpath, make_flag, random_big_file
 
 vault.setkey("blarny234")
 vault.setfile(f'{os.environ["HOME"]}/.midterm1')
