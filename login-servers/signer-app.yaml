@@ -1,0 +1,80 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: login-servers
+  namespace: login-servers
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+spec:
+  tls:
+  - hosts:
+    - opus.cis.cabrillo.edu
+    secretName: test-cert-manager-tls
+  rules:
+  - host: opus.cis.cabrillo.edu
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ssh-cert-signer
+            port:
+              number: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssh-cert-signer
+  namespace: login-servers
+spec:
+  selector:
+    matchLabels:
+      app: ssh-cert-signer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ssh-cert-signer
+    spec:
+      containers:
+      - name: ssh-cert-signer
+        image: ghcr.io/mike-matera/ssh-cert-signer:main
+        ports:
+        - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ssh-cert-signer
+  namespace: login-servers
+  labels:
+    app: ssh-cert-signer 
+spec:
+  ports:
+  - port: 5000
+    protocol: TCP
+  selector:
+    app: ssh-cert-signer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: to-nginx
+  namespace: ingress
+  annotations:
+    metallb.universe.tf/allow-shared-ip: opus-share-key
+spec:
+  type: LoadBalancer 
+  loadBalancerIP: 172.30.5.241
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+    name: http 
+  - port: 443
+    protocol: TCP
+    targetPort: 443
+    name: https
+  selector:
+    name: nginx-ingress-microk8s
