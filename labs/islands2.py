@@ -6,12 +6,11 @@ import os
 from random import random 
 import grp
 
-from cloud_linux.secrets import vault
-from cloud_linux.labs.test import test, ask as input
+from cloud_linux.labs.lab import LinuxLab, ask as input
 from cloud_linux.labs.files import setup_files, check_files
 
-vault.setkey("blarny234")
-vault.setfile(f'{os.environ["HOME"]}/.islands2')
+debug = False 
+test = LinuxLab('islands2', 'blarny234', debug=debug)
 
 try:
     cis90_grp = grp.getgrnam('cis90').gr_gid

@@ -6,14 +6,11 @@ import stat
 import pathlib
 from random import random 
 
-from cloud_linux.secrets import vault
-from cloud_linux.labs.test import test, ask as input 
+from cloud_linux.labs.lab import LinuxLab, ask as input 
 from cloud_linux.labs.files import randpath, random_big_file
 
-vault.setkey("blarny234")
-vault.setfile(f'{os.environ["HOME"]}/.fileslab')
-
 debug = False 
+test = LinuxLab('fileslab', 'blarny234', debug=debug)
 
 @test.question
 def directory_inode(dir):

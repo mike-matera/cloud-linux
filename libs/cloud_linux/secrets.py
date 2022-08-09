@@ -13,6 +13,7 @@ import datetime
 import argparse
 import nacl.secret
 import nacl.exceptions
+import nacl.encoding
 import platform 
 import getpass 
 import pathlib
@@ -27,6 +28,32 @@ if sys.version_info[0:2] == (3,6) and not hasattr(sys, 'argv'):
     sys.argv = [str(pathlib.Path(sys.executable).name)]
 if sys.version_info[0:2] == (3,7):
     sys.argv = [str(pathlib.Path(sys.executable).name)]
+
+
+class JsonBox:
+    """"
+    A simple way to have encrypted persistence.
+    """
+
+    def __init__(self, key):
+        """Setup the box."""
+        self._box = nacl.secret.SecretBox(
+            hashlib.blake2b(key.encode('utf-8'), 
+                digest_size=nacl.secret.SecretBox.KEY_SIZE
+            ).digest())
+
+    def encrypt(self, obj, encoder=nacl.encoding.URLSafeBase64Encoder):
+        """Encrypt the JSON-serializable object."""
+        return self._box.encrypt(
+            json.dumps(obj).encode('utf-8'),
+            encoder=encoder,
+        ).decode('utf-8')
+
+    def decrypt(self, token, encoder=nacl.encoding.URLSafeBase64Encoder):
+        return json.loads(
+            self._box.decrypt(token, encoder=encoder).decode('utf-8')
+        )
+
 
 class Secret:
     """
@@ -60,8 +87,8 @@ class Secret:
         self.data['date'] = round(datetime.datetime.now(datetime.timezone.utc).timestamp())
         if self.file is not None:
             with open(self.file, 'wb') as fh:
-                fh.write(self.box.encrypt(json.dumps(self.data).encode('utf-8')))
 
+                fh.write(self.box.encrypt(json.dumps(self.data).encode('utf-8')))
     def load(self, validate=True):
         if self.file is not None:
             if not self.file.exists():

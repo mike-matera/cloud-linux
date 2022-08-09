@@ -2,13 +2,14 @@
 Module with helpers for Linux tests.
 """
 
-import os
-import subprocess
-import tempfile
+import getpass
+import platform
+import sys
 import pathlib
 import traceback
+import datetime 
 
-from cloud_linux.secrets import vault
+from ..secrets import JsonBox
 
 class Formatting:
     Bold = "\x1b[1m"
@@ -75,13 +76,31 @@ def ask(prompt=None):
     return input(Color.F_LightYellow + prompt + Color.F_Default)
 
 
-class LinuxTest:
+class LinuxLab:
 
-    def __init__(self, debug=False):
+    def __init__(self, name, secret, debug=False):
         self.score = 0
         self.total = 0
         self.debug = debug
         self.questions = []
+        self.box = JsonBox(secret)
+        self.progress_file = pathlib.Path.home() / '.linuxlabs' / name
+        self.progress_file.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        try:
+            with open(self.progress_file) as fh:
+                self.progress = self.box.decrypt(fh.read())
+            assert self.progress['user'] == getpass.getuser()
+            assert self.progress['host'] == platform.node()
+            assert self.progress['cmd'] == sys.argv[0]
+            self.progress['date'] = round(datetime.datetime.now(datetime.timezone.utc).timestamp())
+        except:
+            # Clear on any error
+            self.progress = {
+                'user': getpass.getuser(),
+                'host': platform.node(),
+                'cmd': sys.argv[0],
+                'date': round(datetime.datetime.now(datetime.timezone.utc).timestamp()),
+            }
 
     def print_error(self, *stuff):
         print(Formatting.Bold, Color.F_LightRed, sep='', end='')
@@ -98,7 +117,7 @@ class LinuxTest:
             if self.total > -1:
                 self.total += points
 
-            if vault.get(f"question.{func.__name__}") is not None:
+            if self.progress.get(f"question.{func.__name__}") is not None:
                 self.score += points
                 print(Formatting.Bold, end='')
                 print(func.__name__, " (", points, " points)", sep='', end="")
@@ -116,7 +135,11 @@ class LinuxTest:
                             print("\n" + func.__doc__.format(**kwargs))
                         rval = func(**kwargs)
                         self.score += points
-                        vault.put(f"question.{func.__name__}", 1) 
+                        with open(self.progress_file, 'w') as fh:
+                            self.progress[f"question.{func.__name__}"] = 1
+                            self.progress['score'] = self.score
+                            self.progress['total'] = self.total
+                            fh.write(self.box.encrypt(self.progress))
                         self.print_success('** Correct **')
                         return rval
                     except Exception as e:
@@ -132,5 +155,3 @@ class LinuxTest:
 
         return _wrapper
 
-
-test = LinuxTest()

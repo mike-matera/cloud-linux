@@ -10,7 +10,7 @@ from re import sub
 import atexit 
 
 from cloud_linux.secrets import vault
-from cloud_linux.labs.test import test, ask as input
+from cloud_linux.labs.lab import LinuxLab, ask as input
 from cloud_linux.labs.files import randpath, make_flag, random_big_file
 
 vault.setkey("blarny234")

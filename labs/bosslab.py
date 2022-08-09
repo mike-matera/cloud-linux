@@ -7,15 +7,12 @@ import pathlib
 import random 
 import subprocess
 
-from cloud_linux.secrets import vault
-from cloud_linux.labs.test import test, ask as input
+from cloud_linux.labs.lab import LinuxLab, ask as input
 from cloud_linux.labs.files import randpath, \
     random_big_dir, setup_files, check_files
 
-vault.setkey("blarny234")
-vault.setfile(f'{os.environ["HOME"]}/.bosslab')
-
 debug = False 
+test = LinuxLab('bosslab', 'blarny234', debug=debug)
 
 @test.question
 def delete_the_ms(count, basedir):

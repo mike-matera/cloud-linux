@@ -7,12 +7,11 @@ import stat
 import pathlib
 from random import random 
 
-from cloud_linux.secrets import vault
-from cloud_linux.labs.test import test 
+from cloud_linux.labs.lab import LinuxLab, test 
 from cloud_linux.labs.files import setup_files, check_files
 
-vault.setkey("blarny234")
-vault.setfile(f'{os.environ["HOME"]}/.islands')
+debug = False 
+test = LinuxLab('islands', 'blarny234', debug=debug)
 
 start_files = [    
     ['Hawaii',   None, None, 'Island in the Pacific ocean'],

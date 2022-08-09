@@ -8,14 +8,11 @@ import pathlib
 import random
 import subprocess 
 
-from cloud_linux.secrets import vault
-from cloud_linux.labs.test import test, ask as input
+from cloud_linux.labs.lab import LinuxLab, ask as input
 from cloud_linux.labs.files import randpath, random_big_file
 
-vault.setkey("blarny234")
-vault.setfile(f'{os.environ["HOME"]}/.iolab')
-
-debug = False
+debug = False 
+test = LinuxLab('iolab', 'blarny234', debug=debug)
 
 @test.question
 def find_top_line(line):
