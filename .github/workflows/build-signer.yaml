@@ -2,8 +2,6 @@ name: build-key-signer
 
 on:
   push:
-    branches:
-      - main
     paths:
       - login-servers/ssh-cert-signer/**
 env:
