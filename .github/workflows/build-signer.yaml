@@ -2,8 +2,8 @@ name: build-key-signer
 
 on:
   push:
-    paths:
-      - login-servers/ssh-cert-signer/**
+    branches:
+      - main
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
