@@ -8,8 +8,11 @@ import sys
 import pathlib
 import traceback
 import datetime 
+import argparse
+import textwrap 
+import logging 
 
-from ..secrets import JsonBox
+from cloud_linux.secrets import JsonBox
 
 class Formatting:
     Bold = "\x1b[1m"
@@ -69,11 +72,13 @@ class Color:
     B_White = "\x1b[107m"
 
 
-def ask(prompt=None):
-    """Prompt for input with pretty colors."""
-    if prompt is None:
-        prompt = "answer: "
-    return input(Color.F_LightYellow + prompt + Color.F_Default)
+class LinuxLabQuestion:
+
+    def ask():
+        pass 
+
+    def check():
+        pass 
 
 
 class LinuxLab:
@@ -155,3 +160,52 @@ class LinuxLab:
 
         return _wrapper
 
+def do_question(question, debug=True):
+    q = question()
+    while True:
+        print(textwrap.dedent(f"""
+        {Formatting.Bold}Question: {question.__name__}{Formatting.Reset}
+        """))
+
+        prompt = q.setup()
+        if prompt is not None:
+            input(f"""\n{Color.F_LightYellow}{Formatting.Bold}{prompt}{Color.F_Default}""")
+        try:
+            q.check()
+            print(f"""{Formatting.Bold}{Color.F_LightGreen}✅ Correct{Formatting.Reset}{Color.F_Default}""")
+            break
+        except Exception as e:
+            print(textwrap.dedent(f"""
+            {Formatting.Bold}{Color.F_LightRed}❌ Incorrect{Formatting.Reset}
+            Error message: {e}
+            """).strip())
+            if debug:
+                traceback.print_exc()
+
+
+
+def main():
+    """
+    Run the lab
+    """
+    parser = argparse.ArgumentParser(description='Run a Linux lab.')
+    #parser.add_argument('integers', metavar='N', type=int, nargs='+',
+    #                    help='an integer for the accumulator')
+    #parser.add_argument('--sum', dest='accumulate', action='store_const',
+    #                    const=sum, default=max,
+    #                    help='sum the integers (default: find the max)')
+    #
+    #args = parser.parse_args()
+    #print(args.accumulate(args.integers))
+
+    FORMAT = '🤖 %(message)s'
+    logging.basicConfig(format=FORMAT, level=logging.INFO)
+
+
+    import cloud_linux.labs.questions
+    do_question(cloud_linux.labs.questions.boss.DeleteTheQuotes)
+    do_question(cloud_linux.labs.questions.boss.DeleteTheMs)
+
+if __name__ == '__main__':
+    main()
+    

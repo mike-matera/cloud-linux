@@ -7,6 +7,7 @@ import random
 import subprocess
 import pwd
 import os 
+import logging 
 
 from cloud_linux.labs.words import randword
 
@@ -65,51 +66,58 @@ class RandomPath:
                 return random.choice(choices)
 
 
-def setup_files(files, basedir=None, createmode="overwrite"):
+def setup_files(files):
     """
-    Setup a file structure. files is a sequence of four-tuples: 
-        (path, (user, group), mode, contents) 
+    Setup a file structure. 
+    
+    files is a dictionary with the keys:
+        basedir - A Path where the files will be created 
+        files - A sequence of four-tuples: 
+            (path, (user, group), mode, contents) 
+                (user, group) can be None, individual user and group can also be None
+                mode can be None 
+                contents can be None 
 
-        (user, group) can be None, individual user and group can also be None
-        mode can be None 
-        contents can be None 
-
-    - If basedir is specified the path is deleted and re-created every time.
-        this basically implies overwrite. 
-
-    - createmode is "overwrite" or "once"
-        overwite: Overwrite the file if it exists. 
-        once: Skip write and chmod if it exists. 
+    If basedir does not exist it will be created. If it does exist the contents will be removed.
     """
 
-    if basedir is not None:
-        basedir = pathlib.Path(basedir)
-        subprocess.run(f"rm -rf {basedir}", shell=True)
-        subprocess.run(f"mkdir -p {basedir}", shell=True)
+    assert 'basedir' in files and isinstance(files['basedir'], pathlib.Path)
+    assert not pathlib.Path.home().samefile(files['basedir'])
+    assert 'files' in files 
+    
+    if files['basedir'].exists():
+        for item in list(files['basedir'].iterdir()):
+            if item.is_dir():
+                subprocess.run(f"rm -rf {item}", shell=True, cwd=files['basedir'])
+            else:
+                item.unlink()
     else:
-        basedir = pathlib.Path(".")
+        subprocess.run(f"mkdir -p {files['basedir']}", shell=True)
 
-    for path, ownership, mode, contents in files:
-        target = basedir / path
-        if createmode == 'overwrite' or not target.exists():
-            subprocess.run(f'mkdir -p {target.parent}', shell=True)
-            with open(target, 'w') as fh:
-                fh.write(contents)
-            if mode is not None:
-                subprocess.run(f"chmod {mode} {target}", shell=True)
-            if ownership is not None:
-                if ownership[0] is not None:
-                    subprocess.run(f"chown {ownership[0]} {target}", shell=True)
-                if ownership[1] is not None:
-                    subprocess.run(f"chgrp {ownership[1]} {target}", shell=True)
+    for path, ownership, mode, contents in files['files']:
+        target = files['basedir'] / path
+        subprocess.run(f'mkdir -p {target.parent}', shell=True)
+        with open(target, 'w') as fh:
+            fh.write(contents)
+        if mode is not None:
+            subprocess.run(f"chmod {mode} {target}", shell=True)
+        if ownership is not None:
+            if ownership[0] is not None:
+                subprocess.run(f"chown {ownership[0]} {target}", shell=True)
+            if ownership[1] is not None:
+                subprocess.run(f"chgrp {ownership[1]} {target}", shell=True)
 
-def check_files(files, basedir=pathlib.Path(".")):
+def check_files(files):
     """
-    Check the contents of files. files is the four-tuple from setup_files.         
+    Check the contents of files. files is the the same as setup_files.       
     """
-    basedir = pathlib.Path(basedir)
-    for path, ownership, mode, contents in files:
-        path = basedir / path
+    assert 'basedir' in files and isinstance(files['basedir'], pathlib.Path)
+    assert 'files' in files 
+
+    exists = list(files['basedir'].glob('**/*'))
+
+    for path, ownership, mode, contents in files['files']:
+        path = files['basedir'] / path
         assert path.exists(), f"""The file {path} does not exist."""
         stat = path.stat()
         if contents is not None:
@@ -123,6 +131,10 @@ def check_files(files, basedir=pathlib.Path(".")):
                 assert stat.st_uid == ownership[0], f"""The owner of {path} doesn't match."""
             if ownership[1] is not None:
                 assert stat.st_gid == ownership[1], f"""The group of {path} doesn't match."""
+
+        exists.remove(pathlib.Path(path).resolve())
+
+    assert len(exists) == 0, f"""The file {str(exists[0])} exists and shouldn't"""
 
 def make_flag():
     """
@@ -161,15 +173,18 @@ def random_big_file(name=pathlib.Path(os.environ.get('HOME','.')) / 'bigfile', s
     
     return bigfile
 
-def random_big_dir(count=1000):
+def random_big_dir(count=1000, basedir=pathlib.Path.home() / "Rando"):
     """
-    Create a directory with a large number of randomly named files. 
-
-    This function does not act on the filesystem. It only generates a 
-    structure suitable for passing to `setup_files`. 
+    Create a directory with a large number of randomly named files. This changes 
+    the filesystem and returns a structure suitable for check_files.
     """
-
-    return list(map(lambda x: [x, None, None, x], random.sample(randword.words, count)))
+    logging.info(f"I'm (re)creating {count} random files in the directory {basedir}.")
+    files = {
+        'basedir': basedir,
+        'files': list(map(lambda x: [x, None, None, x], random.sample(randword.words, count))),
+    }
+    setup_files(files)
+    return files
 
 # 
 # For convenience 
