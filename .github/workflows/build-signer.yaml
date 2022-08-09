@@ -1,9 +1,12 @@
 name: build-key-signer
 
 on:
+  workflow_dispatch: {}
   push:
     branches:
       - main
+    paths:
+      - login-servers/ssh-cert-signer/**
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
