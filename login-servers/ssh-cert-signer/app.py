@@ -27,6 +27,7 @@ with open('./secrets/ca_key') as fh:
       digest_size=nacl.secret.SecretBox.KEY_SIZE
     ).digest()
 
+
 @app.route('/', methods=['GET', 'POST'])
 def make_key():
 
@@ -66,6 +67,7 @@ def make_key():
 
       return flask.send_file(temppath / 'id_rsa-cert.pub', as_attachment=True)
 
+
 def encode_token(user, key):
   """Make a token."""
   return base64.b64encode(
@@ -74,6 +76,7 @@ def encode_token(user, key):
       }).encode('utf-8'))
     ).decode('utf-8')
 
+
 def decode_token(token, key):
   """Get the token data."""
   return json.loads(
@@ -81,6 +84,7 @@ def decode_token(token, key):
       base64.b64decode(token)
     )
   )
+
 
 if __name__ == '__main__':
   token = encode_token(sys.argv[2], crypt_key)
