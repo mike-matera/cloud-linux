@@ -15,11 +15,19 @@ $ helm repo add cloud-native-server https://mike-matera.github.io/cloud-native-s
 $ helm repo update 
 ```
 
+## CA Key 
+
+Create a secret for the CA key: 
+
+```console 
+$ kubectl -n login-servers create secret generic cis-ca-key --from-file=ca_key=./secrets/ca_key --from-file=ca_key_pub=./secrets/ca_key.pub 
+```
+
 ## Opus 
 
 ```console 
 $ helm install -n login-servers opus cloud-native-server/cloud-server \
-    --set-file ssh.ca_key=./secrets/ca_key,ssh.ca_key_pub=./secrets/ca_key.pub \
+    --set ssh.existingSecret=cis-ca-key \
     --values values-opus.yaml
 ```
 

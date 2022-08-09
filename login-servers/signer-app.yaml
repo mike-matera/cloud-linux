@@ -37,11 +37,21 @@ spec:
       labels:
         app: ssh-cert-signer
     spec:
+      volumes:
+        - name: sshsecret
+          secret:
+            secretName: cis-ca-key
+            defaultMode: 0400
       containers:
       - name: ssh-cert-signer
         image: ghcr.io/mike-matera/ssh-cert-signer:main
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
+        volumeMounts:
+          - name: sshsecret
+            mountPath: "/app/secrets"
+            readOnly: true
 ---
 apiVersion: v1
 kind: Service

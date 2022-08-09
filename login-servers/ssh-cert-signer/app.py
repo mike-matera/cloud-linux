@@ -21,12 +21,11 @@ logging.basicConfig(level=logging.DEBUG)
 app = flask.Flask(__name__)
 os.umask(0o0077)
 
-key = os.environ['TOKEN_KEY']
-crypt_key = hashlib.blake2b(
-    key.encode('utf-8'), 
-    digest_size=nacl.secret.SecretBox.KEY_SIZE
-  ).digest()
-
+with open('./secrets/ca_key') as fh:
+  crypt_key = hashlib.blake2b(
+      fh.read().encode('utf-8'), 
+      digest_size=nacl.secret.SecretBox.KEY_SIZE
+    ).digest()
 
 @app.route('/', methods=['GET', 'POST'])
 def make_key():
