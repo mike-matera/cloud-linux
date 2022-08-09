@@ -8,5 +8,5 @@ setup(
         'pyyaml',
         'importlib-metadata; python_version == "3.10"',
     ],
-    packages=['cloud_linux'],
+    packages=['cloud_linux', 'cloud_linux.labs'],
 )
