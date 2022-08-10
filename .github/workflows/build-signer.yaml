@@ -4,9 +4,9 @@ on:
   workflow_dispatch: {}
   push:
     branches:
-      - "main"
+      - main
     paths:
-      - "login-servers/ssh-cert-signer/**"
+      - login-servers/ssh-cert-signer/**
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
