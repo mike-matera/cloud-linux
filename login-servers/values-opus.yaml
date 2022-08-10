@@ -36,7 +36,7 @@ resources:
     cpu: 16000m
     memory: 32Gi
 
-"ssh":
+ssh:
   sshd_config: |
     Include /etc/ssh/sshd_config.d/*.conf
     PasswordAuthentication no

@@ -2,7 +2,7 @@
 Generate personal Linux servers for students. 
 """
 
-import time
+import re
 import json
 import subprocess
 import argparse 
@@ -16,19 +16,19 @@ parser.add_argument('operator', choices=['update', 'upgrade', 'stop', 'purge'],
 args = parser.parse_args()
 
 helm_users = json.loads(
-    subprocess.run('helm list -n login-servers -o json', shell=True, stdout=subprocess.PIPE, check=True).stdout
+    subprocess.run("""helm list -n login-servers --filter 'arya-.*' -o json""", shell=True, stdout=subprocess.PIPE, check=True).stdout
 )
 
 canvas = Canvas() 
 canvas_users = { courseuser.user.pw_name: courseuser.user for courseuser in canvas.course_users('cis-90', 'cis-91') } 
 
-helm_install = """helm -n login-servers {op} {user} cloud-native-server/cloud-server \
-    --values values-arya.yaml --set-file ssh.ca_key=./secrets/ca_key,ssh.ca_key_pub=./secrets/ca_key.pub \
+helm_install = """helm -n login-servers {op} arya-{user} cloud-native-server/cloud-server \
+    --values values-arya.yaml --set ssh.existingSecret=cis-ca-key \
     --set user={user} \
     --set userID={userid} \
     --set service.port={port} \
     && sleep 5 \
-    && kubectl -n login-servers wait --for=condition=ready --timeout=10m pod -l app.kubernetes.io/instance={user}
+    && kubectl -n login-servers wait --for=condition=ready --timeout=10m pod -l app.kubernetes.io/instance=arya-{user}
     """
 
 helm_uninstall = """helm -n login-servers uninstall {user}"""
@@ -74,5 +74,6 @@ elif args.operator == 'purge':
         subprocess.run("kubectl -n login-servers get pvc -o json", shell=True, check=True, stdout=subprocess.PIPE).stdout
     )
     for pvc in pvcs['items']:
-        subprocess.run(f"kubectl -n login-servers delete pvc {pvc['metadata']['name']}", shell=True, check=False)
+        if 'arya' in pvc['metadata']['name']:
+            subprocess.run(f"kubectl -n login-servers delete pvc {pvc['metadata']['name']}", shell=True, check=False)
         
