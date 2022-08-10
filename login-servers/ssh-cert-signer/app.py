@@ -15,6 +15,7 @@ import subprocess
 import urllib.parse
 import nacl.secret
 import nacl.exceptions
+import nacl.encoding
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -70,18 +71,17 @@ def make_key():
 
 def encode_token(user, key):
   """Make a token."""
-  return base64.b64encode(
-      nacl.secret.SecretBox(key).encrypt(json.dumps({
+  return nacl.secret.SecretBox(key).encrypt(json.dumps({
           'user': user,
-      }).encode('utf-8'))
-    ).decode('utf-8')
+      }).encode('utf-8'), 
+      encoder=nacl.encoding.URLSafeBase64Encoder).decode('utf-8')
 
 
 def decode_token(token, key):
   """Get the token data."""
   return json.loads(
     nacl.secret.SecretBox(key).decrypt(
-      base64.b64decode(token)
+      token, encoder=nacl.encoding.URLSafeBase64Encoder,
     )
   )
 
@@ -89,4 +89,4 @@ def decode_token(token, key):
 if __name__ == '__main__':
   token = encode_token(sys.argv[2], crypt_key)
   print(f"Token: {token}")
-  print(f"URL: {sys.argv[1]}/?token={urllib.parse.quote(token)}")
+  print(f"URL: {sys.argv[1]}/?token={token}")
