@@ -43,7 +43,7 @@ class UnixUser(canvasapi.user.User):
 
     @property
     def comment(self):
-        return self.short_name
+        return re.sub('[:]', '', self.short_name)
 
 
 class Canvas(canvasapi.Canvas):
