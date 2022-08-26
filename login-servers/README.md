@@ -33,6 +33,14 @@ $ helm install -n opus opus cloud-native-server/cloud-server \
     --values values-opus.yaml
 ```
 
+## Certificate Signing App 
+
+This app enables certificate signing and works as an HTTP server for opus:
+
+```console
+$ kubectl apply -f ./signer-app.yaml
+``` 
+
 ## Arya 
 
 ```console 
