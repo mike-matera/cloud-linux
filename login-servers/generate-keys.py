@@ -10,6 +10,7 @@ import nacl.secret
 import nacl.exceptions
 import nacl.encoding
 import hashlib 
+import datetime 
 
 from cloud_linux.canvas import Canvas 
 
@@ -33,6 +34,7 @@ def encode_token(user, key):
   """Make a token."""
   return nacl.secret.SecretBox(key).encrypt(json.dumps({
           'user': user,
+          'create': datetime.datetime.now().timestamp(),
       }).encode('utf-8'), encoder=nacl.encoding.URLSafeBase64Encoder).decode('utf-8')
     
 def send_message(user, course_id, zip_file):
@@ -42,22 +44,27 @@ def send_message(user, course_id, zip_file):
 
     convo = canvas.create_conversation(user.id, 
         textwrap.dedent(f"""
-        Hello!
-        
-        This message has instructions for how to login to servers that I use to teach 
-        my Linux and cloud classes. 
+        Hello CIS-90 and CIS-91 students!
 
-        ssh {user.pw_name}@arya.cis.cabrillo.edu -p {user.tcp_port} 
-        ssh {user.pw_name}@opus.cis.cabrillo.edu 
-        
-        Before you login you will have to visit the following URL and get a signed SSH key: 
+        This message has important information about how to login to the class Opus and Arya
+        servers. In class I will show you how to create an SSH key if you don't already have 
+        one. The URL will take you to a site where you can sign the key allowing you to login 
+        without using a password. 
+
+        **Keep this link secret** 
 
         https://opus.cis.cabrillo.edu/?token={encode_token(user.pw_name,crypt_key)}
+
+
+        This is a new process this year! I designed it to be more secure than a password 
+        but you are the first class to try it. Please bear with me if there are glitches. 
+
+        I'm looking forward to class! 
 
         Cheers
         ./m
         """), 
-        subject="Your SSH Keys for Opus and Arya", 
+        subject="SSH Keys for Opus and Arya", 
         force_new=True,
         context_code=f"course_{course_id}",
     )
