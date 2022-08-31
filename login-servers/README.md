@@ -21,8 +21,8 @@ $ helm repo update
 Create a secret for the CA key: 
 
 ```console 
-$ kubectl -n opus create secret generic cis-ca-key --from-file=ca_key=./secrets/ca_key --from-file=ca_key_pub=./secrets/ca_key.pub 
-$ kubectl -n arya create secret generic cis-ca-key --from-file=ca_key=./secrets/ca_key --from-file=ca_key_pub=./secrets/ca_key.pub 
+$ kubectl -n opus create secret generic cis-ca-key --from-file=ca_key=./secrets/ca_key --from-file=ca_key.pub=./secrets/ca_key.pub 
+$ kubectl -n arya create secret generic cis-ca-key --from-file=ca_key=./secrets/ca_key --from-file=ca_key.pub=./secrets/ca_key.pub 
 ```
 
 ## Opus 
