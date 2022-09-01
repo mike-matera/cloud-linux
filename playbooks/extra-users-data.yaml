@@ -1,0 +1,10 @@
+removes:
+  - name: col7714
+
+users:
+  - comment: Liz Matz
+    groups:
+    - users
+    - cis-90
+    name: liz7714
+    uid: '719677010'
