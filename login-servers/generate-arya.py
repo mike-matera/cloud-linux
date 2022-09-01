@@ -10,8 +10,12 @@ import argparse
 from cloud_linux.canvas import Canvas 
 
 parser = argparse.ArgumentParser(description='Make personal servers from a Canvas course.')
-parser.add_argument('operator', choices=['update', 'upgrade', 'stop', 'purge'],
+parser.add_argument('operator', choices=['update', 'upgrade', 'stop', 'purge', 'add',],
                     help='What to do.')
+parser.add_argument('--user',
+                    help='Used with add to specify a username')
+parser.add_argument('--port',
+                    help='Used with add to specify a port')
 
 args = parser.parse_args()
 
@@ -77,3 +81,12 @@ elif args.operator == 'purge':
     for pvc in pvcs['items']:
         subprocess.run(f"kubectl -n arya delete pvc {pvc['metadata']['name']}", shell=True, check=False)
         
+elif args.operator == 'add':
+    assert args.user is not None
+    assert args.port is not None
+    subprocess.run(helm_install.format(
+        op='install',
+        user=args.user,
+        userid='1000',
+        port=args.port,
+    ), shell=True, check=True)
