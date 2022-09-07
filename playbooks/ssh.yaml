@@ -1,0 +1,33 @@
+# Apply SSH configuration for non-Kubernetes hosts 
+
+- hosts: all
+  name: Generate host groups by distro.
+  become: yes
+  tasks:
+    - name: Create the SSH ca dir
+      file:
+        path: /etc/ssh/ca
+        state: directory 
+    - name: Copy the CA cert
+      copy:
+        src: ca_key.pub
+        dest: /etc/ssh/ca/ca_key.pub
+        remote_src: no 
+    - name: Configure SSH
+      lineinfile: 
+        state: absent
+        path: /etc/ssh/sshd_config
+        create: yes
+        regexp: '^HostCertificate'
+        line: HostCertificate /etc/ssh/ca/ssh_host_rsa_key-cert.pub
+    - name: Configure SSH
+      lineinfile: 
+        state: present
+        path: /etc/ssh/sshd_config
+        create: yes
+        regexp: '^TrustedUserCAKeys'
+        line: TrustedUserCAKeys /etc/ssh/ca/ca_key.pub
+    - name: Restart SSH
+      service: 
+        name: sshd
+        state: restarted 

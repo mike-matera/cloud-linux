@@ -12,7 +12,7 @@
   become: true
   roles:
     - zork 
-    # - { role: labscript, source: ../labs/scavenge.py, dest: /usr/local/bin/scavenge }
+    - { role: labscript, source: ../labs/scavenge.py, dest: /usr/local/bin/scavenge }
     - { role: labscript, source: ../labs/fslab.py, dest: /usr/local/bin/fslab }
     - { role: labscript, source: ../labs/fileslab.py, dest: /usr/local/bin/fileslab }
     - { role: labscript, source: ../labs/islands.py, dest: /usr/local/bin/islands }

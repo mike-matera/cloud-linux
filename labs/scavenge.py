@@ -4,10 +4,13 @@ from re import sub
 import subprocess
 import psutil 
 
-from cloud_linux.labs.lab import LinuxLab, ask as input
+from cloud_linux.secrets import vault
+from cloud_linux.lab import test, ask as input
+
+vault.setkey("blarny234")
+vault.setfile(f'{os.environ["HOME"]}/.scavenger')
 
 debug = False 
-test = LinuxLab('scavenge', 'blarny234', debug=debug)
 
 @test.question
 def kernel_version():

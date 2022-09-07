@@ -11,6 +11,7 @@
   become: true
   tasks:
     - lineinfile:
+        state: absent
         path: /etc/apt/apt.conf.d/proxy99.conf
         create: yes
         regexp: '^Acquire::http::Proxy'

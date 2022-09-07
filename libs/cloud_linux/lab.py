@@ -2,17 +2,13 @@
 Module with helpers for Linux tests.
 """
 
-import getpass
-import platform
-import sys
+import os
+import subprocess
+import tempfile
 import pathlib
 import traceback
-import datetime 
-import argparse
-import textwrap 
-import logging 
 
-from cloud_linux.secrets import JsonBox
+from cloud_linux.secrets import vault
 
 class Formatting:
     Bold = "\x1b[1m"
@@ -72,40 +68,20 @@ class Color:
     B_White = "\x1b[107m"
 
 
-class LinuxLabQuestion:
-
-    def ask():
-        pass 
-
-    def check():
-        pass 
+def ask(prompt=None):
+    """Prompt for input with pretty colors."""
+    if prompt is None:
+        prompt = "answer: "
+    return input(Color.F_LightYellow + prompt + Color.F_Default)
 
 
 class LinuxLab:
 
-    def __init__(self, name, secret, debug=False):
+    def __init__(self, debug=False):
         self.score = 0
         self.total = 0
         self.debug = debug
         self.questions = []
-        self.box = JsonBox(secret)
-        self.progress_file = pathlib.Path.home() / '.linuxlabs' / name
-        self.progress_file.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-        try:
-            with open(self.progress_file) as fh:
-                self.progress = self.box.decrypt(fh.read())
-            assert self.progress['user'] == getpass.getuser()
-            assert self.progress['host'] == platform.node()
-            assert self.progress['cmd'] == sys.argv[0]
-            self.progress['date'] = round(datetime.datetime.now(datetime.timezone.utc).timestamp())
-        except:
-            # Clear on any error
-            self.progress = {
-                'user': getpass.getuser(),
-                'host': platform.node(),
-                'cmd': sys.argv[0],
-                'date': round(datetime.datetime.now(datetime.timezone.utc).timestamp()),
-            }
 
     def print_error(self, *stuff):
         print(Formatting.Bold, Color.F_LightRed, sep='', end='')
@@ -122,7 +98,7 @@ class LinuxLab:
             if self.total > -1:
                 self.total += points
 
-            if self.progress.get(f"question.{func.__name__}") is not None:
+            if vault.get(f"question.{func.__name__}") is not None:
                 self.score += points
                 print(Formatting.Bold, end='')
                 print(func.__name__, " (", points, " points)", sep='', end="")
@@ -140,11 +116,7 @@ class LinuxLab:
                             print("\n" + func.__doc__.format(**kwargs))
                         rval = func(**kwargs)
                         self.score += points
-                        with open(self.progress_file, 'w') as fh:
-                            self.progress[f"question.{func.__name__}"] = 1
-                            self.progress['score'] = self.score
-                            self.progress['total'] = self.total
-                            fh.write(self.box.encrypt(self.progress))
+                        vault.put(f"question.{func.__name__}", 1) 
                         self.print_success('** Correct **')
                         return rval
                     except Exception as e:
@@ -160,52 +132,5 @@ class LinuxLab:
 
         return _wrapper
 
-def do_question(question, debug=True):
-    q = question()
-    while True:
-        print(textwrap.dedent(f"""
-        {Formatting.Bold}Question: {question.__name__}{Formatting.Reset}
-        """))
 
-        prompt = q.setup()
-        if prompt is not None:
-            input(f"""\n{Color.F_LightYellow}{Formatting.Bold}{prompt}{Color.F_Default}""")
-        try:
-            q.check()
-            print(f"""{Formatting.Bold}{Color.F_LightGreen}✅ Correct{Formatting.Reset}{Color.F_Default}""")
-            break
-        except Exception as e:
-            print(textwrap.dedent(f"""
-            {Formatting.Bold}{Color.F_LightRed}❌ Incorrect{Formatting.Reset}
-            Error message: {e}
-            """).strip())
-            if debug:
-                traceback.print_exc()
-
-
-
-def main():
-    """
-    Run the lab
-    """
-    parser = argparse.ArgumentParser(description='Run a Linux lab.')
-    #parser.add_argument('integers', metavar='N', type=int, nargs='+',
-    #                    help='an integer for the accumulator')
-    #parser.add_argument('--sum', dest='accumulate', action='store_const',
-    #                    const=sum, default=max,
-    #                    help='sum the integers (default: find the max)')
-    #
-    #args = parser.parse_args()
-    #print(args.accumulate(args.integers))
-
-    FORMAT = '🤖 %(message)s'
-    logging.basicConfig(format=FORMAT, level=logging.INFO)
-
-
-    import cloud_linux.labs.questions
-    do_question(cloud_linux.labs.questions.boss.DeleteTheQuotes)
-    do_question(cloud_linux.labs.questions.boss.DeleteTheMs)
-
-if __name__ == '__main__':
-    main()
-    
+test = LinuxLab()
