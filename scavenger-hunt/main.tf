@@ -7,7 +7,7 @@ variable "hosts" {
       os = "ubuntu"
     },
     reliant = {
-      image = "centos-cloud/centos-8"
+      image = "rocky-linux-cloud/rocky-linux-9"
       os = "centos"
     },
     excelsior = {
@@ -26,7 +26,7 @@ variable "project" {
 }
 
 variable "credentials_file" { 
-    default = "../secrets/cis-90.key" 
+    default = "secrets/cis-90.key" 
 }
 
 variable "region" {

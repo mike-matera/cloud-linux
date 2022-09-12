@@ -11,7 +11,7 @@
   name: Install Labs
   become: true
   roles:
-    - zork 
+    # - zork 
     - { role: labscript, source: ../labs/scavenge.py, dest: /usr/local/bin/scavenge }
     - { role: labscript, source: ../labs/fslab.py, dest: /usr/local/bin/fslab }
     - { role: labscript, source: ../labs/fileslab.py, dest: /usr/local/bin/fileslab }
