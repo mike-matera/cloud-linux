@@ -82,7 +82,7 @@ def setup_files(files):
     """
 
     assert 'basedir' in files and isinstance(files['basedir'], pathlib.Path)
-    assert not pathlib.Path.home().samefile(files['basedir'])
+    assert not files['basedir'].exists() or not pathlib.Path.home().samefile(files['basedir'])
     assert 'files' in files 
     
     if files['basedir'].exists():
@@ -107,7 +107,7 @@ def setup_files(files):
             if ownership[1] is not None:
                 subprocess.run(f"chgrp {ownership[1]} {target}", shell=True)
 
-def check_files(files):
+def check_files(files, extra=False):
     """
     Check the contents of files. files is the the same as setup_files.       
     """
@@ -134,7 +134,14 @@ def check_files(files):
 
         exists.remove(pathlib.Path(path).resolve())
 
-    assert len(exists) == 0, f"""The file {str(exists[0])} exists and shouldn't"""
+    if not extra:
+        # Filter out base directories
+        for ex in list(exists):
+            for path, _, _, _ in files['files']:
+                if ex.samefile((files['basedir'] / pathlib.Path(path)).parent):
+                    exists.remove(ex)
+                    break
+        assert len(exists) == 0, f"""The file {str(exists[0])} exists and shouldn't"""
 
 def make_flag():
     """
@@ -173,7 +180,7 @@ def random_big_file(name=pathlib.Path(os.environ.get('HOME','.')) / 'bigfile', s
     
     return bigfile
 
-def random_big_dir(count=1000, basedir=pathlib.Path.home() / "Rando"):
+def random_big_dir(count=1000, setup=True, basedir=pathlib.Path.home() / "Rando"):
     """
     Create a directory with a large number of randomly named files. This changes 
     the filesystem and returns a structure suitable for check_files.
@@ -183,7 +190,8 @@ def random_big_dir(count=1000, basedir=pathlib.Path.home() / "Rando"):
         'basedir': basedir,
         'files': list(map(lambda x: [x, None, None, x], random.sample(randword.words, count))),
     }
-    setup_files(files)
+    if setup:
+        setup_files(files)
     return files
 
 # 

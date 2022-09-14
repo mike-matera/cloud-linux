@@ -3,16 +3,17 @@ Input/Output Processing
 """
 
 import os
-import stat
-import pathlib
 import random
 import subprocess 
 
-from cloud_linux.labs.lab import LinuxLab, ask as input
+from cloud_linux.lab import LinuxLab, ask as input
 from cloud_linux.labs.files import randpath, random_big_file
+from cloud_linux.secrets import vault
 
 debug = False 
-test = LinuxLab('iolab', 'blarny234', debug=debug)
+vault.setkey("blarny234")
+vault.setfile(f'{os.environ["HOME"]}/.iolab')
+test = LinuxLab(debug=debug)
 
 @test.question
 def find_top_line(line):

@@ -6,11 +6,14 @@ import os
 import stat
 import pathlib 
 
-from cloud_linux.labs.lab import LinuxLab, ask as input
+from cloud_linux.lab import LinuxLab, ask as input
 from cloud_linux.labs.files import randpath, make_flag
+from cloud_linux.secrets import vault
 
 debug = False 
-test = LinuxLab('fslab', 'blarny234', debug=debug)
+vault.setkey("blarny234")
+vault.setfile(f'{os.environ["HOME"]}/.fslab')
+test = LinuxLab(debug=debug)
 
 @test.question
 def flag_file():
@@ -24,7 +27,7 @@ def flag_file():
     if debug:
         print("DEBUG:", f['secret'])
     got = input().strip()
-    assert got == f['secret'], """That's not correct."""
+    assert got == str(f['secret']), """That's not correct."""
 
 
 @test.question

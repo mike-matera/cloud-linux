@@ -6,11 +6,14 @@ import stat
 import pathlib
 from random import random 
 
-from cloud_linux.labs.lab import LinuxLab, ask as input 
+from cloud_linux.lab import LinuxLab, ask as input
 from cloud_linux.labs.files import randpath, random_big_file
+from cloud_linux.secrets import vault
 
 debug = False 
-test = LinuxLab('fileslab', 'blarny234', debug=debug)
+vault.setkey("blarny234")
+vault.setfile(f'{os.environ["HOME"]}/.fileslab')
+test = LinuxLab(debug=debug)
 
 @test.question
 def directory_inode(dir):
@@ -30,7 +33,9 @@ def directory_inode(dir):
 @test.question
 def first_word():
     """
-    I just created a file called "~/bigfile" in the current directory. What is the first word in it? 
+    I just created a file called "~/bigfile" your home directory. 
+    
+    What is the first word in it? 
     """
     bigfile = random_big_file()
     with open(bigfile) as fh:

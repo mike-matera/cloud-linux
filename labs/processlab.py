@@ -5,10 +5,13 @@ Input/Output Processing
 import os
 import psutil 
 
-from cloud_linux.labs.lab import LinuxLab, ask as input
+from cloud_linux.lab import LinuxLab, ask as input
+from cloud_linux.secrets import vault
 
 debug = False 
-test = LinuxLab('processlab', 'blarny234', debug=debug)
+vault.setkey("blarny234")
+vault.setfile(f'{os.environ["HOME"]}/.processlab')
+test = LinuxLab(debug=debug)
 
 @test.question
 def this_process():

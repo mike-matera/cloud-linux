@@ -5,12 +5,16 @@ Files and directories with permissions.
 import os
 from random import random 
 import grp
+import pathlib 
 
-from cloud_linux.labs.lab import LinuxLab, ask as input
+from cloud_linux.lab import LinuxLab, ask as input
 from cloud_linux.labs.files import setup_files, check_files
+from cloud_linux.secrets import vault
 
 debug = False 
-test = LinuxLab('islands2', 'blarny234', debug=debug)
+vault.setkey("blarny234")
+vault.setfile(f'{os.environ["HOME"]}/.islands2')
+test = LinuxLab(debug=debug)
 
 try:
     cis90_grp = grp.getgrnam('cis90').gr_gid
@@ -47,25 +51,45 @@ end_files = [
 @test.question
 def test_pacific():
     """I'm about to check the Pacific islands."""
-    check_files(end_files[0:3], basedir=f'{os.environ["HOME"]}/Oceans')
+    check_files({
+        'files': end_files[0:3], 
+        'basedir': pathlib.Path.home() / 'Oceans'
+        }, extra=True)
 
 
 @test.question
 def test_atlantic():
     """I'm about to check the Atlantic islands."""
-    check_files(end_files[3:6], basedir=f'{os.environ["HOME"]}/Oceans')
+    check_files({
+        'files': end_files[3:6], 
+        'basedir': pathlib.Path.home() / 'Oceans'
+        }, extra=True)
 
 
 @test.question
 def test_indian():
     """I'm about to check the Indian islands."""
-    check_files(end_files[6:8], basedir=f'{os.environ["HOME"]}/Oceans')
+    check_files({
+        'files': end_files[6:8], 
+        'basedir': pathlib.Path.home() / 'Oceans'
+        }, extra=True)
 
 
 @test.question
 def test_fictional():
     """I'm about to check the Fictional islands."""
-    check_files(end_files[8:], basedir=f'{os.environ["HOME"]}/Oceans')
+    check_files({
+        'files': end_files[8:], 
+        'basedir': pathlib.Path.home() / 'Oceans'
+        }, extra=True)
+
+@test.question
+def test_extras():
+    """I'm about to check for extraneous files."""
+    check_files({
+        'files': end_files, 
+        'basedir': pathlib.Path.home() / 'Oceans'
+        }, extra=False)
 
 
 def main():
@@ -95,13 +119,18 @@ def main():
 
     """)
 
-    setup_files(start_files, basedir=f'{os.environ["HOME"]}/Islands')
+    setup_files({
+        'files': start_files, 
+        'basedir': pathlib.Path.home() / 'Islands'
+    })
+
     input("Check for the files and press Enter.")
 
-    test_pacific(points=5)
-    test_atlantic(points=5)
-    test_indian(points=5)
-    test_fictional(points=5)
+    test_pacific(points=4)
+    test_atlantic(points=4)
+    test_indian(points=4)
+    test_fictional(points=4)
+    test_extras(points=4)
     
     print(f"Your score is {test.score} of {test.total}")
     print("Your confirmation code is:", vault.confirmation({'score': test.score}))
