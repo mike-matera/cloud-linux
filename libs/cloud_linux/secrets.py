@@ -164,17 +164,23 @@ def main():
 
     if args.file is None:
         while True:
-            got = input('> ')
-            for word in got.split():
-                try:
-                    data = vault.validate(word)
-                    print("\n")
-                    print(Bold, F_LightGreen, B_Black, sep='', end='')
-                    print(data)
-                    print(B_Default, F_Default, Reset, sep='', end='')                    
-                    print("\n")
-                except Exception as e:
-                    pass
+            line = None
+            got = ""
+            while line != '.':
+                line = input('> ')
+                got += line.strip()
+            got = got.replace('\n', '')
+            for i in range(len(got)):
+                for j in range(i+1, len(got)):
+                    try:
+                        data = vault.validate(got[i:j+1])
+                        print("\n")
+                        print(Bold, F_LightGreen, B_Black, sep='', end='')
+                        print(data)
+                        print(B_Default, F_Default, Reset, sep='', end='')                    
+                        print("\n")
+                    except Exception as e:
+                        pass
     else:
         if args.file is None:
             raise ValueError("You must specify a file.")
