@@ -24,11 +24,12 @@ import uuid
 
 
 # Python 3.6 does not initialize sys.argv in embedded mode. 
-if sys.version_info[0:2] == (3,6) and not hasattr(sys, 'argv'):
+if sys.version_info[0:2] <= (3,6) and not hasattr(sys, 'argv'):
     sys.argv = [str(pathlib.Path(sys.executable).name)]
-if sys.version_info[0:2] == (3,7):
+if sys.version_info[0:2] <= (3,7):
     sys.argv = [str(pathlib.Path(sys.executable).name)]
-
+if sys.version_info[0:2] <= (3,10):
+    sys.argv = sys.orig_argv
 
 class JsonBox:
     """"
@@ -99,7 +100,7 @@ class Secret:
                         self.data = json.loads(self.box.decrypt(fh.read()).decode('utf-8'))
                     if validate:
                         assert self.data['user'] == getpass.getuser()
-                        assert self.data['host'] == platform.node()
+                        assert self.data['host'] == platform.node()                        
                         assert self.data['cmd'] == sys.argv[0]
                 except (KeyError, AssertionError, nacl.exceptions.CryptoError) as e:
                     # Nuke the bad file.                    
