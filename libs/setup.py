@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='cloud_linux',
-    version='0.1.5',
+    version='0.1.6',
     install_requires=[
         'canvasapi',
         'pynacl',

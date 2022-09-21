@@ -23,14 +23,6 @@ import getpass
 import uuid
 
 
-# Python 3.6 does not initialize sys.argv in embedded mode. 
-if sys.version_info[0:2] <= (3,6) and not hasattr(sys, 'argv'):
-    sys.argv = [str(pathlib.Path(sys.executable).name)]
-if sys.version_info[0:2] <= (3,7):
-    sys.argv = [str(pathlib.Path(sys.executable).name)]
-if sys.version_info[0:2] <= (3,10):
-    sys.argv = sys.orig_argv
-
 class JsonBox:
     """"
     A simple way to have encrypted persistence.
@@ -65,7 +57,7 @@ class Secret:
         self.data = {}
         self.data['user'] = getpass.getuser()
         self.data['host'] = platform.node()
-        self.data['cmd'] = sys.argv[0]
+        self.data['cmd'] = sys.executable
         self.data['date'] = round(datetime.datetime.now(datetime.timezone.utc).timestamp())
         self.key = None
         self.file = None
@@ -101,7 +93,7 @@ class Secret:
                     if validate:
                         assert self.data['user'] == getpass.getuser()
                         assert self.data['host'] == platform.node()                        
-                        assert self.data['cmd'] == sys.argv[0]
+                        assert self.data['cmd'] == sys.executable
                 except (KeyError, AssertionError, nacl.exceptions.CryptoError) as e:
                     # Nuke the bad file.                    
                     self.store()
@@ -119,7 +111,7 @@ class Secret:
         """
         data['user'] = getpass.getuser()
         data['host'] = platform.node()
-        data['cmd'] = sys.argv[0]
+        data['cmd'] = sys.executable
         data['date'] = round(datetime.datetime.now(datetime.timezone.utc).timestamp())
         raw = json.dumps(data, separators=(',', ':')).encode('utf-8')
         h = hashlib.blake2b(raw, digest_size=8, key=self.key)
