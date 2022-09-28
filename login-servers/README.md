@@ -33,6 +33,14 @@ $ helm install -n opus opus cloud-native-server/cloud-server \
     --values values-opus.yaml
 ```
 
+## Sun Hwa
+
+```console 
+$ helm install -n opus sun-hwa-p1 cloud-native-server/cloud-server \
+    --set ssh.existingSecret=cis-ca-key \
+    --values values-practice-m1.yaml
+```
+
 ## Certificate Signing App 
 
 This app enables certificate signing and works as an HTTP server for opus:

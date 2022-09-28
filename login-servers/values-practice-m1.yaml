@@ -5,10 +5,10 @@ homeSize: 32Gi
 homeStorageClassName: ssd-ha
 
 user: "mmatera" 
-hostName: "opus"
+hostName: "sun-hwa-p1"
 userSSHImport: "gh:mike-matera"
 customizeRepo: "https://github.com/mike-matera/cloud-linux.git"
-customizeRepoCommand: "cd playbooks/ && ./base.sh"
+customizeRepoCommand: "cd playbooks/ && ./sun-hwa.sh"
 privileged: true 
 
 service:
