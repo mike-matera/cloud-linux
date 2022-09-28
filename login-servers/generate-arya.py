@@ -49,10 +49,10 @@ if args.operator == 'update':
         ), shell=True, check=True)
 
     # Delete users who dropped. 
-    for user in { x["name"] for x in helm_users } - set(canvas_users.keys()):
-        subprocess.run(helm_uninstall.format(
-            user=user
-        ), shell=True, check=True)
+    # for user in { x["name"] for x in helm_users } - set(canvas_users.keys()):
+    #    subprocess.run(helm_uninstall.format(
+    #        user=user
+    #    ), shell=True, check=True)
 
 elif args.operator == 'upgrade':
     for user in { x["name"] for x in helm_users }:
