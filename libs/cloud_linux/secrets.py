@@ -23,13 +23,6 @@ import getpass
 import uuid
 
 
-# Python 3.6 does not initialize sys.argv in embedded mode. 
-if sys.version_info[0:2] == (3,6) and not hasattr(sys, 'argv'):
-    sys.argv = [str(pathlib.Path(sys.executable).name)]
-if sys.version_info[0:2] == (3,7):
-    sys.argv = [str(pathlib.Path(sys.executable).name)]
-
-
 class JsonBox:
     """"
     A simple way to have encrypted persistence.
@@ -64,7 +57,7 @@ class Secret:
         self.data = {}
         self.data['user'] = getpass.getuser()
         self.data['host'] = platform.node()
-        self.data['cmd'] = sys.argv[0]
+        self.data['cmd'] = sys.executable
         self.data['date'] = round(datetime.datetime.now(datetime.timezone.utc).timestamp())
         self.key = None
         self.file = None
@@ -99,8 +92,8 @@ class Secret:
                         self.data = json.loads(self.box.decrypt(fh.read()).decode('utf-8'))
                     if validate:
                         assert self.data['user'] == getpass.getuser()
-                        assert self.data['host'] == platform.node()
-                        assert self.data['cmd'] == sys.argv[0]
+                        assert self.data['host'] == platform.node()                        
+                        assert self.data['cmd'] == sys.executable
                 except (KeyError, AssertionError, nacl.exceptions.CryptoError) as e:
                     # Nuke the bad file.                    
                     self.store()
@@ -118,7 +111,7 @@ class Secret:
         """
         data['user'] = getpass.getuser()
         data['host'] = platform.node()
-        data['cmd'] = sys.argv[0]
+        data['cmd'] = sys.executable
         data['date'] = round(datetime.datetime.now(datetime.timezone.utc).timestamp())
         raw = json.dumps(data, separators=(',', ':')).encode('utf-8')
         h = hashlib.blake2b(raw, digest_size=8, key=self.key)
@@ -164,17 +157,23 @@ def main():
 
     if args.file is None:
         while True:
-            got = input('> ')
-            for word in got.split():
-                try:
-                    data = vault.validate(word)
-                    print("\n")
-                    print(Bold, F_LightGreen, B_Black, sep='', end='')
-                    print(data)
-                    print(B_Default, F_Default, Reset, sep='', end='')                    
-                    print("\n")
-                except Exception as e:
-                    pass
+            line = None
+            got = ""
+            while line != '.':
+                line = input('> ')
+                got += line.strip()
+            got = got.replace('\n', '')
+            for i in range(len(got)):
+                for j in range(i+1, len(got)):
+                    try:
+                        data = vault.validate(got[i:j+1])
+                        print("\n")
+                        print(Bold, F_LightGreen, B_Black, sep='', end='')
+                        print(data)
+                        print(B_Default, F_Default, Reset, sep='', end='')                    
+                        print("\n")
+                    except Exception as e:
+                        pass
     else:
         if args.file is None:
             raise ValueError("You must specify a file.")
