@@ -1,0 +1,31 @@
+#image: 
+#  tag: jammy-2022070801
+
+homeSize: 32Gi
+homeStorageClassName: ssd-ha
+
+user: "mmatera" 
+hostName: "opus"
+userSSHImport: "gh:mike-matera"
+customizeRepo: "https://github.com/mike-matera/cloud-linux.git"
+customizeRepoCommand: "cd playbooks/ && ./base.sh"
+privileged: true 
+
+service:
+  type: LoadBalancer
+  loadBalancerIP: 172.30.5.120
+  port: 22
+
+extraMounts:
+  - name: cis90
+    path: /home/cis90
+    size: 32Gi 
+    className: ssd-ha
+
+resources: 
+  requests:
+    cpu: 8000m
+    memory: 16Gi
+  limits:
+    cpu: 16000m
+    memory: 32Gi
