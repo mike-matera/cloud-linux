@@ -22,7 +22,7 @@ for course in ['cis-90']:
             'comment': user.comment, 
             'groups': ['users', course],
             'uid': user.uid,
-            'uid': user.uid,
+            'sid': user.sis_user_id,
         } for user in canvas.unix_users(course) 
     ]
 

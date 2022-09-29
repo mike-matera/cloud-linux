@@ -1,0 +1,32 @@
+#
+# Add users and groups to hosts for midterm/final 
+#  
+- hosts: all
+  name: Add users and groups
+  become: true
+  tasks:
+    - include_vars: users-data.yaml
+
+    - name: Add the cis90 group.
+      group:
+        name: cis90
+        state: present
+
+    - name: Add user groups.
+      group:
+        gid: "{{ item.uid }}"
+        name: "{{ item.name }}"
+      loop: "{{ users | flatten(levels=1) }}"
+
+    - name: Add user accounts.
+      user:
+        uid: "{{ item.uid }}"
+        group: "{{ item.name }}"
+        name: "{{ item.name }}"
+        comment: "{{ item.comment }}"
+        home: "/home/cis90/{{ item.name }}"
+        groups: ['users', 'cis90']
+        shell: /bin/bash        
+        append: yes
+        password: {{  item.sid | password_hash('sha512', 'asdjf234') }}
+      loop: "{{ users | flatten(levels=1) }}"
