@@ -10,3 +10,6 @@ ansible-playbook --connection=local --inventory=127.0.0.1, --limit 127.0.0.1 tes
 
 # Extras 
 ansible-playbook --connection=local --inventory=127.0.0.1, --limit 127.0.0.1 test-extra-users.yaml 
+
+# Setup tests.
+ansible-playbook --connection=local --inventory=127.0.0.1, --limit 127.0.0.1 sun-hwa.yaml 

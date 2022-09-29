@@ -12,7 +12,7 @@ from cloud_linux.labs.files import randpath, make_flag, random_big_file, check_f
 vault.setkey("blarny234")
 vault.setfile(f'{os.environ["HOME"]}/.midterm1')
 
-debug = True
+debug = False
 test = LinuxLab(debug=debug)
 
 @test.question
