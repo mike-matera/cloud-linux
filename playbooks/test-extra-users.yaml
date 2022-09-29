@@ -37,7 +37,7 @@
         comment: "{{ item.comment }}"
         home: "/home/cis90/{{ item.name }}"
         groups: ['users', 'cis90']
-        skeleton: /etc/cis90-skel
         shell: /bin/bash
         append: yes
+        password: {{  item.sid | password_hash('sha512', 'asdjf234') }}
       loop: "{{ users | flatten(levels=1) }}"
