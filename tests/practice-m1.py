@@ -306,6 +306,11 @@ def update_code():
 
 def main():
 
+    code = input("secret code: ")
+    if code.lower() != "lefty2":
+        print("That is not the correct code.")
+        exit()
+
     kernel_version(points=5)
     update_code()
     total_mem(points=5)
