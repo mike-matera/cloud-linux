@@ -39,5 +39,5 @@
         groups: ['users', 'cis90']
         shell: /bin/bash
         append: yes
-        password: {{  item.sid | password_hash('sha512', 'asdjf234') }}
+        password: "{{  item.sid | password_hash('sha512', 'asdjf234') }}"
       loop: "{{ users | flatten(levels=1) }}"
