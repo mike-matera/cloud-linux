@@ -5,15 +5,15 @@ homeSize: 32Gi
 homeStorageClassName: ssd-ha
 
 user: "mmatera" 
-hostName: "sun-hwa-p1"
+hostName: "sun-hwa-m1"
 userSSHImport: "gh:mike-matera"
 customizeRepo: "https://github.com/mike-matera/cloud-linux.git"
-customizeRepoCommand: "cd playbooks/ && ./sun-hwa.sh sun-hwa-p1.yaml"
+customizeRepoCommand: "cd playbooks/ && ./sun-hwa.sh sun-hwa-t1.yaml"
 privileged: true 
 
 service:
   type: LoadBalancer
-  loadBalancerIP: 172.30.5.120
+  loadBalancerIP: 172.30.5.121
   port: 22
 
 extraMounts:
