@@ -10,13 +10,14 @@ from re import sub
 import atexit 
 
 from cloud_linux.secrets import vault
-from cloud_linux.labs.lab import LinuxLab, ask as input
+from cloud_linux.lab import LinuxLab, ask as input
 from cloud_linux.labs.files import randpath, make_flag, random_big_file
 
 vault.setkey("blarny234")
 vault.setfile(f'{os.environ["HOME"]}/.midterm1')
 
 debug = False
+test = LinuxLab(debug=debug)
 
 @test.question
 def find_day(year):
@@ -49,6 +50,7 @@ def distro():
 def free_mem():
     """
     What is the amount of free memory on this VM (in KB)?
+
     """
     exp = round(psutil.virtual_memory().free // 1024, -6) 
     if debug:
@@ -111,7 +113,8 @@ def resolve_link(link):
 @test.question
 def first_word():
     """
-    I just (re)created a file called "bigfile" in the current directory. What is the first word in it? 
+    I just (re)created a file called "bigfile" in your home directory. What is the first word in it? 
+
     """
     bigfile = random_big_file()
     with open(bigfile) as fh:
@@ -126,6 +129,7 @@ def first_word():
 def bigfile_size():
     """
     I just (re)created a file called "bigfile" in the current directory. What is its size in bytes? 
+
     """
     bigfile = random_big_file()
     exp = os.stat(bigfile).st_size
@@ -158,6 +162,7 @@ def make_link():
     In your home directory make a symbolic link named "myself" that points to /proc/self
 
     """
+    input("Press ENTER when ready.")
     link = pathlib.Path(os.environ.get("HOME")) / 'myself'
     target = pathlib.Path('/proc/self')
     assert link.is_symlink(), """A link named "myself" doesn't exist in your home directory."""
@@ -167,18 +172,19 @@ def make_link():
 def update_code():
     print("Your confirmation code is:", vault.confirmation({'score': test.score}))
 
+
 def main():
 
     print("""
 
-** Welcome to Midterm #1 for Spring 2022 **
+** Welcome to Midterm #1 for Fall 2022 **
 
 When you start the test on Canvas you'll get a secret code. 
 To begin the test enter the code below:
 
     """)
     code = input("secret code: ")
-    if code.lower() != "lefty2022":
+    if code.lower() != "ididthepractice":
         print("That is not the correct code.")
         exit()
 
