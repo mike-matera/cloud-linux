@@ -1,4 +1,5 @@
 
+homeSize: 8Gi
 homeStorageClassName: ssd-ha
 
 customizeRepo: "https://github.com/mike-matera/cloud-linux.git" 
