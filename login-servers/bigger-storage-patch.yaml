@@ -1,0 +1,5 @@
+spec:
+  resources:
+    requests:
+      storage: 8Gi
+
