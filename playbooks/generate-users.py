@@ -18,12 +18,12 @@ canvas = Canvas()
 
 for course in ['cis-90']:
     users = [ {
-            'name': user.pw_name,
-            'comment': user.comment, 
+            'name': cu.user.pw_name,
+            'comment': cu.user.comment, 
             'groups': ['users', course],
-            'uid': user.uid,
-            'sid': user.sis_user_id,
-        } for user in canvas.unix_users(course) 
+            'uid': cu.user.uid,
+            'sid': cu.user.sis_user_id,
+        } for cu in canvas.course_users(course) 
     ]
 
 print(yaml.dump({'users': users}))
