@@ -13,7 +13,7 @@ privileged: true
 
 service:
   type: LoadBalancer
-  loadBalancerIP: 172.30.5.121
+  loadBalancerIP: 172.30.5.123
   port: 22
 
 extraMounts:

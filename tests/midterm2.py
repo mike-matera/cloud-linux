@@ -17,7 +17,7 @@ from cloud_linux.labs.words import randword
 vault.setkey("blarny234")
 vault.setfile(f'{os.environ["HOME"]}/.midterm2')
 
-debug = True
+debug = False
 test = LinuxLab(debug=debug)
 
 start_files = [    
