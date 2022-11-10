@@ -1,0 +1,46 @@
+#image: 
+#  tag: jammy-2022070801
+
+homeSize: 32Gi
+homeStorageClassName: ssd-ha
+
+user: "mmatera" 
+hostName: "sun-hwa-p2"
+userSSHImport: "gh:mike-matera"
+customizeRepo: "https://github.com/mike-matera/cloud-linux.git"
+customizeRepoCommand: "cd playbooks/ && ./sun-hwa.sh sun-hwa-p1.yaml"
+privileged: true 
+
+service:
+  type: LoadBalancer
+  loadBalancerIP: 172.30.5.122
+  port: 22
+
+extraMounts:
+  - name: cis90
+    path: /home/cis90
+    size: 32Gi 
+    className: ssd-ha
+
+resources: 
+  requests:
+    cpu: 8000m
+    memory: 16Gi
+  limits:
+    cpu: 16000m
+    memory: 32Gi
+
+ssh:
+  sshd_config: |
+    Include /etc/ssh/sshd_config.d/*.conf
+    PasswordAuthentication yes
+    KbdInteractiveAuthentication no
+    UsePAM yes
+    X11Forwarding yes
+    PrintMotd no
+    AcceptEnv LANG LC_*
+    Subsystem	sftp	/usr/lib/openssh/sftp-server
+    TrustedUserCAKeys /etc/ssh/ca/ca_key.pub
+    HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub
+    ClientAliveInterval 10
+    ClientAliveCountMax 10
