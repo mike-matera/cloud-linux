@@ -35,12 +35,20 @@ $ helm install -n opus opus cloud-native-server/cloud-server \
 
 ## Sun Hwa
 
-Practice: 
+Practice 1: 
 
 ```console 
 $ helm install -n opus sun-hwa-p1 cloud-native-server/cloud-server \
     --set ssh.existingSecret=cis-ca-key \
     --values values-practice-m1.yaml
+```
+
+Practice 2: 
+
+```console 
+$ helm install -n opus sun-hwa-p2 cloud-native-server/cloud-server \
+    --set ssh.existingSecret=cis-ca-key \
+    --values values-practice-m2.yaml
 ```
 
 Midterm 1: 

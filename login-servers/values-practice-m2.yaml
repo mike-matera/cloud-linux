@@ -8,7 +8,7 @@ user: "mmatera"
 hostName: "sun-hwa-p2"
 userSSHImport: "gh:mike-matera"
 customizeRepo: "https://github.com/mike-matera/cloud-linux.git"
-customizeRepoCommand: "cd playbooks/ && ./sun-hwa.sh sun-hwa-p1.yaml"
+customizeRepoCommand: "cd playbooks/ && ./sun-hwa.sh sun-hwa-p2.yaml"
 privileged: true 
 
 service:

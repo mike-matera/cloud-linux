@@ -13,7 +13,7 @@ from cloud_linux.labs.files import randpath, make_flag, random_big_file, \
 vault.setkey("blarny234")
 vault.setfile(f'{os.environ["HOME"]}/.practice')
 
-debug = True 
+debug = False 
 
 try:
     cis90_grp = grp.getgrnam('cis90').gr_gid

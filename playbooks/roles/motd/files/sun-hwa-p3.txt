@@ -1,3 +1,5 @@
+#!/bin/bash
+cat << 'EOF'
 
            https://llizardakaejm.wordpress.com/
 
@@ -19,4 +21,4 @@
            Than this of Juliet and her Romeo.
 
 
-
+EOF
