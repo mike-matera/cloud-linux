@@ -6,14 +6,14 @@ import grp
 import random 
 
 from cloud_linux.secrets import vault
-from cloud_linux.labs.test import test, ask as input
+from cloud_linux.lab import test, ask as input, LinuxLab
 from cloud_linux.labs.files import randpath, make_flag, random_big_file, \
     check_files, setup_files, random_big_dir
 
 vault.setkey("blarny234")
-vault.setfile(f'{os.environ["HOME"]}/.practice-m2')
+vault.setfile(f'{os.environ["HOME"]}/.practice')
 
-debug = False 
+debug = True 
 
 try:
     cis90_grp = grp.getgrnam('cis90').gr_gid
@@ -61,25 +61,23 @@ def directory_inode(dir):
     assert got == exp, """That's not the correct number.""" 
 
 @test.question
-def delete_by_contents(count, basedir):
+def delete_by_contents(count):
     """
-    I have just created a directory called "{basedir}" with {count} randomly named files.
+    I have just (re)created a directory called "Rando" in your home directory.
 
     Remove all files that contain the word "deleteme" in them. 
     """
-    files = random_big_dir(count=count)
-    for file in random.sample(files, count//5):
+    files = random_big_dir(count=count, setup=False)
+    for file in random.sample(files['files'], count//5):
         file[3] = "deleteme"
 
-    setup_files(files, basedir=basedir)
+    setup_files(files)
 
     input('Press Enter to continue.')
 
     # Check that non-matching files are there. 
-    check_files(filter(lambda x: x[3] != "deleteme", files), basedir=basedir)
-
-    for file in map(lambda p: basedir / pathlib.Path(p[0]), filter(lambda x: x[3] == "deleteme", files)):
-        assert not file.exists(), f"""The file {file} still exists!"""
+    files['files'] = filter(lambda x: x[3] != "deleteme", files['files'])
+    check_files(files)
 
 @test.question
 def file_size(file):
@@ -98,12 +96,12 @@ def file_size(file):
 @test.question
 def sort_file():
     """
-    I have just (re)created a file called "bigfile" in this directory. 
+    I have just (re)created a file called "bigfile" in your home directory. 
 
     If the file is sorted in alphabetical order what would be the first word? 
     """    
-    random_big_file(shape=(1000,1))
-    exp = subprocess.run('sort bigfile | head -n 1', shell=True, 
+    bf = random_big_file(shape=(1000,1))
+    exp = subprocess.run(f'sort {bf} | head -n 1', shell=True, 
         stdout=subprocess.PIPE).stdout.decode('utf-8').strip().casefold()
     if debug:
         print("DEBUG:", exp)
@@ -131,48 +129,26 @@ def relative_path(dir1, dir2):
 
     assert dir2.resolve() == rel, f"""That's not right.""" 
 
-
 @test.question
-def test_locations():
-    """I'm about to check the island locations."""
-    check_files(
-        ((e[0],None,None,e[3]) for e in end_files), 
-        basedir=f'{os.environ["HOME"]}/Oceans',
-    )
-
-@test.question
-def test_permissions():
-    """I'm about to check the island permissions."""
-    check_files(end_files, basedir=f'{os.environ["HOME"]}/Oceans')
+def test_islands():
+    """I'm about to check the islands."""
+    check_files({
+        'files': end_files, 
+        'basedir': pathlib.Path.home() / 'Oceans'
+        }, extra=False)
 
 
 def main():
     directory_inode(points=0, dir=randpath.random_dir())
     relative_path(points=0, dir1=randpath.random_dir(), dir2=randpath.random_dir())
-    delete_by_contents(points=0, count=500, basedir=f'{os.environ["HOME"]}/Rando')
+    delete_by_contents(points=0, count=500)
     sort_file(points=0)
     file_size(points=0, file=randpath.random_file())
 
-    setup_files(start_files, basedir=f'{os.environ["HOME"]}/Islands')
-    print("""
-    I have created a directory called "Islands" in your home directory. 
-    Inside of "Islands" you will see 10 files named after islands. Each island 
-    file contains the name of the ocean it is in. Reorganize the files so 
-    that they are in directories named after their oceans. The reorganized 
-    files should be in a directory called "Oceans" in the current directory.  
-    
-    The "Oceans" directory should look like this: 
-
-    .
-    |-- Oceans
-        |-- Atlantic
-        |-- Pacific
-        |-- Indian
-        |-- Fictional
-
-    """)
-    input("Check for the files and press Enter.")
-    test_locations(points=0)
+    setup_files({
+        'files': start_files, 
+        'basedir': pathlib.Path.home() / 'Islands'
+    })
 
     print("""
     I have created a directory called "Islands" in your home directory. 
@@ -197,13 +173,15 @@ def main():
         2. No files or directories should be publicly readable, writable or executable.
         3. Files in the Atlantic and Pacific oceans should be read only for the user and group. 
         4. Files in the Indian and Fictional oceans should be read/write for the user only. 
-
     """)
     input("Check for the files and press Enter.")
-    test_permissions(points=0)
+    test_islands(points=0)
 
-    print(f"Your score is {test.score} of {test.total}")
-    print("Your confirmation code is:", vault.confirmation({'score': test.score}))
+    print("""
+** Congratulations! **
+
+You finished the practice test. It is not graded so you don't have to turn anything in.
+    """)
 
 
 if __name__ == '__main__' :
