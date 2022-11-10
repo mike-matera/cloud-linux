@@ -8,7 +8,7 @@ user: "mmatera"
 hostName: "hydra"
 userSSHImport: "gh:mike-matera"
 customizeRepo: "https://github.com/mike-matera/cloud-linux.git"
-customizeRepoCommand: "cd playbooks/ && ./sun-hwa.sh sun-hwa-t2.yaml"
+customizeRepoCommand: "cd playbooks/ && ./sun-hwa.sh hydra-t2.yaml"
 privileged: true 
 
 service:
