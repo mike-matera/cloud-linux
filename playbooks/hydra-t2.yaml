@@ -1,0 +1,17 @@
+- hosts: all
+  become: true
+  name: Install Python globally.
+  tasks: 
+    - ansible.builtin.pip:
+        name: 
+          - git+https://github.com/mike-matera/PyScramble.git
+          - git+https://github.com/mike-matera/cloud-linux.git#subdirectory=libs
+
+- hosts: all 
+  name: Install MOTD
+  become: yes
+  roles:
+    - role: motd
+      motdname: sun-hwa-t3
+      dest: /usr/local/bin/scavenge 
+    - { role: labscript, source: ../tests/midterm2.py, dest: /usr/local/bin/midterm2 }

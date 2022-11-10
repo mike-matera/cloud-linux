@@ -10,14 +10,15 @@ from re import sub
 import atexit 
 
 from cloud_linux.secrets import vault
-from cloud_linux.labs.test import test, ask as input
+from cloud_linux.lab import LinuxLab, ask as input
 from cloud_linux.labs.files import randpath, make_flag, random_big_file, setup_files, check_files, random_big_dir
 from cloud_linux.labs.words import randword
 
 vault.setkey("blarny234")
 vault.setfile(f'{os.environ["HOME"]}/.midterm2')
 
-debug = False
+debug = True
+test = LinuxLab(debug=debug)
 
 start_files = [    
     ['San Francisco',   None, None, 'San Francisco County\n'],
@@ -45,6 +46,7 @@ end_files = [
     ['Humboldt/Fortuna',    None, None, 'Humboldt County\n'],
 ]
 
+
 @test.question
 def directory_inode(dir):
     """
@@ -59,6 +61,7 @@ def directory_inode(dir):
     got = int(input())
     assert got == exp, """That's not the correct number.""" 
 
+
 @test.question
 def find_day(year):
     """
@@ -70,6 +73,7 @@ def find_day(year):
         print('DEBUG:', exp)
     got = input().strip().lower()
     assert got == exp, """That's not what I expected."""
+
 
 @test.question
 def file_type(file):
@@ -85,10 +89,12 @@ def file_type(file):
     got = input().strip().casefold()
     assert got.startswith(exp.casefold()), """That's not correct.""" 
 
+
 @test.question
 def bigfile_size():
     """
-    I just (re)created a file called "bigfile" in the current directory. What is its size in bytes? 
+    I just (re)created a file called "bigfile" in your home directory. What is its size in bytes? 
+
     """
     bigfile = random_big_file()
     exp = os.stat(bigfile).st_size
@@ -97,16 +103,20 @@ def bigfile_size():
     got = int(input())
     assert got == exp, """That's not correct.""" 
 
+
 @test.question
 def deep_file():
     """
-    I just (re)created a directory called "deep" in the "Files" directory. Explore 
+    I just (re)created a directory called "Deep" in your home directory. Explore 
     it until you get to the deepest subdirectory in it. Inside the deepest 
     subdirectory you will find a secret file. What are the contents of the file? 
+
+    Note: If you get this question wrong you should start over by using `cd` to 
+       get back to your home directory.
     """
 
     message = randword.choice().casefold()
-    path = pathlib.Path("Files/deep")
+    path = pathlib.Path.home() / "Deep"
     subprocess.run(['rm', '-rf', path])
     for _ in range(random.randrange(20,50)):
         path /= randword.choice()
@@ -119,6 +129,7 @@ def deep_file():
         print('DEBUG:', str(message))
     got = input().strip()
     assert got == str(message), "That's not the message."
+
 
 @test.question
 def test_cities():
@@ -138,21 +149,26 @@ def test_cities():
         |-- Santa Cruz
             |-- Santa Cruz
     """
-
-    setup_files(start_files, basedir=f'{os.environ["HOME"]}/Cities')
+    setup_files({
+        'files': start_files, 
+        'basedir': pathlib.Path.home() / 'Cities'
+        })
     input("Check for the files and press Enter.")
-    check_files(end_files, basedir=f'{os.environ["HOME"]}/California')
+    check_files({
+        'files': end_files, 
+        'basedir': pathlib.Path.home() / 'California'
+        }, extra=True)
 
 
 @test.question
 def find_top_line(line):
     """
-    I have just created a file called "bigfile" in this directory. 
+    I have just (re)created a file called "bigfile" in your home directory. 
 
     What is the first word on line number {line:,}?
     """
-    random_big_file()
-    with open(vault.get('bigfile.path')) as fh:
+    bf = random_big_file()
+    with open(bf) as fh:
         for _ in range(1, line+1):
             exp = fh.readline()
     exp = exp.split()[0].casefold()
@@ -165,12 +181,12 @@ def find_top_line(line):
 @test.question
 def sort_file():
     """
-    I have just (re)created a file called "bigfile" in this directory. 
+    I have just (re)created a file called "bigfile" in your home directory. 
 
     If the file is sorted in alphabetical order what would be the first word? 
     """    
-    random_big_file(shape=(1000,1))
-    exp = subprocess.run('sort bigfile | head -n 1', shell=True, 
+    bf = random_big_file(shape=(1000,1))
+    exp = subprocess.run(f'sort {bf} | head -n 1', shell=True, 
         stdout=subprocess.PIPE).stdout.decode('utf-8').strip().casefold()
     if debug:
         print("DEBUG:", exp)
@@ -181,12 +197,12 @@ def sort_file():
 @test.question
 def unique_words():
     """
-    I have just (re)created a file called "bigfile" in this directory. 
+    I have just (re)created a file called "bigfile" in your home directory. 
 
     How many unique words are in bigfile? 
     """    
-    random_big_file(shape=(2000,1))
-    exp = int(subprocess.run('sort bigfile | uniq | wc -l', shell=True, 
+    bf = random_big_file(shape=(2000,1))
+    exp = int(subprocess.run(f'sort {bf} | uniq | wc -l', shell=True, 
         stdout=subprocess.PIPE).stdout.decode('utf-8'))
     if debug:
         print("DEBUG:", exp)
@@ -195,22 +211,18 @@ def unique_words():
 
 
 @test.question
-def delete_the_quotes(count, basedir):
+def delete_the_quotes(count=1000):
     """
-    I have just created a directory called "{basedir}" with {count} randomly named files.
+    I have just (re)created a directory called "Rando" in your home directory.
 
     Remove all files with names that contain a single quote (') character. 
     """
     files = random_big_dir(count=count)
-    setup_files(files, basedir=basedir)
 
     input('Press Enter to continue.')
 
-    # Check that non-matching files are there. 
-    check_files(filter(lambda x: "'" not in x[0], files), basedir=basedir)
-
-    for file in map(lambda p: basedir / pathlib.Path(p[0]), filter(lambda x: "'" in x[0], files)):
-        assert not file.exists(), f"""The file {file} still exists!"""
+    files['files'] = filter(lambda x: "'" not in x[0], files['files'])
+    check_files(files)
 
 
 @test.question
@@ -227,13 +239,15 @@ def resolve_link(link):
     got = input().strip()
     assert got == str(exp), """That's not correct."""
 
+
 def update_code():
     print("Your confirmation code is:", vault.confirmation({'score': test.score}))
+
 
 def main():
     print("""
 
-** Welcome to Midterm #2 for Spring 2022 **
+** Welcome to Midterm #2 for Fall 2022 **
 
 When you start the test on Canvas you'll get a secret code. 
 To begin the test enter the code below:
@@ -241,7 +255,7 @@ To begin the test enter the code below:
     """)
 
     code = input("secret code: ")
-    if code.lower() != "fries2022":
+    if code.lower() != "pizza2022":
         print("That is not the correct code.")
         exit()
 
@@ -279,12 +293,11 @@ To begin the test enter the code below:
     unique_words(points=10)
     update_code()
 
-    delete_the_quotes(points=10, count=500, basedir="./Rando")
+    delete_the_quotes(points=10)
     update_code()
 
     resolve_link(points=10, link=randpath.find(lambda x: x.is_symlink()))
     update_code()
-
 
 
 if __name__ == '__main__':
