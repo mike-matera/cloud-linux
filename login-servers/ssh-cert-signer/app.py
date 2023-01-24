@@ -11,6 +11,7 @@ import pathlib
 import tempfile
 import hashlib
 import subprocess
+import zipfile
 import nacl.secret
 import nacl.exceptions
 import nacl.encoding
@@ -63,8 +64,12 @@ def make_key():
 
       if (kg.returncode != 0):
           return flask.render_template('keygen.html', username=data['user'], token=token, pubkey=pubkey, error="Invalid public key!")
+      
+      with zipfile.ZipFile(temppath / 'opus-signed.zip', mode='w') as zip:
+        zip.write(temppath / 'id_rsa-cert.pub', arcname='id_rsa-cert.pub')
+        zip.write('./secrets/known_hosts', arcname='known_hosts')
 
-      return flask.send_file(temppath / 'id_rsa-cert.pub', as_attachment=True)
+      return flask.send_file(temppath / 'opus-signed.zip', as_attachment=True)
 
 
 def encode_token(user, key):
