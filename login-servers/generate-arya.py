@@ -24,7 +24,7 @@ helm_users = json.loads(
 )
 
 canvas = Canvas() 
-canvas_users = { courseuser.user.pw_name: courseuser.user for courseuser in canvas.course_users('cis-90', 'cis-91') } 
+canvas_users = { courseuser.user.pw_name: courseuser.user for courseuser in canvas.course_users('cis-90', 'cis-92') } 
 
 helm_install = """helm -n arya {op} {user} cloud-native-server/cloud-server \
     --values values-arya.yaml \
@@ -32,9 +32,9 @@ helm_install = """helm -n arya {op} {user} cloud-native-server/cloud-server \
     --set user={user} \
     --set userID={userid} \
     --set service.port={port} \
-    && sleep 5 \
-    && kubectl -n arya wait --for=condition=ready --timeout=10m pod -l app.kubernetes.io/instance={user}
     """
+    # && sleep 5 \
+    # && kubectl -n arya wait --for=condition=ready --timeout=10m pod -l app.kubernetes.io/instance={user}
 
 helm_uninstall = """helm -n arya uninstall {user}"""
 
