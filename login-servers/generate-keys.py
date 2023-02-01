@@ -46,23 +46,24 @@ def send_message(user, course_id, zip_file):
         textwrap.dedent(f"""
         Hello again CIS-90 and CIS-91 students!
 
-        I forgot an important detail in the last message. Your Arya server is a personal 
-        server. Each of you will login on your own port. To log in to Arya you need to 
-        use the following SSH command line: 
-
-        ssh {user.pw_name}@arya.cis.cabrillo.edu -p {user.tcp_port} 
-
         This message has important information about how to login to the class Opus and Arya
-        servers. In class I will show you how to create an SSH key if you don't already have 
-        one. The URL will take you to a site where you can sign the key allowing you to login 
-        without using a password. 
+        servers. In class I will show you how to use this link and how to enter the SSH 
+        commands in this email. The URL below will take you to a site where you sign your
+        SSH public key, allowing you to login without using a password. 
 
         **Keep this link secret** 
 
         https://opus.cis.cabrillo.edu/?token={encode_token(user.pw_name,crypt_key)}
+    
+        Opus is the server where you will do most assignments. To login to Opus use ssh 
+        like this: 
+        
+        ssh {user.pw_name}@opus.cis.cabrillo.edu
+        
+        Your Arya server is a personal server. Each of you have a private TCP port. To log in 
+        to Arya you need to use ssh like this:
 
-        This is a new process this year! I designed it to be more secure than a password 
-        but you are the first class to try it. Please bear with me if there are glitches. 
+        ssh {user.pw_name}@arya.cis.cabrillo.edu -p {user.tcp_port} 
 
         I'm looking forward to class! 
 
