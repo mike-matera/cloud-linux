@@ -36,10 +36,10 @@ class UnixUser(canvasapi.user.User):
 
     @property
     def pw_name(self):
-        """A lame name."""
-        f, _ = self.name.lower().split(' ', 1)
-        f = re.sub('[^a-z]', '', f)[0:3]
-        return f"{f}{self.sis_user_id[-4:]}"
+        """A name that must be unique."""
+        short = "{name:_<4}".format(name=self.short_name).lower()[:5]
+        short = re.sub('[^a-z]', '_', short)
+        return f"{short}{self.sis_user_id[-3:]}"
 
     @property
     def comment(self):
@@ -85,13 +85,13 @@ class Canvas(canvasapi.Canvas):
             if matcher is None or matcher(course):
                 yield course 
 
-    def unix_users(self, *args, matcher=None) -> typing.Generator[UnixUser, None, None]:
-        """
-        Deprecate.
-        """
-        for course_id in args:
-            for course in self.find_course(lambda x: course_id.lower() in x.course_code.lower()):
-                return (user for user in course.get_users() if matcher is None or matcher(user))
+#    def unix_users(self, *args, matcher=None) -> typing.Generator[UnixUser, None, None]:
+#        """
+#        Deprecate.
+#        """
+#        for course_id in args:
+#            for course in self.find_course(lambda x: course_id.lower() in x.course_code.lower()):
+#                return (user for user in course.get_users() if matcher is None or matcher(user))
 
     def course_users(self, *args, matcher=None) -> typing.Generator[CourseUser, None, None]: 
         for course_id in args:
