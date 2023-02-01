@@ -37,7 +37,7 @@ class UnixUser(canvasapi.user.User):
     @property
     def pw_name(self):
         """A name that must be unique."""
-        short = "{name:_<4}".format(name=self.short_name).lower()[:5]
+        short = "{name:_<4}".format(name=self.short_name).lower()[:4]
         short = re.sub('[^a-z]', '_', short)
         return f"{short}{self.sis_user_id[-3:]}"
 
