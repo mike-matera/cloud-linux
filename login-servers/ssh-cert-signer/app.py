@@ -57,6 +57,10 @@ def make_key():
       with open(temppath / 'id_rsa.pub', 'w') as fh:
         fh.write(pubkey)
 
+      with open('./secrets/ca_key.pub') as pub:
+        with open(temppath / 'known_hosts', 'w') as fh:
+          fh.write(f"""@cert-authority * {pub.read().strip()}""")
+
       kg = subprocess.run(
         f"""ssh-keygen -s ./secrets/ca_key -n "{data['user']}" -I "{data['user']}" {temppath / "id_rsa.pub"}""", 
         shell=True,
@@ -67,7 +71,7 @@ def make_key():
       
       with zipfile.ZipFile(temppath / 'opus-signed.zip', mode='w') as zip:
         zip.write(temppath / 'id_rsa-cert.pub', arcname='id_rsa-cert.pub')
-        zip.write('./secrets/known_hosts', arcname='known_hosts')
+        zip.write(temppath / 'known_hosts', arcname='known_hosts')
 
       return flask.send_file(temppath / 'opus-signed.zip', as_attachment=True)
 
