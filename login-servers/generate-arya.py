@@ -24,7 +24,7 @@ helm_users = json.loads(
 )
 
 canvas = Canvas() 
-canvas_users = { courseuser.user.pw_name: courseuser.user for courseuser in canvas.course_users('cis-90', 'cis-92') } 
+canvas_users = { courseuser.user.pw_name: courseuser.user for courseuser in canvas.course_users('cis-90') } 
 
 helm_install = """helm -n arya {op} {user} cloud-native-server/cloud-server \
     --values values-arya.yaml \
