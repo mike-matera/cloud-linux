@@ -44,7 +44,7 @@ def send_message(user, course_id, zip_file):
 
     convo = canvas.create_conversation(user.id, 
         textwrap.dedent(f"""
-        Hello again CIS-90 and CIS-91 students!
+        Hello student!
 
         This message has important information about how to login to the class Opus and Arya
         servers. In class I will show you how to use this link and how to enter the SSH 
