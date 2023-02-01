@@ -1,11 +1,11 @@
-removes:
-  - name: col7714
+removes: []
+#  - name: col7714
 
-users:
-  - comment: Liz Matz
-    groups:
-    - users
-    - cis-90
-    name: liz7714
-    uid: '719677010'
-    sid: '1234567'
+users: []
+#  - comment: Some User
+#    groups:
+#    - users
+#    - cis-90
+#    name: foob123
+#    uid: '719677010'
+#    sid: '1234567'
