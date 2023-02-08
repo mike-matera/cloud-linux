@@ -26,7 +26,7 @@ variable "project" {
 }
 
 variable "credentials_file" { 
-    default = "secrets/cis-90.key" 
+    default = "secrets/cis-90-6531e28d6815.json" 
 }
 
 variable "region" {
@@ -69,7 +69,7 @@ resource "google_compute_network" "vpc_network" {
 resource "google_compute_instance" "vm_instance" {
   for_each     = var.hosts
   name         = each.key
-  machine_type = "e2-micro"
+  machine_type = "e2-small"
   allow_stopping_for_update = true
 
   metadata = {
