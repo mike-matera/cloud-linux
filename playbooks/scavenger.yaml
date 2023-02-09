@@ -1,0 +1,32 @@
+- hosts: all
+  become: true
+  name: Install Python globally.
+  tags:
+    - scavenge
+  tasks: 
+    - name: Create the ca directory
+      ansible.builtin.file:
+        path: /etc/ssh/ca
+        state: directory
+        mode: '0700'
+
+    - name: Copy file with owner and permissions
+      ansible.builtin.copy:
+        src: ca_key.pub
+        dest: /etc/ssh/ca/ca_key.pub
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: Make SSH use the CA key
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^TrustedUserCAKeys'
+        line: TrustedUserCAKeys /etc/ssh/ca/ca_key.pub 
+
+    - name: Restart SSH
+      ansible.builtin.service:
+        name: sshd
+        state: restarted
+
+#TrustedUserCAKeys /etc/ssh/ca/ca_key.pub
