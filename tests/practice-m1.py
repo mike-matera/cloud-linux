@@ -339,40 +339,6 @@ def main():
     update_code()
 
     print("""
-    I have created a directory called "Islands" in your home directory. 
-    Inside of "Islands" you will see 10 files named after islands. Each island 
-    file contains the name of the ocean it is in. Reorganize the files so 
-    that they are in directories named after their oceans. The reorganized 
-    files should be in a directory called "Oceans" in the current directory.  
-    
-    The "Oceans" directory should look like this: 
-
-    .
-    |-- Oceans
-        |-- Atlantic
-        |-- Pacific
-        |-- Indian
-        |-- Fictional
-
-    """)
-
-    setup_files({
-        'files': start_files, 
-        'basedir': pathlib.Path.home() / 'Islands'
-    })
-
-    input("Check for the files and press Enter.")
-
-    test_pacific(points=4)
-    test_atlantic(points=4)
-    test_indian(points=4)
-    test_fictional(points=4)
-    test_extras(points=4)
-
-    #print(f"Your score is {test.score} of {test.total}")
-    #print("Your confirmation code is:", vault.confirmation({'score': test.score}))
-
-    print("""
 ** Congratulations! **
 
 You finished the practice test. It is not graded so you don't have to turn anything in.

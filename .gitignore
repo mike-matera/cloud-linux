@@ -37,3 +37,4 @@ venv-linux
 *.egg-info
 *.pyc
 .vscode
+venv/
