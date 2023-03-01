@@ -1,9 +1,9 @@
-plugin: google.cloud.gcp_compute
+plugin: gcp_compute
 zones: # populate inventory with instances in these regions
   - us-central1-c
 projects:
   - cis-90
-service_account_file: ../scavenger-hunt/secrets/cis-90.key
+service_account_file: ../scavenger-hunt/secrets/cis-90-6531e28d6815.json
 auth_kind: serviceaccount
 keyed_groups:
   # Create groups from GCE labels
