@@ -247,7 +247,7 @@ def update_code():
 def main():
     print("""
 
-** Welcome to Midterm #2 for Fall 2022 **
+** Welcome to Midterm #2 for Spring 2023 **
 
 When you start the test on Canvas you'll get a secret code. 
 To begin the test enter the code below:
@@ -255,7 +255,7 @@ To begin the test enter the code below:
     """)
 
     code = input("secret code: ")
-    if code.lower() != "pizza2022":
+    if code.lower() != "lefty23":
         print("That is not the correct code.")
         exit()
 
@@ -269,7 +269,7 @@ To begin the test enter the code below:
     directory_inode(points=10, dir=randpath.random_dir())
     update_code()
 
-    find_day(points=10, year=2022+random.randint(100,200))
+    find_day(points=10, year=2023+random.randint(100,200))
     update_code()
 
     file_type(points=10, file=randpath.random_file())
