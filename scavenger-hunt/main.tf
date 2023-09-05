@@ -5,18 +5,22 @@ variable "hosts" {
     enterprise = {
       image = "ubuntu-os-cloud/ubuntu-2004-lts"
       os = "ubuntu"
+      zone = "us-central1-a"
     },
     reliant = {
       image = "rocky-linux-cloud/rocky-linux-9"
       os = "centos"
+      zone = "us-central1-b"
     },
     excelsior = {
       image = "debian-cloud/debian-10"
       os = "debian"
+      zone = "us-central1-c"
     },
     voyager = {
       image = "suse-cloud/sles-15"
       os = "suse"
+      zone = "us-central1-f"
     },
   }
 }
@@ -69,7 +73,9 @@ resource "google_compute_network" "vpc_network" {
 resource "google_compute_instance" "vm_instance" {
   for_each     = var.hosts
   name         = each.key
-  machine_type = "e2-small"
+  machine_type = "e2-medium"
+  zone         = each.value.zone
+
   allow_stopping_for_update = true
 
   metadata = {

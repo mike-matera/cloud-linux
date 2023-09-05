@@ -53,15 +53,15 @@ def main():
 
     if test.score == test.total:
         test.print_success("Congratulations! You can now move to the next host in the scavenger hunt!")
-        if hostname == 'opus':
+        if hostname.startswith('opus'):
             print("The next host is named 'voyager.scavenger.cis-90.net'")
-        elif hostname == 'voyager':
+        elif hostname.startswith('voyager'):
             print("The next host is named 'enterprise.scavenger.cis-90.net'")
-        elif hostname == 'enterprise':
+        elif hostname.startswith('enterprise'):
             print("The next host is named 'excelsior.scavenger.cis-90.net'")
-        elif hostname == 'excelsior':
+        elif hostname.startswith('excelsior'):
             print("The next host is named 'reliant.scavenger.cis-90.net'")
-        elif hostname == 'reliant':
+        elif hostname.startswith('reliant'):
             print("You have reached the last host!")
         else:
             print("I don't recognize this host")

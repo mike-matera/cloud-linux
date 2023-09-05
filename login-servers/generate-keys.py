@@ -89,7 +89,7 @@ def main():
 
     if args.operator == 'generate':
         for course, user in canvas_users:
-            print(f"User: {user} Token: {encode_token(user.pw_name,crypt_key)}")
+            print(f"User: {user} Unix User: {user.pw_name} Token: {encode_token(user.pw_name,crypt_key)}")
 
     elif args.operator == 'send':
         for course, user in canvas_users:

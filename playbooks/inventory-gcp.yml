@@ -1,6 +1,9 @@
 plugin: gcp_compute
 zones: # populate inventory with instances in these regions
+  - us-central1-a
+  - us-central1-b
   - us-central1-c
+  - us-central1-f
 projects:
   - cis-90
 service_account_file: ../scavenger-hunt/secrets/cis-90-6531e28d6815.json
@@ -9,4 +12,3 @@ keyed_groups:
   # Create groups from GCE labels
   - prefix: gcp
     key: labels
-    
