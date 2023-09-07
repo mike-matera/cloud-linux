@@ -83,7 +83,7 @@ def main():
     else:
         matcher = lambda user: user.pw_name in args.only.split(',')
     
-    canvas_users = canvas.course_users('cis-90', 'cis-91', matcher=matcher) 
+    canvas_users = canvas.course_users('cis-90', matcher=matcher) 
 
     output_dir = pathlib.Path(__file__).parent / 'secrets'
 
