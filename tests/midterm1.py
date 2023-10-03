@@ -177,7 +177,7 @@ def main():
 
     print("""
 
-** Welcome to Midterm #1 for Srping 2023 **
+** Welcome to Midterm #1 for Fall 2023 **
 
 When you start the test on Canvas you'll get a secret code. 
 To begin the test enter the code below:
