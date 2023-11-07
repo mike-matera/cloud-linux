@@ -247,7 +247,7 @@ def update_code():
 def main():
     print("""
 
-** Welcome to Midterm #2 for Spring 2023 **
+** Welcome to Midterm #2 for Fall 2023 **
 
 When you start the test on Canvas you'll get a secret code. 
 To begin the test enter the code below:
@@ -255,7 +255,7 @@ To begin the test enter the code below:
     """)
 
     code = input("secret code: ")
-    if code.lower() != "lefty23":
+    if code.lower() != "hefty23":
         print("That is not the correct code.")
         exit()
 
