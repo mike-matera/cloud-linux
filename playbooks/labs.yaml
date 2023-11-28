@@ -38,3 +38,14 @@
     - { role: labscript, source: ../labs/iolab.py, dest: /usr/local/bin/iolab }
     - { role: labscript, source: ../labs/bosslab.py, dest: /usr/local/bin/bosslab }
     - { role: labscript, source: ../labs/processlab.py, dest: /usr/local/bin/processlab }
+
+- hosts: all 
+  name: Install depot files 
+  become: true 
+  tags:
+    - depot
+  tasks:
+    - name: Create the depot directory 
+      ansible.builtin.unarchive:
+        src: files/depot.tar.xz
+        dest: /home/cis90
