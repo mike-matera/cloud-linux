@@ -1,0 +1,52 @@
+#! /usr/bin/python3
+
+import subprocess
+import pathlib 
+import pwd 
+
+while True:
+    myscripts = [ 
+        { 'user': pwd.getpwnam(p.parent.parent.name), 
+        'path': p 
+        } for p in pathlib.Path('/home/cis90').glob('*/bin/myscript') 
+    ]
+
+    subprocess.run('clear', shell=True)
+    print("""
+
+    CIS-90 All Scripts!
+        
+        """)
+
+    for i, u in enumerate(myscripts):
+        print(f"""\t{i}) {u['user'].pw_gecos}""" )
+
+    print("""
+    \t99) Exit
+
+    """)
+
+    try:
+        selection = int(input("Choose: "))
+        if selection == 99:
+            exit()
+
+        print(f"""
+        Running the myscript for {myscripts[selection]['user'].pw_gecos}:
+            """)
+
+        subprocess.run(myscripts[selection]['path'])
+
+    except (ValueError, IndexError): 
+        print("Invalid selection!")    
+        continue
+
+    except PermissionError:
+        print(f"Error! The file {myscripts[selection]['path']} is not executable.")
+
+    print(f"""
+
+    ** The user script exited, press Enter to continue... ** 
+    """)
+
+    input()

@@ -13,4 +13,5 @@ packages:
   - tcsh 
   - csh
   - spell
-  
+  - sysvbanner
+  - emacs

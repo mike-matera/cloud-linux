@@ -40,7 +40,7 @@
     - { role: labscript, source: ../labs/processlab.py, dest: /usr/local/bin/processlab }
 
 - hosts: all 
-  name: Install depot files 
+  name: Install stuff for the final project. 
   become: true 
   tags:
     - depot
@@ -49,3 +49,11 @@
       ansible.builtin.unarchive:
         src: files/depot.tar.xz
         dest: /home/cis90
+    - name: Install allscripts
+      ansible.builtin.copy:
+        src: files/allscripts
+        dest: /usr/local/bin/allscripts
+        mode: '755'
+        owner: root
+        group: root 
+        
