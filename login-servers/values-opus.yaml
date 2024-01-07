@@ -1,7 +1,7 @@
 #image: 
 #  tag: jammy-2022070801
 
-homeSize: 32Gi
+homeSize: 4Gi
 homeStorageClassName: ssd-ha
 
 user: "mmatera" 
@@ -21,11 +21,7 @@ service:
 extraMounts:
   - name: cis90
     path: /home/cis90
-    size: 32Gi 
-    className: ssd-ha
-  - name: cis91
-    path: /home/cis91
-    size: 32Gi 
+    size: 8Gi 
     className: ssd-ha
 
 resources: 
