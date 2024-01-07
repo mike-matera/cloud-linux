@@ -30,7 +30,7 @@ $ kubectl -n arya create secret generic cis-ca-key --from-file=ca_key=./secrets/
 ```console 
 $ helm install -n opus opus cloud-native-server/cloud-server \
     --set ssh.existingSecret=cis-ca-key \
-    --values values-opus.yaml
+    --values values-opus.yaml --values ./secrets/values-canvasapi.yaml
 ```
 
 ## Sun Hwa
@@ -40,7 +40,7 @@ Practice 1:
 ```console 
 $ helm install -n opus sun-hwa-p1 cloud-native-server/cloud-server \
     --set ssh.existingSecret=cis-ca-key \
-    --values values-practice-m1.yaml
+    --values values-practice-m1.yaml --values ./secrets/values-canvasapi.yaml
 ```
 
 Practice 2: 
@@ -48,7 +48,7 @@ Practice 2:
 ```console 
 $ helm install -n opus sun-hwa-p2 cloud-native-server/cloud-server \
     --set ssh.existingSecret=cis-ca-key \
-    --values values-practice-m2.yaml
+    --values values-practice-m2.yaml --values ./secrets/values-canvasapi.yaml
 ```
 
 Midterm 1: 
@@ -56,7 +56,7 @@ Midterm 1:
 ```console 
 $ helm install -n opus sun-hwa-m1 cloud-native-server/cloud-server \
     --set ssh.existingSecret=cis-ca-key \
-    --values values-midterm1.yaml
+    --values values-midterm1.yaml --values ./secrets/values-canvasapi.yaml
 ```
 
 Midterm 2: 
@@ -64,7 +64,7 @@ Midterm 2:
 ```console 
 $ helm install -n opus hydra-m2 cloud-native-server/cloud-server \
     --set ssh.existingSecret=cis-ca-key \
-    --values values-midterm2.yaml
+    --values values-midterm2.yaml --values ./secrets/values-canvasapi.yaml
 ```
 
 ## Certificate Signing App 
