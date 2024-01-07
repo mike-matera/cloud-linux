@@ -14,10 +14,10 @@
       ansible.builtin.unarchive:
         src: files/cis90-skel.tar
         dest: /etc/cis90-skel 
-    - name: Copy existing skel files.
-      ansible.builtin.shell: 
-        cmd: cp $(find /etc/skel -type f) /etc/cis90-skel
-        creates: /etc/cis90-skel/.bashrc
+    - name: Copy system skel files. 
+      ansible.builtin.copy:
+        src: /etc/skel/ 
+        dest: /etc/cis90-skel/
   
 - hosts: all
   name: Add users and groups
