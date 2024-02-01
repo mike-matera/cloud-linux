@@ -3,6 +3,7 @@ A web application to sign SSH public keys.
 """
 
 import os
+import re
 import sys
 import json
 import flask 
@@ -51,10 +52,16 @@ def make_key():
   if pubkey is None:
     return flask.render_template('keygen.html', username=data['user'], token=token)
 
+  pubkey = pubkey.strip()
+  if (m := re.search('^ssh-(rsa|ed25519)\s', pubkey)) is not None:
+    keytype = m.group(1)
+  else:
+    return flask.render_template('keygen.html', username=data['user'], token=token, pubkey=pubkey, error="Invalid public key! (Invalid type)")
+
   with tempfile.TemporaryDirectory() as temp:
       temppath = pathlib.Path(temp)
 
-      with open(temppath / 'id_rsa.pub', 'w') as fh:
+      with open(temppath / f'id_{keytype}.pub', 'w') as fh:
         fh.write(pubkey)
 
       with open('./secrets/ca_key.pub') as pub:
@@ -62,7 +69,7 @@ def make_key():
           fh.write(f"""@cert-authority * {pub.read().strip()}""")
 
       kg = subprocess.run(
-        f"""ssh-keygen -s ./secrets/ca_key -n "{data['user']}" -I "{data['user']}" {temppath / "id_rsa.pub"}""", 
+        f"""ssh-keygen -s ./secrets/ca_key -n "{data['user']}" -I "{data['user']}" {temppath / f"id_{keytype}.pub"}""", 
         shell=True,
       )
 
@@ -70,7 +77,7 @@ def make_key():
           return flask.render_template('keygen.html', username=data['user'], token=token, pubkey=pubkey, error="Invalid public key!")
       
       with zipfile.ZipFile(temppath / 'opus-signed.zip', mode='w') as zip:
-        zip.write(temppath / 'id_rsa-cert.pub', arcname='id_rsa-cert.pub')
+        zip.write(temppath / f'id_{keytype}-cert.pub', arcname=f'id_{keytype}-cert.pub')
         zip.write(temppath / 'known_hosts', arcname='known_hosts')
 
       return flask.send_file(temppath / 'opus-signed.zip', as_attachment=True)
