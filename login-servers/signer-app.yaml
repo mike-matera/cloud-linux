@@ -30,7 +30,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: ssh-cert-signer
+      app: "ssh-cert-signer"
   replicas: 1
   template:
     metadata:
@@ -44,7 +44,7 @@ spec:
             defaultMode: 0400
       containers:
       - name: ssh-cert-signer
-        image: ghcr.io/mike-matera/ssh-cert-signer:main
+        image: ghcr.io/mike-matera/ssh-cert-signer:sha-f6f125b
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
