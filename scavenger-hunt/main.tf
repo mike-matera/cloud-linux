@@ -30,7 +30,7 @@ variable "project" {
 }
 
 variable "credentials_file" { 
-    default = "secrets/cis-90-6531e28d6815.json" 
+    default = "secrets/cis-90-key.json" 
 }
 
 variable "region" {
@@ -79,7 +79,7 @@ resource "google_compute_instance" "vm_instance" {
   allow_stopping_for_update = true
 
   metadata = {
-    enable-oslogin = "TRUE"
+    enable-oslogin = "FALSE"
   }
 
   boot_disk {
