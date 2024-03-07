@@ -1,8 +1,8 @@
 #image: 
 #  tag: jammy-2022070801
 
-homeSize: 1Gi
-homeStorageClassName: ssd-ha
+homeSize: 200Mi
+homeStorageClassName: ssd
 
 user: "mmatera" 
 hostName: "sun-hwa-p1"
@@ -19,8 +19,8 @@ service:
 extraMounts:
   - name: cis90
     path: /home/cis90
-    size: 2Gi 
-    className: ssd-ha
+    size: 1Gi 
+    className: ssd
 
 resources: 
   requests:
