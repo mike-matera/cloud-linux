@@ -2,7 +2,7 @@
 #  tag: jammy-2022070801
 
 homeSize: 1Gi
-homeStorageClassName: ssd-ha
+homeStorageClassName: ssd
 
 user: "mmatera" 
 hostName: "hydra"
