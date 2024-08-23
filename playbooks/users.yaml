@@ -47,4 +47,5 @@
         skeleton: /etc/cis90-skel
         shell: /bin/bash
         append: yes
+        password: "{{ item.sid | password_hash('sha512') }}"
       loop: "{{ users | flatten(levels=1) }}"
