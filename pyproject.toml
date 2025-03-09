@@ -1,0 +1,15 @@
+[project]
+name = "cloud-linux"
+version = "0.1.0"
+description = "My CIS-90 infrastructure."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "canvasapi>=3.3.0",
+    "flask>=3.1.0",
+    "pynacl>=1.5.0",
+]
+
+[build-system]
+requires = ["flit_core >=3.11,<4"]
+build-backend = "flit_core.buildapi"
