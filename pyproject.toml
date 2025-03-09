@@ -8,8 +8,18 @@ dependencies = [
     "canvasapi>=3.3.0",
     "flask>=3.1.0",
     "pynacl>=1.5.0",
+    "textual>=2.1.2",
+    "textual-dev>=1.7.0",
 ]
 
 [build-system]
 requires = ["flit_core >=3.11,<4"]
 build-backend = "flit_core.buildapi"
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
