@@ -23,3 +23,8 @@ line-length = 79
 quote-style = "double"
 indent-style = "space"
 docstring-code-format = true
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9.10",
+]
