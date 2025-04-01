@@ -9,5 +9,7 @@
 }
 
 .answer {
+    width: auto;
+    min-width: 24;
 }
 
