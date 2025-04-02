@@ -1,27 +1,21 @@
 """
-Abstract Question Base 
+Abstract Question Base
 """
 
 from abc import ABC, abstractmethod
 
 
 class Question(ABC):
-
     def __init__(self, *, points: int = None):
         self._points = points
-    
+
     @property
     @abstractmethod
-    def text(self):
-        ... 
+    def text(self): ...
 
     @abstractmethod
-    def check(self, answer):
-        ... 
+    def check(self, answer): ...
 
-    def setup(self, app):
-        pass 
+    def setup(self): ...
 
-    def cleanup(self, app):
-        pass 
-    
+    def cleanup(self): ...

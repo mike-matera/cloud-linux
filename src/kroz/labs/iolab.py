@@ -2,9 +2,11 @@
 Some lab called iolab or whatever.
 """
 
-from kroz.app import KrozApp 
+import kroz
+
 from kroz.question import Question
-import asyncio 
+import time
+
 
 class NumberGuess(Question):
     """Guess a number"""
@@ -17,8 +19,17 @@ class NumberGuess(Question):
             Guess a number between 1 and 100
         """
 
-    def check(self, answer):
+    async def check(self, answer):
         return int(answer) == 69
+
+    def setup(self):
+        with kroz.progress() as p:
+            p.update(message="Writing bigfile...")
+            for progress in range(0, 100, 2):
+                p.update(percent=progress)
+                time.sleep(0.01)
+        kroz.notify("The file `bigfile` has been updated.", title="Notice!")
+
 
 WELCOME = """
 # I/O Lab 
@@ -26,37 +37,50 @@ WELCOME = """
 This is foo.
 """
 
-app = KrozApp("The I/O Lab", WELCOME, total_score=100)
+
+app = kroz.KrozApp("The I/O Lab", WELCOME, total_score=100)
+
 
 @app.setup
-async def setup():
-    for progress in range(0,100,2):
-        app.progress(percent=progress)
-        await asyncio.sleep(0.03)
+def setup():
+    with kroz.progress() as p:
+        for progress in range(0, 100, 2):
+            p.update(percent=progress)
+            time.sleep(0.02)
+
 
 @app.cleanup
-async def cleanup():
-    app.progress(message="Deleting bifile")
-    await asyncio.sleep(1)
-    app.progress(message="Removing files in Rando")
-    await asyncio.sleep(2)
+def cleanup():
+    with kroz.progress() as p:
+        p.update(message="Deleting bifile")
+        time.sleep(1)
+        p.update(message="Removing files in Rando")
+        time.sleep(2)
+
 
 @app.main
-async def main():
+def main():
     q1 = NumberGuess(points=10)
-    await app.ask(q1)
+    app.ask(q1)
 
-    for progress in range(0,100,2):
-        app.progress(percent=progress, message=f"Doing other stuff: {progress}%")
-        await asyncio.sleep(0.01)
+    with kroz.progress() as p:
+        for progress in range(0, 100, 2):
+            p.update(
+                percent=progress, message=f"Doing other stuff: {progress}%"
+            )
+            time.sleep(0.01)
 
-    app.notify("The file `bigfile` has been updated and contains new data.", title="Wrote bigfile")
+    kroz.notify(
+        "The file `bigfile` has been updated and contains new data.",
+        title="Wrote bigfile",
+    )
 
     q2 = NumberGuess(points=10)
-    await app.ask(q2)
+    app.ask(q2)
 
     q3 = NumberGuess(points=10)
-    await app.ask(q3)
+    app.ask(q3)
 
-if __name__ == '__main__':
-    app.run()
+
+if __name__ == "__main__":
+    quit(app.run())
