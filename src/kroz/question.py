@@ -19,3 +19,9 @@ class Question(ABC):
     def check(self, answer):
         ... 
 
+    def setup(self, app):
+        pass 
+
+    def cleanup(self, app):
+        pass 
+    

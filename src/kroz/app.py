@@ -207,6 +207,7 @@ class KrozApp(App):
             padding-right: 0;
             padding-top: 1;
             padding-bottom: 1;
+            overflow-y: auto;
         }
 
         """
@@ -223,7 +224,7 @@ class KrozApp(App):
         self._restart = False
         self._state = KrozApp.State.INIT
         self._welcome = WelcomeView(welcome)
-        self._task_log = RichLog(id="messages")
+        self._task_log = RichLog(id="messages", wrap=True)
         self._progress = ProgressBar(show_percentage=False, show_eta=False, id="progress")
 
     def compose(self):
@@ -323,6 +324,10 @@ class KrozApp(App):
         self._state = self.State.CLEANUP
         self._cleanup()
 
+    def thread_api(func):
+        def wrapper(self: App, *args, **kwargs):
+            self.call_from_thread(func, *args, **kwargs)
+
     async def ask(self, question: Question):
         self._task_log.clear()
         self._progress.total = 100 # Stop the animation
@@ -335,10 +340,12 @@ class KrozApp(App):
         finally:
             self._progress.total = None
 
-    def progress(self, percent, message):
+    def progress(self, *, percent=None, message=None):
         if percent is None:
             self._progress.total = None
         else:
             self._progress.total = 100 
             self._progress.progress = percent
-        self._task_log.write(message)
+    
+        if message:
+            self._task_log.write(message)

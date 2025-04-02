@@ -31,14 +31,14 @@ app = KrozApp("The I/O Lab", WELCOME, total_score=100)
 @app.setup
 async def setup():
     for progress in range(0,100,2):
-        app.progress(progress, f"Doing stuff: {progress}%")
-        await asyncio.sleep(0.01)
+        app.progress(percent=progress)
+        await asyncio.sleep(0.03)
 
 @app.cleanup
 async def cleanup():
-    app.progress(None, "Deleting bifile")
+    app.progress(message="Deleting bifile")
     await asyncio.sleep(1)
-    app.progress(None, "Removing files in Rando")
+    app.progress(message="Removing files in Rando")
     await asyncio.sleep(2)
 
 @app.main
@@ -47,10 +47,10 @@ async def main():
     await app.ask(q1)
 
     for progress in range(0,100,2):
-        app.progress(progress, f"Doing other stuff: {progress}%")
+        app.progress(percent=progress, message=f"Doing other stuff: {progress}%")
         await asyncio.sleep(0.01)
 
-    await asyncio.sleep(3)
+    app.notify("The file `bigfile` has been updated and contains new data.", title="Wrote bigfile")
 
     q2 = NumberGuess(points=10)
     await app.ask(q2)
