@@ -28,7 +28,16 @@ from rich.text import Text
 from textual.message import Message
 
 from kroz.question import Question
-from kroz.api import ProgressMessage
+
+
+class ProgressMessage(Message):
+    """A message to indicate the progress of a slow running task."""
+
+    def __init__(self, *, state="progress", percent=None, message=None):
+        self.state = state
+        self.percent = percent
+        self.message = message
+        super().__init__()
 
 
 class ScoreHeader(Header):
