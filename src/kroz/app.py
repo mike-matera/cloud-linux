@@ -25,8 +25,10 @@ from kroz.screen.question import QuestionScreen
 from kroz.widget.score_header import ScoreHeader
 
 
-def notify(message, title=None):
-    get_current_worker().node.notify(message, title=title)
+def notify(message, *, title=None, severity="information", timeout=None):
+    get_current_worker().node.notify(
+        message, title=title, severity=severity, timeout=timeout
+    )
 
 
 class progress:
@@ -261,7 +263,7 @@ class KrozApp(App):
         elif (
             event.worker.name == "main" and event.state == WorkerState.SUCCESS
         ):
-            self._closing = True
+            self._cleaning = True
             self._cleanup()
         elif (
             event.worker.name == "cleanup"
@@ -303,13 +305,13 @@ class KrozApp(App):
 
         self._cleanup()
 
-    def ask(self, question: Question) -> bool:
+    def ask(self, question: Question, points: int = 0) -> bool:
         # Kill the main worker if it asks a question after a cancel.
         if get_current_worker().is_cancelled:
             raise KrozApp.CancelledWorkerException()
-        return self.call_from_thread(self._ask, question)
+        return self.call_from_thread(self._ask, question, points)
 
-    async def _ask(self, question: Question, *, points=0) -> bool:
+    async def _ask(self, question: Question, points: int) -> bool:
         correct = await self.push_screen_wait(QuestionScreen(question))
         if correct:
             self.score += points

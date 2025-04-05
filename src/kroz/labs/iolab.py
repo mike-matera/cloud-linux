@@ -62,25 +62,13 @@ def cleanup():
 @app.main
 def main():
     q1 = NumberGuess()
-    app.ask(q1)
-
-    with kroz.progress() as p:
-        for progress in range(0, 100, 2):
-            p.update(
-                percent=progress, message=f"Doing other stuff: {progress}%"
-            )
-            time.sleep(0.01)
-
-    kroz.notify(
-        "The file `bigfile` has been updated and contains new data.",
-        title="Wrote bigfile",
-    )
+    app.ask(q1, points=10)
 
     q2 = NumberGuess()
-    app.ask(q2)
+    app.ask(q2, points=10)
 
     q3 = NumberGuess()
-    app.ask(q3)
+    app.ask(q3, points=10)
 
 
 if __name__ == "__main__":
