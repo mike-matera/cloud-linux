@@ -18,6 +18,7 @@ from textual.widgets import (
 from textual.containers import Vertical
 from textual.reactive import Reactive
 from textual.message import Message
+from textual.worker import WorkerState
 
 from kroz.question import Question
 from kroz.screen.question import QuestionScreen
@@ -151,6 +152,7 @@ class WelcomeView(ModalScreen[bool]):
     def __init__(self, welcome):
         super().__init__()
         self._welcome = welcome
+        self._ready = False
 
     def compose(self):
         yield ScoreHeader()
@@ -158,6 +160,14 @@ class WelcomeView(ModalScreen[bool]):
             textwrap.dedent(self._welcome), show_table_of_contents=False
         )
         yield Footer()
+
+    def make_ready(self):
+        self._ready = True
+        self.refresh_bindings()
+
+    def check_action(self, action: str, parameters: tuple[object, ...]):
+        if self.is_mounted and action == "dismiss":
+            return self._ready
 
 
 class KrozApp(App):
@@ -170,13 +180,6 @@ class KrozApp(App):
         ("ctrl+s", "shell_escape", "Shell"),
         ("ctrl+q", "app.cleanup_quit", "Quit"),
     ]
-
-    class State(Enum):
-        INIT = 1
-        SETUP = 2
-        WELCOME = 3
-        MAIN = 4
-        CLEANUP = 5
 
     total: Reactive[int] = Reactive(0)
     score: Reactive[int] = Reactive(0)
@@ -193,9 +196,9 @@ class KrozApp(App):
         self._main_func = lambda: ...
         self._main_worker = None
         self._restart = False
-        self._state = KrozApp.State.INIT
         self._welcome = WelcomeView(welcome)
         self._progress_screen = None
+        self._cleaning = False
 
     def compose(self):
         yield ScoreHeader()
@@ -215,7 +218,9 @@ class KrozApp(App):
         return setup_wrapper
 
     def _setup(self):
-        self._setup_worker = self.run_worker(self._setup_func, thread=True)
+        self._setup_worker = self.run_worker(
+            self._setup_func, "setup", thread=True
+        )
 
     def cleanup(self, func: WorkType):
         """Decorator for the cleanup() function."""
@@ -223,7 +228,9 @@ class KrozApp(App):
         return func
 
     def _cleanup(self):
-        self._cleanup_worker = self.run_worker(self._cleanup_func, thread=True)
+        self._cleanup_worker = self.run_worker(
+            self._cleanup_func, "cleanup", thread=True
+        )
 
     def main(self, func: WorkType):
         """Decorator for the main() function."""
@@ -239,52 +246,28 @@ class KrozApp(App):
         return main_wrapper
 
     def _main(self):
-        self._main_worker = self.run_worker(self._main_func, thread=True)
-
-    def _state_update(self):
-        if self._state == self.State.INIT:
-            self._state = self.State.SETUP
-            self._setup()
-        if self._state == self.State.SETUP:
-            if self._setup_worker.is_finished:
-                if self._welcome.is_mounted:
-                    self._state = self.State.WELCOME
-                else:
-                    self._main()
-                    self._state = self.State.MAIN
-        elif self._state == self.State.WELCOME:
-            if not self._welcome.is_current:
-                self._main()
-                self._state = self.State.MAIN
-        elif self._state == self.State.MAIN:
-            if self._main_worker.is_finished:
-                if self._setup_worker.is_cancelled:
-                    self._restart = True
-                self._state = self.State.CLEANUP
-                self._cleanup()
-        elif self._state == self.State.CLEANUP:
-            if self._cleanup_worker is None:
-                # Early exit requested. Just exit.
-                self.exit(1)
-            elif self._cleanup_worker.is_finished:
-                if self._restart:
-                    self._state = self.State.SETUP
-                    self._setup()
-                else:
-                    # Do exit display
-                    self.exit(
-                        result=0, message="Put the confirmation code here."
-                    )
-        else:
-            raise ValueError("Unexpected state in state change:", self._state)
+        self._main_worker = self.run_worker(
+            self._main_func, "main", thread=True
+        )
 
     async def on_mount(self):
-        self.push_screen(self._welcome, lambda w: self._state_update())
-        self._state_update()
+        self._setup()
+        self.push_screen(self._welcome, lambda w: self._main())
 
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
-        self._state_update()
+        if event.worker.name == "setup" and event.state == WorkerState.SUCCESS:
+            self._welcome.make_ready()
+        elif (
+            event.worker.name == "main" and event.state == WorkerState.SUCCESS
+        ):
+            self._closing = True
+            self._cleanup()
+        elif (
+            event.worker.name == "cleanup"
+            and event.state == WorkerState.SUCCESS
+        ):
+            self.exit(0, message="Put the confirmation code here.")
 
     def on_progress_progress_message(self, msg: progress.ProgressMessage):
         if msg.state == progress.ProgressMessage.State.START:
@@ -308,21 +291,17 @@ class KrozApp(App):
 
     def action_cleanup_quit(self):
         # Are we already closing?
-        if self._state == self.State.CLEANUP:
+        if self._cleaning:
             return
 
-        # Cancel running workers
-        if self._setup_worker and self._setup_worker.is_running:
-            self._setup_worker.cancel()
-        if self._main_worker and self._main_worker.is_running:
-            self._main_worker.cancel()
+        self._cleaning = True
+        self.workers.cancel_all()
 
-        # Only run cleanup() if setup() finished.
-        if self._state in [self.State.MAIN, self.State.WELCOME]:
-            self._cleanup()
+        # Kill the progress popup if it's there
+        if isinstance(self.screen_stack[-1], ProgressScreen):
+            self.pop_screen()
 
-        self._state = self.State.CLEANUP
-        self._state_update()
+        self._cleanup()
 
     def ask(self, question: Question) -> bool:
         # Kill the main worker if it asks a question after a cancel.
