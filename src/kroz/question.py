@@ -13,7 +13,6 @@ class Question(ABC):
     """
 
     text: str = None
-    points: int = None
     validators: Iterable[Validator] = []
 
     @abstractmethod
@@ -37,7 +36,7 @@ class Question(ABC):
         This optional method is called before the question is displayed to the
         user. Use it to setup the question if needed.
 
-        *This method runs in the main() worker.*
+        *This method runs in its own worker.*
         """
 
     def cleanup(self):
@@ -46,5 +45,5 @@ class Question(ABC):
         or it has been skipped. Use it to cleanup after the question if
         necessary.
 
-        *This method runs in the main() worker.*
+        *This method runs in its own worker.*
         """
