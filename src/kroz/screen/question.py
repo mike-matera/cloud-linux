@@ -13,8 +13,8 @@ from textual.widgets import (
     Label,
     Input,
 )
-from textual.containers import HorizontalGroup
 from textual.worker import Worker, WorkerState
+from textual.containers import HorizontalGroup, VerticalGroup
 
 
 from kroz.widget.score_header import ScoreHeader
@@ -55,15 +55,15 @@ class QuestionScreen(Screen[bool]):
             show_table_of_contents=False,
             classes="content",
         )
-        with HorizontalGroup(id="answer_container"):
-            yield Label("$", id="answer_label")
-            yield Input(
-                id="answer",
-                placeholder="Answer",
-                validate_on=["submitted"],
-                validators=self._question.validators,
-            )
+        with VerticalGroup(classes="answer"):
             yield Label("", id="validation")
+            with HorizontalGroup():
+                yield Label("$", id="prompt")
+                yield Input(
+                    placeholder="Answer",
+                    validate_on=["submitted"],
+                    validators=self._question.validators,
+                )
 
     def on_mount(self):
         self.refresh_bindings()
