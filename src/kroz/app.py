@@ -120,7 +120,6 @@ class ProgressScreen(ModalScreen):
             padding-bottom: 1;
             overflow-y: auto;
         }
-
         """
 
     BINDINGS = [
@@ -151,6 +150,8 @@ class WelcomeView(ModalScreen[bool]):
         ("ctrl+q", "app.cleanup_quit", "Quit"),
     ]
 
+    CSS_PATH = "app.tcss"
+
     def __init__(self, welcome):
         super().__init__()
         self._welcome = welcome
@@ -158,10 +159,12 @@ class WelcomeView(ModalScreen[bool]):
 
     def compose(self):
         yield ScoreHeader()
-        yield MarkdownViewer(
-            textwrap.dedent(self._welcome), show_table_of_contents=False
-        )
         yield Footer()
+        yield MarkdownViewer(
+            textwrap.dedent(self._welcome),
+            show_table_of_contents=False,
+            classes="content",
+        )
 
     def make_ready(self):
         self._ready = True

@@ -13,7 +13,7 @@ from textual.widgets import (
     Label,
     Input,
 )
-from textual.containers import HorizontalGroup, Container
+from textual.containers import HorizontalGroup
 from textual.worker import Worker, WorkerState
 
 
@@ -41,27 +41,7 @@ class QuestionScreen(Screen[bool]):
         Binding("ctrl+q", "app.cleanup_quit", "Quit", priority=True),
     ]
 
-    DEFAULT_CSS = """
-        .main {
-        }
-
-        .answer_container {
-        }
-
-        .answer_label {
-        }
-
-        .answer {
-            width: auto;
-            min-width: 24;
-        }
-
-        #text {
-        }
-
-        #validation {
-        }
-    """
+    CSS_PATH = "../app.tcss"
 
     def __init__(self, question):
         super().__init__()
@@ -70,20 +50,20 @@ class QuestionScreen(Screen[bool]):
     def compose(self):
         yield ScoreHeader()
         yield Footer()
-        with Container(classes="main"):
-            yield MarkdownViewer(
-                textwrap.dedent(self._question.text),
-                show_table_of_contents=False,
+        yield MarkdownViewer(
+            textwrap.dedent(self._question.text),
+            show_table_of_contents=False,
+            classes="content",
+        )
+        with HorizontalGroup(id="answer_container"):
+            yield Label("$", id="answer_label")
+            yield Input(
+                id="answer",
+                placeholder="Answer",
+                validate_on=["submitted"],
+                validators=self._question.validators,
             )
-            with HorizontalGroup(classes="answer_container"):
-                yield Label("Answer:", classes="answer_label")
-                yield Input(
-                    placeholder="Answer",
-                    classes="answer",
-                    validate_on=["submitted"],
-                    validators=self._question.validators,
-                )
-                yield Label("", id="validation")
+            yield Label("", id="validation")
 
     def on_mount(self):
         self.refresh_bindings()
@@ -127,6 +107,7 @@ class QuestionScreen(Screen[bool]):
     @on(Input.Submitted)
     async def submit(self, event: Input.Changed) -> None:
         if event.validation_result.is_valid:
+            self.query_one("#validation").update("")
             self.query_one("Input").disabled = True
             self.run_worker(
                 partial(self._question.check, event.value),
@@ -137,7 +118,12 @@ class QuestionScreen(Screen[bool]):
             )
         else:
             self.query_one("#validation").update(
-                "".join(event.validation_result.failure_descriptions)
+                "\n".join(
+                    (
+                        f"❌ {x}"
+                        for x in event.validation_result.failure_descriptions
+                    )
+                )
             )
 
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
