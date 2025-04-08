@@ -56,7 +56,6 @@ class QuestionScreen(Screen[bool]):
             classes="content",
         )
         with VerticalGroup(classes="answer"):
-            yield Label("", id="validation")
             with HorizontalGroup():
                 yield Label("$", id="prompt")
                 yield Input(
@@ -105,9 +104,15 @@ class QuestionScreen(Screen[bool]):
                 return True
 
     @on(Input.Submitted)
-    async def submit(self, event: Input.Changed) -> None:
-        if event.validation_result.is_valid:
-            self.query_one("#validation").update("")
+    async def submit(self, event: Input.Changed) -> None:  
+        try:
+            feedback = self.query_one("#validation")
+        except:
+            feedback = Label("", id="validation")
+            await self.query_one(".answer").mount(feedback, before=0)
+
+        if event.validation_result.is_valid:            
+            feedback.remove()
             self.query_one("Input").disabled = True
             self.run_worker(
                 partial(self._question.check, event.value),

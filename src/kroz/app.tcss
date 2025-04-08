@@ -18,9 +18,13 @@ Screen {
 }
 
 .answer #prompt {
-    background: $accent 75%;
+    background: $accent 90%;
     padding-left: 1;
     padding-right: 1;
+}
+
+.answer #validation {
+    padding-bottom: 1;
 }
 
 .answer Input {
