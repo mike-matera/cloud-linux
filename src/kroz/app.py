@@ -2,6 +2,7 @@
 The Kroz UI Module
 """
 
+from contextlib import contextmanager
 from enum import Enum
 import subprocess
 import textwrap
@@ -181,19 +182,20 @@ class KrozApp(App):
     class CancelledWorkerException(BaseException):
         pass
 
+    class GroupFailedException(BaseException):
+        pass
+
     BINDINGS = [
         ("ctrl+s", "shell_escape", "Shell"),
         ("ctrl+q", "app.cleanup_quit", "Quit"),
     ]
 
-    total: Reactive[int] = Reactive(0)
     score: Reactive[int] = Reactive(0)
-    score_format: Reactive[str] = Reactive("Score: {score}/{total}")
+    score_format: Reactive[str] = Reactive("Score: {score}")
 
-    def __init__(self, title: str, welcome: str, *, total_score=0):
+    def __init__(self, title: str, welcome: str):
         super().__init__()
         self.title = title
-        self.total = total_score
         self._setup_func = lambda: ...
         self._setup_worker = None
         self._cleanup_func = lambda: ...
@@ -308,17 +310,28 @@ class KrozApp(App):
 
         self._cleanup()
 
-    def ask(self, question: Question, points: int = 0) -> bool:
+    def ask(
+        self,
+        question: Question,
+        points: int = 0,
+        tries: int = 0,
+        can_skip: bool = True,
+    ) -> Question.Result:
         # Kill the main worker if it asks a question after a cancel.
         if get_current_worker().is_cancelled:
             raise KrozApp.CancelledWorkerException()
-        return self.call_from_thread(self._ask, question, points)
+        result = self.call_from_thread(
+            self._ask, question, points, tries, can_skip
+        )
+        if self._group and result != Question.Result.CORRECT:
+            raise KrozApp.GroupFailedException()
 
-    async def _ask(self, question: Question, points: int) -> bool:
-        correct = await self.push_screen_wait(QuestionScreen(question))
-        if correct:
-            self.score += points
-        return correct
+    async def _ask(
+        self, question: Question, points: int, tries: int, can_skip: bool
+    ) -> Question.Result:
+        return await self.push_screen_wait(
+            QuestionScreen(question, points, tries, can_skip)
+        )
 
     def post_message(self, message: Message):
         # Kill canceled workers that send a progress message.
@@ -329,3 +342,15 @@ class KrozApp(App):
             raise KrozApp.CancelledWorkerException()
 
         super().post_message(message)
+
+    @contextmanager
+    def group(self):
+        worker = get_current_worker()
+        old_group = worker._question_group
+        self._group = True
+        try:
+            yield
+        except KrozApp.GroupFailedException:
+            pass
+        finally:
+            self._group = old_group

@@ -4,7 +4,7 @@ Screen {
 }
 
 .content {
-    align-horizontal: center;
+    align: center middle;
 }
 
 .content Markdown {
@@ -34,4 +34,14 @@ Screen {
 
 .answer Input:focus {
     background: $surface;
+}
+
+FeedbackScreen Markdown {
+    border: heavy red;
+    padding: 1;
+}
+
+CongratsScreen Markdown {
+    border: heavy green;
+    padding: 1;
 }
