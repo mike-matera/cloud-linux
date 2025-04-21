@@ -1,5 +1,7 @@
 """
-The Kroz UI Module
+The Kroz Application Player
+
+This module is a UI for Linux labs.
 """
 
 from contextlib import contextmanager
@@ -146,6 +148,8 @@ class ProgressScreen(ModalScreen):
 
 
 class WelcomeView(ModalScreen[bool]):
+    """Welcome users to the lab."""
+
     BINDINGS = [
         ("enter", "dismiss", "Start the Lab"),
         ("ctrl+q", "app.cleanup_quit", "Quit"),
@@ -177,7 +181,15 @@ class WelcomeView(ModalScreen[bool]):
 
 
 class KrozApp(App):
-    """A UI application."""
+    """
+    A Kroz UI application. The application enables the construction of gamified
+    Linux labs. Client code provides a `main()` function that is called by the
+    app and can optionally specify a `setup()` and `cleanup()` function.
+
+    Application functions are run in their own Textual threaded workers so they
+    will not block the UI. However, they are limited to the API provided by the
+    Kroz package for thread safety.
+    """
 
     class CancelledWorkerException(BaseException):
         pass
@@ -207,7 +219,7 @@ class KrozApp(App):
         self._progress_screen = None
         self._cleaning = False
 
-    def compose(self):
+    def _compose(self):
         yield ScoreHeader()
         yield Footer()
 
@@ -317,13 +329,21 @@ class KrozApp(App):
         tries: int = 0,
         can_skip: bool = True,
     ) -> Question.Result:
+        """
+        Ask a question in the UI.
+        """
+        worker = get_current_worker()
         # Kill the main worker if it asks a question after a cancel.
-        if get_current_worker().is_cancelled:
+        if worker.is_cancelled:
             raise KrozApp.CancelledWorkerException()
         result = self.call_from_thread(
             self._ask, question, points, tries, can_skip
         )
-        if self._group and result != Question.Result.CORRECT:
+        if (
+            hasattr(worker, "_question_group")
+            and worker._question_group
+            and result != Question.Result.CORRECT
+        ):
             raise KrozApp.GroupFailedException()
 
     async def _ask(
@@ -345,9 +365,18 @@ class KrozApp(App):
 
     @contextmanager
     def group(self):
+        """
+        A context manager to group questions together. If any of the questions
+        in the group are skipped or answered incorrectly, the group exits
+        without asking any further questions. A question group is useful when
+        a set of questions build on each other and when the desired behavior of
+        the lab is to allow students to skip ahead, bypassing the entire group.
+        """
         worker = get_current_worker()
+        if not hasattr(worker, "_question_group"):
+            worker._question_group = False
         old_group = worker._question_group
-        self._group = True
+        worker._question_group = True
         try:
             yield
         except KrozApp.GroupFailedException:
