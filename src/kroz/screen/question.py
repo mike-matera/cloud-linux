@@ -194,7 +194,7 @@ class QuestionScreen(Screen[bool]):
             feedback = Label("", id="validation")
             await self.query_one(".answer").mount(feedback, before=0)
 
-        if event.validation_result.is_valid:
+        if not event.validation_result or event.validation_result.is_valid:
             feedback.remove()
             self.query_one("Input").disabled = True
             self._tries += 1

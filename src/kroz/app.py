@@ -4,6 +4,8 @@ The Kroz Application Player
 This module is a UI for Linux labs.
 """
 
+import os
+import pathlib
 from contextlib import contextmanager
 from enum import Enum
 import subprocess
@@ -22,10 +24,27 @@ from textual.containers import Vertical
 from textual.reactive import Reactive
 from textual.message import Message
 from textual.worker import WorkerState
+from typing import Callable
 
 from kroz.question import Question
 from kroz.screen.question import QuestionScreen
 from kroz.widget.score_header import ScoreHeader
+
+_setuphooks = []
+_default_config = {
+    "default_path": pathlib.Path(os.environ.get("HOME", os.getcwd()))
+}
+
+
+def get_appconfig(key: str) -> dict:
+    return get_current_worker().node.config[key]
+
+
+def setup_hook(*, hook: Callable[[], None] = None, defconfig={}) -> None:
+    global _setuphooks, _default_config
+    if hook is not None:
+        _setuphooks.append(hook)
+    _default_config.update(defconfig)
 
 
 def notify(message, *, title=None, severity="information", timeout=None):
@@ -205,7 +224,7 @@ class KrozApp(App):
     score: Reactive[int] = Reactive(0)
     score_format: Reactive[str] = Reactive("Score: {score}")
 
-    def __init__(self, title: str, welcome: str):
+    def __init__(self, title: str, welcome: str, *, user_config={}):
         super().__init__()
         self.title = title
         self._setup_func = lambda: ...
@@ -218,6 +237,9 @@ class KrozApp(App):
         self._welcome = WelcomeView(welcome)
         self._progress_screen = None
         self._cleaning = False
+        self._config = {}
+        self._user_config = user_config
+        self._showing = None
 
     def _compose(self):
         yield ScoreHeader()
@@ -225,21 +247,35 @@ class KrozApp(App):
 
     def setup(self, func: WorkType):
         """Decorator for the setup() function."""
+        self._setup_func = func
+        return func
 
-        def setup_wrapper():
-            try:
-                func()
-            except KrozApp.CancelledWorkerException:
-                # Ignore me.
-                pass
-
-        self._setup_func = setup_wrapper
-        return setup_wrapper
+    def _setup_with_hooks(self):
+        global _setuphooks, _default_config
+        try:
+            self._config = _default_config
+            self._config.update(self._user_config)
+            for hook in _setuphooks:
+                hook()
+            self._setup_func()
+        except KrozApp.CancelledWorkerException:
+            # Ignore me.
+            pass
 
     def _setup(self):
         self._setup_worker = self.run_worker(
-            self._setup_func, "setup", thread=True
+            self._setup_with_hooks, "setup", thread=True
         )
+
+    def _cleanup_with_showing(self):
+        try:
+            if self._showing:
+                # Run the question's cleanup method.
+                self._showing._question.cleanup()
+            self._cleanup_func()
+        except KrozApp.CancelledWorkerException:
+            # Ignore me.
+            pass
 
     def cleanup(self, func: WorkType):
         """Decorator for the cleanup() function."""
@@ -248,7 +284,7 @@ class KrozApp(App):
 
     def _cleanup(self):
         self._cleanup_worker = self.run_worker(
-            self._cleanup_func, "cleanup", thread=True
+            self._cleanup_with_showing, "cleanup", thread=True
         )
 
     def main(self, func: WorkType):
@@ -308,7 +344,7 @@ class KrozApp(App):
         with self.suspend():
             subprocess.run("$SHELL", shell=True)
 
-    def action_cleanup_quit(self):
+    async def action_cleanup_quit(self):
         # Are we already closing?
         if self._cleaning:
             return
@@ -349,9 +385,11 @@ class KrozApp(App):
     async def _ask(
         self, question: Question, points: int, tries: int, can_skip: bool
     ) -> Question.Result:
-        return await self.push_screen_wait(
-            QuestionScreen(question, points, tries, can_skip)
-        )
+        self._showing = QuestionScreen(question, points, tries, can_skip)
+        try:
+            return await self.push_screen_wait(self._showing)
+        finally:
+            self._showing = None
 
     def post_message(self, message: Message):
         # Kill canceled workers that send a progress message.
@@ -383,3 +421,8 @@ class KrozApp(App):
             pass
         finally:
             self._group = old_group
+
+    @property
+    def config(self):
+        """A dictionary of configuration parameters."""
+        return self._config
