@@ -9,7 +9,6 @@ import kroz
 
 from kroz.question import Question
 from kroz.random.file import random_big_file
-from kroz.random.path import random_path
 
 import textual.validation
 
@@ -19,7 +18,7 @@ class WordInBigfile(Question):
 
     def __init__(
         self,
-        rows=10000,
+        rows=100000,
         cols=100,
         find=(None, None),
         from_bottom=False,
@@ -109,7 +108,7 @@ class CountOranges(Question):
     def __init__(
         self,
     ):
-        self._file = random_big_file(rows=10000, cols=100)
+        self._file = random_big_file(rows=100000, cols=100)
         self._word = "orange"
         self._solution = None
 
@@ -170,7 +169,8 @@ class SortedWords(Question):
 class UniqueWords(Question):
     """Unique words in a file."""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._file = random_big_file(rows=2000, cols=1)
 
     @property
@@ -208,19 +208,20 @@ WELCOME = f"""
 """
 
 
-app = kroz.KrozApp("The I/O Lab", WELCOME)
+app = kroz.KrozApp("The I/O Lab")
 
 
 @app.main
 def main():
-    p = random_path()
-    app.ask(UniqueWords())
-    app.ask(SortedWords())
-    app.ask(CountOranges())
-    app.ask(WordInBigfile(find=[None, 1]))
-    app.ask(WordInBigfile(from_bottom=True, find=[None, 1]))
-    app.ask(WordInBigfile())
-    app.ask(WordInBigfile(from_right=True))
+    app.show(WELCOME)
+    UniqueWords(can_skip=True, points=10).ask()
+    SortedWords().ask()
+    CountOranges().ask()
+    WordInBigfile(find=[None, 1]).ask()
+    WordInBigfile(from_bottom=True, find=[None, 1]).ask()
+    WordInBigfile().ask()
+    WordInBigfile(from_right=True).ask()
+    print("Foo!")
 
 
 if __name__ == "__main__":

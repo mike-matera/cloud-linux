@@ -6,34 +6,36 @@ This module is a UI for Linux labs.
 
 import os
 import pathlib
-from contextlib import contextmanager
-from enum import Enum
 import subprocess
-import textwrap
+from enum import Enum
+from typing import Any, Callable
+
 from textual.app import App
-from textual.screen import ModalScreen
-from textual.worker import Worker, WorkType, get_current_worker
+from textual.containers import Vertical
+from textual.message import Message
+from textual.reactive import Reactive
+from textual.screen import ModalScreen, Screen
 from textual.widgets import (
     Footer,
-    MarkdownViewer,
     Label,
     ProgressBar,
     RichLog,
 )
-from textual.containers import Vertical
-from textual.reactive import Reactive
-from textual.message import Message
-from textual.worker import WorkerState
-from typing import Callable
+from textual.worker import Worker, WorkType, get_current_worker
 
-from kroz.question import Question
-from kroz.screen.question import QuestionScreen
+from kroz.screen import KrozScreen
 from kroz.widget.score_header import ScoreHeader
 
+
 _setuphooks = []
+
 _default_config = {
     "default_path": pathlib.Path(os.environ.get("HOME", os.getcwd()))
 }
+
+
+def get_app() -> dict:
+    return get_current_worker().node
 
 
 def get_appconfig(key: str) -> dict:
@@ -166,37 +168,13 @@ class ProgressScreen(ModalScreen):
             yield self._task_log
 
 
-class WelcomeView(ModalScreen[bool]):
-    """Welcome users to the lab."""
+class ScoreMessage(Message):
+    """A message that updates the score."""
 
-    BINDINGS = [
-        ("enter", "dismiss", "Start the Lab"),
-        ("ctrl+q", "app.cleanup_quit", "Quit"),
-    ]
-
-    CSS_PATH = "app.tcss"
-
-    def __init__(self, welcome):
+    def __init__(self, update=None, to=None):
         super().__init__()
-        self._welcome = welcome
-        self._ready = False
-
-    def compose(self):
-        yield ScoreHeader()
-        yield Footer()
-        yield MarkdownViewer(
-            textwrap.dedent(self._welcome),
-            show_table_of_contents=False,
-            classes="content",
-        )
-
-    def make_ready(self):
-        self._ready = True
-        self.refresh_bindings()
-
-    def check_action(self, action: str, parameters: tuple[object, ...]):
-        if self.is_mounted and action == "dismiss":
-            return self._ready
+        self._update = update
+        self._to = to
 
 
 class KrozApp(App):
@@ -224,105 +202,52 @@ class KrozApp(App):
     score: Reactive[int] = Reactive(0)
     score_format: Reactive[str] = Reactive("Score: {score}")
 
-    def __init__(self, title: str, welcome: str, *, user_config={}):
+    def __init__(self, title: str, *, user_config={}):
         super().__init__()
         self.title = title
-        self._setup_func = lambda: ...
-        self._setup_worker = None
-        self._cleanup_func = lambda: ...
-        self._cleanup_worker = None
         self._main_func = lambda: ...
         self._main_worker = None
-        self._restart = False
-        self._welcome = WelcomeView(welcome)
-        self._progress_screen = None
-        self._cleaning = False
         self._config = {}
         self._user_config = user_config
         self._showing = None
+        self._progress_screen = None
 
-    def _compose(self):
+    def compose(self):
         yield ScoreHeader()
         yield Footer()
 
-    def setup(self, func: WorkType):
-        """Decorator for the setup() function."""
-        self._setup_func = func
-        return func
-
-    def _setup_with_hooks(self):
+    def _run_user_app(self):
         global _setuphooks, _default_config
         try:
             self._config = _default_config
             self._config.update(self._user_config)
             for hook in _setuphooks:
                 hook()
-            self._setup_func()
+            self._main_func()
         except KrozApp.CancelledWorkerException:
-            # Ignore me.
+            # Don't propagate
             pass
-
-    def _setup(self):
-        self._setup_worker = self.run_worker(
-            self._setup_with_hooks, "setup", thread=True
-        )
-
-    def _cleanup_with_showing(self):
-        try:
-            if self._showing:
-                # Run the question's cleanup method.
-                self._showing._question.cleanup()
-            self._cleanup_func()
-        except KrozApp.CancelledWorkerException:
-            # Ignore me.
-            pass
-
-    def cleanup(self, func: WorkType):
-        """Decorator for the cleanup() function."""
-        self._cleanup_func = func
-        return func
-
-    def _cleanup(self):
-        self._cleanup_worker = self.run_worker(
-            self._cleanup_with_showing, "cleanup", thread=True
-        )
 
     def main(self, func: WorkType):
         """Decorator for the main() function."""
-
-        def main_wrapper():
-            try:
-                func()
-            except KrozApp.CancelledWorkerException:
-                # Ignore me.
-                pass
-
-        self._main_func = main_wrapper
-        return main_wrapper
-
-    def _main(self):
-        self._main_worker = self.run_worker(
-            self._main_func, "main", thread=True
-        )
+        self._main_func = func
+        return func
 
     async def on_mount(self):
-        self._setup()
-        self.push_screen(self._welcome, lambda w: self._main())
+        self._main_worker = self.run_worker(
+            self._run_user_app, "main", thread=True
+        )
 
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
-        if event.worker.name == "setup" and event.state == WorkerState.SUCCESS:
-            self._welcome.make_ready()
-        elif (
-            event.worker.name == "main" and event.state == WorkerState.SUCCESS
-        ):
-            self._cleaning = True
-            self._cleanup()
-        elif (
-            event.worker.name == "cleanup"
-            and event.state == WorkerState.SUCCESS
-        ):
+        if event.worker.name == "main" and event.worker.is_finished:
             self.exit(0, message="Put the confirmation code here.")
+
+    def on_score_message(self, msg: ScoreMessage):
+        if msg._update:
+            self.score += msg._update
+        elif msg._to:
+            self.score = msg._to
 
     def on_progress_progress_message(self, msg: progress.ProgressMessage):
         if msg.state == progress.ProgressMessage.State.START:
@@ -345,51 +270,7 @@ class KrozApp(App):
             subprocess.run("$SHELL", shell=True)
 
     async def action_cleanup_quit(self):
-        # Are we already closing?
-        if self._cleaning:
-            return
-
-        self._cleaning = True
         self.workers.cancel_all()
-
-        # Kill the progress popup if it's there
-        if isinstance(self.screen_stack[-1], ProgressScreen):
-            self.pop_screen()
-
-        self._cleanup()
-
-    def ask(
-        self,
-        question: Question,
-        points: int = 0,
-        tries: int = 0,
-        can_skip: bool = True,
-    ) -> Question.Result:
-        """
-        Ask a question in the UI.
-        """
-        worker = get_current_worker()
-        # Kill the main worker if it asks a question after a cancel.
-        if worker.is_cancelled:
-            raise KrozApp.CancelledWorkerException()
-        result = self.call_from_thread(
-            self._ask, question, points, tries, can_skip
-        )
-        if (
-            hasattr(worker, "_question_group")
-            and worker._question_group
-            and result != Question.Result.CORRECT
-        ):
-            raise KrozApp.GroupFailedException()
-
-    async def _ask(
-        self, question: Question, points: int, tries: int, can_skip: bool
-    ) -> Question.Result:
-        self._showing = QuestionScreen(question, points, tries, can_skip)
-        try:
-            return await self.push_screen_wait(self._showing)
-        finally:
-            self._showing = None
 
     def post_message(self, message: Message):
         # Kill canceled workers that send a progress message.
@@ -401,26 +282,37 @@ class KrozApp(App):
 
         super().post_message(message)
 
-    @contextmanager
-    def group(self):
-        """
-        A context manager to group questions together. If any of the questions
-        in the group are skipped or answered incorrectly, the group exits
-        without asking any further questions. A question group is useful when
-        a set of questions build on each other and when the desired behavior of
-        the lab is to allow students to skip ahead, bypassing the entire group.
-        """
+    def show(self, screen: str | Screen) -> Any:
+        """Show a screen."""
+
         worker = get_current_worker()
-        if not hasattr(worker, "_question_group"):
-            worker._question_group = False
-        old_group = worker._question_group
-        worker._question_group = True
+        if worker.is_cancelled:
+            raise KrozApp.CancelledWorkerException()
+        result = self.call_from_thread(self._show, screen)
+        if worker.is_cancelled:
+            raise KrozApp.CancelledWorkerException()
+        return result
+
+    async def _show(self, screen: str | Screen) -> None:
+        if isinstance(screen, str):
+            self._showing = KrozScreen(
+                screen, title="Welcome", classes="welcome"
+            )
+        elif isinstance(screen, Screen):
+            self._showing = screen
+        else:
+            raise ValueError("This must be a screen.")
+
         try:
-            yield
-        except KrozApp.GroupFailedException:
-            pass
+            return await self.push_screen_wait(self._showing)
         finally:
-            self._group = old_group
+            self._showing = None
+
+    def set_score(self, points: int):
+        self.post_message(ScoreMessage(to=points))
+
+    def update_score(self, points: int):
+        self.post_message(ScoreMessage(update=points))
 
     @property
     def config(self):

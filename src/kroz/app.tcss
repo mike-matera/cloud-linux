@@ -36,12 +36,17 @@ Screen {
     background: $surface;
 }
 
-FeedbackScreen Markdown {
-    border: heavy red;
+.feedback Markdown {
+    border: heavy $error;
     padding: 1;
 }
 
-CongratsScreen Markdown {
-    border: heavy green;
+.congrats Markdown {
+    border: heavy $success;
+    padding: 1;
+}
+
+.welcome Markdown {
+    border: heavy $accent;
     padding: 1;
 }
