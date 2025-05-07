@@ -4,6 +4,7 @@ Abstract Question Base
 
 from abc import ABC, abstractmethod
 from enum import Enum
+import subprocess
 from typing import Iterable
 from textual.validation import Validator
 
@@ -63,6 +64,19 @@ class Question(ABC):
         or it has been skipped. Use it to cleanup after the question if
         necessary.
         """
+
+    def shell(self, command):
+        """
+        A helper to run a command in the shell, returning the contents of stdout
+        and raising an exception if the command exits with an error status.
+        """
+        return subprocess.run(
+            command,
+            shell=True,
+            check=True,
+            stdout=subprocess.PIPE,
+            encoding="utf-8",
+        ).stdout
 
     def ask(self) -> Result:
         """Ask the question."""

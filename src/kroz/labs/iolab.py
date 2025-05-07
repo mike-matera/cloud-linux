@@ -2,7 +2,6 @@
 Some lab called iolab or whatever.
 """
 
-import locale
 import random
 
 import kroz
@@ -108,13 +107,14 @@ class CountOranges(Question):
     def __init__(
         self,
     ):
-        self._file = random_big_file(rows=100000, cols=100)
-        self._word = "orange"
+        self._file = random_big_file(rows=10000, cols=100)
         self._solution = None
 
     def setup(self):
         self._file.setup()
-        self._solution = self._file.grep_wc(self._word, "w")
+        self._solution = int(
+            self.shell(f"grep -iw orange {self._file.path}  | wc -l")
+        )
 
     def cleanup(self):
         self._file.cleanup()
@@ -130,13 +130,6 @@ class SortedWords(Question):
 
     def __init__(self):
         self._file = random_big_file(rows=1000, cols=1)
-        lang, cat = locale.getlocale()
-        assert lang == "en_US", (
-            """This question assumes that sort is using the en_US.UTF-8 locale.."""
-        )
-        assert cat == "UTF-8", (
-            """This question assumes that sort is using the en_US.UTF-8 locale."""
-        )
 
     @property
     def text(self):
@@ -154,14 +147,13 @@ class SortedWords(Question):
 
     def setup(self):
         self._file.setup()
-        for self._word in self._file.sort():
-            break
+        self._word = self.shell(f"sort {self._file.path} | head -n 1").strip()
 
     def cleanup(self):
         self._file.cleanup()
 
     def check(self, answer):
-        assert answer.strip() == self._word.strip(), (
+        assert answer.strip() == self._word, (
             f"""That's not the correct answer. {self._word}"""
         )
 
@@ -190,7 +182,9 @@ class UniqueWords(Question):
 
     def setup(self):
         self._file.setup()
-        self._answer = len(set(self._file.lines()))
+        self._answer = int(
+            self.shell(f"sort {self._file.path} | uniq | wc -l")
+        )
 
     def cleanup(self):
         self._file.cleanup()
@@ -214,9 +208,9 @@ app = kroz.KrozApp("The I/O Lab")
 @app.main
 def main():
     app.show(WELCOME)
+    CountOranges().ask()
     UniqueWords(can_skip=True, points=10).ask()
     SortedWords().ask()
-    CountOranges().ask()
     WordInBigfile(find=[None, 1]).ask()
     WordInBigfile(from_bottom=True, find=[None, 1]).ask()
     WordInBigfile().ask()

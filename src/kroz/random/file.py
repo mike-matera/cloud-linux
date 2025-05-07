@@ -2,11 +2,9 @@
 Randomized system paths.
 """
 
-import locale
 from os import PathLike
 import pathlib
 from collections.abc import Generator
-import re
 from typing import Union
 from .words import random_words
 from kroz import setup_hook, get_appconfig
@@ -78,52 +76,6 @@ class RandomBigFile:
         if line > 0:
             line -= 1
         return self._sep.join(self._words[line]) + self._end
-
-    def grep(
-        self, pattern: str, flags: str
-    ) -> Generator[tuple[int, list[str]]]:
-        """
-        Emulate grep to return lines in the file.
-
-        Returns a tuple containing the line number with the list of
-        words on the line.
-        """
-
-        reflags = 0
-        regex = f"{pattern}"
-        for flag in flags:
-            if flag == "w":
-                regex = f"\\s{pattern}(\\W|\\s)+"
-            elif flag == "i":
-                reflags |= re.IGNORECASE
-            else:
-                raise ValueError(f"Unsupported grep flag: {flag}")
-        regex = re.compile(regex)
-        for i, line in enumerate(self.lines()):
-            if re.search(regex, " " + line, reflags) is not None:
-                yield (
-                    i + 1,
-                    line,
-                )
-
-    def grep_wc(self, pattern: str, flags: str) -> int:
-        """grep | wc"""
-        return len(list(self.grep(pattern, flags)))
-
-    def sort(self, flags=None):
-        """Emulates the behavior of sort()
-
-        WARNING: This is LANG specific. See the sort manpage and Pythons's
-        locale library.
-        """
-
-        lang, cat = locale.getlocale()
-        assert lang == "en_US" and cat == "UTF-8", (
-            """This question assumes that sort is using the en_US.UTF-8 locale.."""
-        )
-        assert flags is None, "Flags is not yet implemented."
-
-        return sorted(self.lines(), key=str.lower)
 
 
 def random_big_file(
