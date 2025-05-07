@@ -1,101 +1,139 @@
 """
-Randomized system paths.
+Tools for building randomized paths and checkers.
 """
 
-from collections import namedtuple
-from collections.abc import Callable, Generator
+from collections.abc import Generator
+import getpass
+import grp
+import subprocess
 import pathlib
-import random
-from typing import Iterable
-
-from kroz import setup_hook, get_appconfig
-
-SearchTree = namedtuple("SearchTree", ["root", "glob"])
-CONFIG_KEY = "random_path_search"
-DEFAULT_PATHS = [
-    SearchTree(root="/etc", glob="**/*"),
-    SearchTree(root="/bin", glob="**/*"),
-    SearchTree(root="/dev", glob="**/*"),
-    SearchTree(root="/usr/bin", glob="**/*"),
-    SearchTree(root="/usr/sbin", glob="**/*"),
-    SearchTree(root="/usr/share", glob="*/*"),
-    SearchTree(root="/sys", glob="*/*/*"),
-    SearchTree(root="/boot", glob="**/*"),
-    SearchTree(root="/lib", glob="*/*"),
-]
+from dataclasses import dataclass, field
+import os
+import shutil
+from typing import Self
 
 
-class RandomPath:
-    """
-    Get random extant files or directories on the system.
-    """
+def default_perms():
+    umask = os.umask(0o777)
+    os.umask(umask)
+    return ~umask & 0o666
 
-    def __init__(self):
-        self._trees = None
 
-    def setup(self, search: Iterable[SearchTree]):
-        self._trees = []
+@dataclass
+class CheckFile:
+    path: pathlib.Path
+    contents: str = ""
+    owner: str = field(default=getpass.getuser())
+    group: str = field(default=grp.getgrgid(os.getegid()))
+    perms: int = field(default_factory=default_perms)
 
-        def can_stat(f):
-            try:
-                f.stat()
-                return True
-            except:
-                return False
+    def __post_init__(self):
+        self.path = pathlib.Path(self.path)
+        if self.path.is_absolute():
+            raise ValueError("A CheckFile path must not be absolute.")
 
-        self._trees = [
-            [
-                path
-                for path in pathlib.Path(tree.root).glob(tree.glob)
-                if can_stat(path)
-            ]
-            for tree in search
-        ]
 
-    def random_file(self):
-        return self.find_one(
-            lambda c: c.is_file() and not c.is_symlink()
-        ).resolve()
+@dataclass
+class CheckPath:
+    basepath: pathlib.Path
+    files: list[CheckFile] = field(default_factory=list)
 
-    def random_dir(self):
-        return self.find_one(
-            lambda c: c.is_dir() and not c.is_symlink()
-        ).resolve()
+    def __post_init__(self):
+        self._validate()
 
-    def find_one(self, filter):
-        """Search the candidate files until a condition matches."""
-        for path in self.find(filter):
-            return path
-        raise RuntimeError("No path found!")
-
-    def find(
-        self, filter: Callable[[pathlib.Path], bool]
-    ) -> Generator[pathlib.Path]:
-        """Return a generator of paths that match the filter"""
-        if self._trees is None:
-            raise RuntimeError(
-                "Paths have not been initialized. You have not run setup()."
+    def _validate(self):
+        self.basepath = pathlib.Path(self.basepath).resolve()
+        if self.basepath == pathlib.Path.home():
+            raise ValueError(
+                "A CheckPath must never be rooted in the $HOME directory."
             )
-        for tree in random.sample(self._trees, k=len(self._trees)):
-            for path in random.sample(tree, k=len(tree)):
-                if filter(path):
-                    yield path
 
+    @classmethod
+    def from_path(cls: type[Self], path: str | pathlib.Path) -> Self:
+        """Create a CheckPath object from a real path."""
+        path = pathlib.Path(path)
+        cp = cls(path)
+        for file in path.glob("**/*"):
+            if not file.is_symlink() and file.is_file():
+                try:
+                    f = CheckFile(
+                        file.relative_to(path),
+                        owner=file.owner(),
+                        group=file.group(),
+                        perms=file.stat().st_mode & 0o777,
+                    )
+                    with open(file) as fh:
+                        f.contents = fh.read()
+                    cp.files.append(f)
 
-_paths = RandomPath()
+                except Exception:
+                    # Choked on a file. Ignore it.
+                    pass
+        return cp
 
+    def sync(self) -> None:
+        """
+        Synchronize the directory structure with the data structure. If the
+        `basepath` does not exist it will be created. If it does exist the
+        the contents will be deleted.
 
-def random_path():
-    global _paths
-    return _paths
+        This is destructive. Be careful.
+        """
+        self._validate()
+        if self.basepath.exists():
+            for item in self.basepath.iterdir():
+                if item.is_dir():
+                    shutil.rmtree(item)
+                else:
+                    item.unlink()
+        else:
+            self.basepath.mkdir()
 
+        for file in self.files:
+            realpath = self.basepath / file.path
+            realpath.parent.mkdir(parents=True, exist_ok=True)
+            with open(realpath, "w") as fh:
+                fh.write(file.contents)
+            realpath.chmod(file.perms)
+            subprocess.run(
+                f"chgrp {file.group} {realpath}", shell=True, check=True
+            )
 
-def _setup():
-    global _paths
-    _paths.setup(get_appconfig(CONFIG_KEY))
+    def check(self) -> Generator[str]:
+        """Compare two paths"""
 
+        other = CheckPath.from_path(self.path)
 
-setup_hook(
-    hook=_setup,
-    defconfig={CONFIG_KEY: DEFAULT_PATHS},
-)
+        other_paths = {x.path: x for x in other.files}
+        other_path_set = set((p.path for p in other.files))
+
+        my_paths = {x.path: x for x in self.files}
+        my_path_set = set((p.path for p in self.files))
+
+        for p in sorted(
+            my_path_set.intersection(other_path_set),
+            key=lambda x: len(x.parts),
+        ):
+            # Check common files:
+            my_file = my_paths[p]
+            other_file = other_paths[p]
+            if my_file.contents != other_file.contents:
+                print("Bad contents!", p)
+            if my_file.owner != other_file.owner:
+                print("Bad owner!", p)
+            if my_file.group != other_file.group:
+                print("Bad group!", p)
+            if my_file.perms != other_file.perms:
+                print("Bad perms!", p)
+
+        for p in sorted(
+            my_path_set.difference(other_path_set), key=lambda x: len(x.parts)
+        ):
+            # Missing from other_paths
+            print("Missing:", my_paths[p])
+
+        for p in sorted(
+            other_path_set.difference(my_path_set), key=lambda x: len(x.parts)
+        ):
+            # Missing from other_paths
+            print("Extra:", other_paths[p])

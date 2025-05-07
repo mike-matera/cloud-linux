@@ -7,7 +7,7 @@ import random
 import kroz
 
 from kroz.question import Question
-from kroz.random.file import random_big_file
+from kroz.random.bigfile import random_big_file
 
 import textual.validation
 
@@ -209,13 +209,12 @@ app = kroz.KrozApp("The I/O Lab")
 def main():
     app.show(WELCOME)
     CountOranges().ask()
-    UniqueWords(can_skip=True, points=10).ask()
+    UniqueWords(points=10).ask()
     SortedWords().ask()
     WordInBigfile(find=[None, 1]).ask()
     WordInBigfile(from_bottom=True, find=[None, 1]).ask()
     WordInBigfile().ask()
     WordInBigfile(from_right=True).ask()
-    print("Foo!")
 
 
 if __name__ == "__main__":
