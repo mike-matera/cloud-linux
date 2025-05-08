@@ -125,8 +125,8 @@ class Islands2(Question):
 
 @app.main
 def main():
-    app.show(WELCOME)
-    Islands2().ask()
+    app.show(WELCOME, classes="welcome")
+    app.ask(Islands2())
 
 
 if __name__ == "__main__":

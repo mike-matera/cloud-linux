@@ -8,11 +8,6 @@ import subprocess
 from typing import Iterable
 from textual.validation import Validator
 
-from kroz import get_app
-
-
-from kroz.screen import KrozScreen, QuestionScreen
-
 
 class Question(ABC):
     """
@@ -77,55 +72,3 @@ class Question(ABC):
             stdout=subprocess.PIPE,
             encoding="utf-8",
         ).stdout
-
-    def ask(self) -> Result:
-        """Ask the question."""
-        app = get_app()
-        self.setup()
-        tries_left = self.tries
-        try:
-            while self.tries == 0 or tries_left > 0:
-                answer = app.show(
-                    QuestionScreen(
-                        text=self.text,
-                        placeholder=self.placeholder,
-                        validators=self.validators,
-                        can_skip=self.can_skip,
-                    )
-                )
-                if answer is None:
-                    return Question.Result.SKIPPED
-
-                try:
-                    result = self.check(answer)
-                except Exception as e:
-                    result = e
-
-                if isinstance(result, Exception):
-                    if isinstance(result, AssertionError):
-                        border_title = "Incorrect Answer"
-                    else:
-                        border_title = f"Error: {result.__class__.__name__}"
-                    app.show(
-                        KrozScreen(
-                            str(result),
-                            title=border_title,
-                            classes="feedback",
-                        )
-                    )
-                    tries_left -= 1
-                else:
-                    app.update_score(self.points)
-                    app.show(
-                        KrozScreen(
-                            "# Congratulations" if not result else result,
-                            title="Success",
-                            classes="congrats",
-                        )
-                    )
-                    return Question.Result.CORRECT
-
-            return Question.Result.INCORRECT
-
-        finally:
-            self.cleanup()

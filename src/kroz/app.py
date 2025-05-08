@@ -23,9 +23,9 @@ from textual.widgets import (
 )
 from textual.worker import Worker, WorkType, get_current_worker
 
-from kroz.screen import KrozScreen
+from kroz.screen import KrozScreen, QuestionScreen
 from kroz.widget.score_header import ScoreHeader
-
+from kroz.question import Question
 
 _setuphooks = []
 
@@ -282,21 +282,21 @@ class KrozApp(App):
 
         super().post_message(message)
 
-    def show(self, screen: str | Screen) -> Any:
+    def show(self, screen: str | Screen, classes: str = "") -> Any:
         """Show a screen."""
 
         worker = get_current_worker()
         if worker.is_cancelled:
             raise KrozApp.CancelledWorkerException()
-        result = self.call_from_thread(self._show, screen)
+        result = self.call_from_thread(self._show, screen, classes)
         if worker.is_cancelled:
             raise KrozApp.CancelledWorkerException()
         return result
 
-    async def _show(self, screen: str | Screen) -> None:
+    async def _show(self, screen: str | Screen, classes: str) -> None:
         if isinstance(screen, str):
             self._showing = KrozScreen(
-                screen, title="Welcome", classes="welcome"
+                screen, title="Welcome", classes=classes
             )
         elif isinstance(screen, Screen):
             self._showing = screen
@@ -318,3 +318,54 @@ class KrozApp(App):
     def config(self):
         """A dictionary of configuration parameters."""
         return self._config
+
+    def ask(self, question: Question) -> Question.Result:
+        """Ask the question."""
+        question.setup()
+        tries_left = question.tries
+        try:
+            while question.tries == 0 or tries_left > 0:
+                answer = self.show(
+                    QuestionScreen(
+                        text=question.text,
+                        placeholder=question.placeholder,
+                        validators=question.validators,
+                        can_skip=question.can_skip,
+                    )
+                )
+                if answer is None:
+                    return Question.Result.SKIPPED
+
+                try:
+                    result = question.check(answer)
+                except Exception as e:
+                    result = e
+
+                if isinstance(result, Exception):
+                    if isinstance(result, AssertionError):
+                        border_title = "Incorrect Answer"
+                    else:
+                        border_title = f"Error: {result.__class__.__name__}"
+                    self.show(
+                        KrozScreen(
+                            str(result),
+                            title=border_title,
+                            classes="feedback",
+                        )
+                    )
+                    tries_left -= 1
+                else:
+                    self.update_score(question.points)
+                    self.show(
+                        KrozScreen(
+                            "# Congratulations" if not result else result,
+                            title="Success",
+                            classes="congrats",
+                        )
+                    )
+                    return Question.Result.CORRECT
+
+            return Question.Result.INCORRECT
+
+        finally:
+            question.cleanup()
