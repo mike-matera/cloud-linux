@@ -3,10 +3,11 @@ Some lab called islands2 or whatever.
 """
 
 import grp
+from pathlib import Path
 
 import kroz
 from kroz.question import Question
-from kroz.random.path import CheckPath, CheckFile
+from kroz.random.path import CheckDir, CheckPath, CheckFile
 
 WELCOME = """
 # Sort the Islands (Part 2) 
@@ -28,103 +29,98 @@ class Islands2(Question):
 
     try:
         cis90_grp = grp.getgrnam("cis90").gr_gid
-    except Exception:
-        cis90_grp = grp.getgrnam("adm").gr_gid  # for testing on my machine
+        cis90_grp = "cis90"
+    except KeyError:
+        cis90_grp = "adm"  # for testing on my machine
 
     start_files = CheckPath(
         "/home/maximus/Islands",
         files=[
-            CheckFile("Hawaii", "Island in the Pacific ocean"),
-            CheckFile("Samoa", "Island in the Pacific ocean"),
-            CheckFile("Kiribati", "Island in the Pacific ocean"),
-            CheckFile("Ireland", "Island in the Atlantic ocean"),
-            CheckFile("Madeira", "Island in the Atlantic ocean"),
-            CheckFile("Azores", "Island in the Atlantic ocean"),
-            CheckFile("Langkawi", "Island in the Indian ocean"),
-            CheckFile("Sabang", "Island in the Indian ocean"),
-            CheckFile("Nublar", "Island in Fiction"),
-            CheckFile("Hydra", "Island in Fiction"),
+            CheckFile("Hawaii", "Hawaii is an island in the Pacific ocean"),
+            CheckFile("Samoa", "Samoa is an island in the Pacific ocean"),
+            CheckFile(
+                "Kiribati", "Kiribati is an island in the Pacific ocean"
+            ),
+            CheckFile("Ireland", "Ireland is an island in the Atlantic ocean"),
+            CheckFile("Madeira", "Madeira is an island in the Atlantic ocean"),
+            CheckFile("Azores", "Azores is an island in the Atlantic ocean"),
+            CheckFile("Langkawi", "Langkawi is an island in the Indian ocean"),
+            CheckFile("Sabang", "Sabang is an island in the Indian ocean"),
+            CheckFile(
+                "Nublar",
+                "Nublar is a fictional island in the movie Jurassic Park",
+            ),
+            CheckFile("Hydra", "Hydra is a fictional island in the show Lost"),
         ],
     )
 
-    end_files = CheckPath(
+    check_files = CheckPath(
         "/home/maximus/Oceans",
         files=[
-            CheckFile(
-                "Pacific/Hawaii",
-                "Island in the Pacific ocean",
-                group=cis90_grp,
-                perms=0o440,
-            ),
-            CheckFile(
-                "Pacific/Samoa",
-                "Island in the Pacific ocean",
-                group=cis90_grp,
-                perms=0o440,
-            ),
-            CheckFile(
-                "Pacific/Kiribati",
-                "Island in the Pacific ocean",
-                group=cis90_grp,
-                perms=0o440,
-            ),
-            CheckFile(
-                "Atlantic/Ireland",
-                "Island in the Atlantic ocean",
-                group=cis90_grp,
-                perms=0o440,
-            ),
-            CheckFile(
-                "Atlantic/Madeira",
-                "Island in the Atlantic ocean",
-                group=cis90_grp,
-                perms=0o440,
-            ),
-            CheckFile(
-                "Atlantic/Azores",
-                "Island in the Atlantic ocean",
-                group=cis90_grp,
-                perms=0o440,
-            ),
-            CheckFile(
-                "Indian/Langkawi",
-                "Island in the Indian ocean",
-                group=cis90_grp,
-                perms=0o600,
-            ),
-            CheckFile(
-                "Indian/Sabang",
-                "Island in the Indian ocean",
-                group=cis90_grp,
-                perms=0o600,
-            ),
-            CheckFile(
-                "Fictional/Nublar",
-                "Island in Fiction",
-                group=cis90_grp,
-                perms=0o600,
-            ),
-            CheckFile(
-                "Fictional/Hydra",
-                "Island in Fiction",
-                group=cis90_grp,
-                perms=0o600,
-            ),
+            CheckDir("", group=cis90_grp),
+            CheckDir("Pacific", group=cis90_grp),
+            CheckDir("Atlantic", group=cis90_grp),
+            CheckDir("Indian", group=cis90_grp),
+            CheckDir("Fictional", group=cis90_grp),
         ],
     )
 
-    @property
-    def text(self):
-        return "Eat me"
+    text = """
+    # Sort the Islands with Permissions 
+    
+    I have created a directory called "Islands" in your home directory. 
+    Inside of "Islands" you will see 10 files named after islands. Each island 
+    file contains the name of the ocean it is in. Reorganize the files so 
+    that they are in directories named after their oceans. The reorganized 
+    files should be in a directory called "Oceans" in the current directory.  
+    
+    The "Oceans" directory should look like this: 
+
+        .
+        |-- Oceans
+            |-- Atlantic
+            |-- Pacific
+            |-- Indian
+            |-- Fictional
+
+    In addition you must set permissions on the files and directories in Oceans.
+    Here are the rules you must follow: 
+
+    1. The Oceans directory and all subdirectories and files should be have the 'cis90' group.
+    2. No files or directories should be publicly readable, writable or executable.
+    3. Files in the Atlantic and Pacific oceans should be read only for the user and group. 
+    4. Files in the Indian and Fictional oceans should be read/write for the user only. 
+
+"""
 
     def setup(self):
         self.start_files.sync()
+        for file in self.start_files.files:
+            if "Pacific" in file.contents:
+                newpath = Path("Pacific") / file.path
+                newperms = 0o660
+            elif "Atlantic" in file.contents:
+                newpath = Path("Atlantic") / file.path
+                newperms = 0o440
+            elif "Indian" in file.contents:
+                newpath = Path("Indian") / file.path
+                newperms = 0o600
+            elif "fiction" in file.contents:
+                newpath = Path("Fictional") / file.path
+                newperms = 0o600
+            else:
+                raise ValueError("Ooops!")
+            self.check_files.files.append(
+                CheckFile(
+                    newpath,
+                    contents=file.contents,
+                    perms=newperms,
+                    group=self.cis90_grp,
+                )
+            )
 
     def check(self, answer):
-        for error in self.end_files.check():
-            raise AssertionError(error)
-
-        assert answer.strip() == "boo"
+        self.check_files.full_report(verbose=2)
 
 
 @app.main
