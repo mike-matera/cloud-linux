@@ -120,9 +120,12 @@ class CountOranges(Question):
         self._file.cleanup()
 
     def check(self, answer: str):
-        assert int(answer) == self._solution, (
-            f"""The correct answer is: {self._solution}"""
-        )
+        assert int(answer) == self._solution, f"""
+            # Not Correct 
+
+            That was not the correct answer. The correct answer is {self._solution}
+            but will change after you exit this screen. 
+            """
 
 
 class SortedWords(Question):
@@ -163,7 +166,7 @@ class UniqueWords(Question):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._file = random_big_file(rows=2000, cols=1)
+        self._file = random_big_file(rows=random.randint(2000, 4000), cols=1)
 
     @property
     def text(self):
@@ -190,9 +193,12 @@ class UniqueWords(Question):
         self._file.cleanup()
 
     def check(self, answer):
-        assert int(answer) == self._answer, (
-            f"""That's not the correct answer. {self._answer}"""
-        )
+        assert int(answer) == self._answer, f"""
+            # Not Correct 
+
+            That was not the correct answer. The correct answer is {self._answer}
+            but will change after you exit this screen. 
+            """
 
 
 WELCOME = f"""

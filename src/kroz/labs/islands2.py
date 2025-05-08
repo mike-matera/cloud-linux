@@ -26,44 +26,13 @@ class Islands2(Question):
     """The islands with perms."""
 
     placeholder = "Enter to Continue"
+    debug = True
 
     try:
         cis90_grp = grp.getgrnam("cis90").gr_gid
         cis90_grp = "cis90"
     except KeyError:
         cis90_grp = "adm"  # for testing on my machine
-
-    start_files = CheckPath(
-        "/home/maximus/Islands",
-        files=[
-            CheckFile("Hawaii", "Hawaii is an island in the Pacific ocean"),
-            CheckFile("Samoa", "Samoa is an island in the Pacific ocean"),
-            CheckFile(
-                "Kiribati", "Kiribati is an island in the Pacific ocean"
-            ),
-            CheckFile("Ireland", "Ireland is an island in the Atlantic ocean"),
-            CheckFile("Madeira", "Madeira is an island in the Atlantic ocean"),
-            CheckFile("Azores", "Azores is an island in the Atlantic ocean"),
-            CheckFile("Langkawi", "Langkawi is an island in the Indian ocean"),
-            CheckFile("Sabang", "Sabang is an island in the Indian ocean"),
-            CheckFile(
-                "Nublar",
-                "Nublar is a fictional island in the movie Jurassic Park",
-            ),
-            CheckFile("Hydra", "Hydra is a fictional island in the show Lost"),
-        ],
-    )
-
-    check_files = CheckPath(
-        "/home/maximus/Oceans",
-        files=[
-            CheckDir("", group=cis90_grp),
-            CheckDir("Pacific", group=cis90_grp),
-            CheckDir("Atlantic", group=cis90_grp),
-            CheckDir("Indian", group=cis90_grp),
-            CheckDir("Fictional", group=cis90_grp),
-        ],
-    )
 
     text = """
     # Sort the Islands with Permissions 
@@ -94,6 +63,50 @@ class Islands2(Question):
 """
 
     def setup(self):
+        self.start_files = CheckPath(
+            "Islands",
+            files=[
+                CheckFile(
+                    "Hawaii", "Hawaii is an island in the Pacific ocean"
+                ),
+                CheckFile("Samoa", "Samoa is an island in the Pacific ocean"),
+                CheckFile(
+                    "Kiribati", "Kiribati is an island in the Pacific ocean"
+                ),
+                CheckFile(
+                    "Ireland", "Ireland is an island in the Atlantic ocean"
+                ),
+                CheckFile(
+                    "Madeira", "Madeira is an island in the Atlantic ocean"
+                ),
+                CheckFile(
+                    "Azores", "Azores is an island in the Atlantic ocean"
+                ),
+                CheckFile(
+                    "Langkawi", "Langkawi is an island in the Indian ocean"
+                ),
+                CheckFile("Sabang", "Sabang is an island in the Indian ocean"),
+                CheckFile(
+                    "Nublar",
+                    "Nublar is a fictional island in the movie Jurassic Park",
+                ),
+                CheckFile(
+                    "Hydra", "Hydra is a fictional island in the show Lost"
+                ),
+            ],
+        )
+
+        self.check_files = CheckPath(
+            "Oceans",
+            files=[
+                CheckDir("", group=self.cis90_grp),
+                CheckDir("Pacific", group=self.cis90_grp),
+                CheckDir("Atlantic", group=self.cis90_grp),
+                CheckDir("Indian", group=self.cis90_grp),
+                CheckDir("Fictional", group=self.cis90_grp),
+            ],
+        )
+
         self.start_files.sync()
         for file in self.start_files.files:
             if "Pacific" in file.contents:

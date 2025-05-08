@@ -7,13 +7,15 @@ import subprocess
 import pathlib
 from dataclasses import dataclass, field
 import shutil
-from typing import Self
+import textwrap
+from typing import Any, Self
+from kroz import get_appconfig
 
 
 @dataclass
 class CheckFile:
     path: pathlib.Path
-    contents: str = ""
+    contents: Any = ""
     owner: str = field(default=None)
     group: str = field(default=None)
     perms: int = field(default=None)
@@ -46,10 +48,21 @@ class CheckPath:
         self._validate()
 
     def _validate(self):
+        self.basepath = pathlib.Path(self.basepath)
+        if not self.basepath.is_absolute():
+            self.basepath = (
+                pathlib.Path(get_appconfig("default_path")) / self.basepath
+            )
         self.basepath = pathlib.Path(self.basepath).resolve()
+        try:
+            self.basepath.relative_to(get_appconfig("default_path"))
+        except ValueError:
+            raise ValueError(
+                "The basepath of a CheckPath must be relative to the application's default_path."
+            )
         if self.basepath == pathlib.Path.home():
             raise ValueError(
-                "A CheckPath must never be rooted in the $HOME directory."
+                "A CheckPath base path must never be the $HOME directory."
             )
 
     @classmethod
@@ -70,8 +83,8 @@ class CheckPath:
         cp.files.append(root)
 
         for file in path.glob("**/*"):
-            if not file.is_symlink():
-                try:
+            try:
+                if not file.is_symlink():
                     if file.is_file():
                         f = CheckFile(
                             file.relative_to(path),
@@ -89,13 +102,12 @@ class CheckPath:
                             perms=file.stat().st_mode & 0o777,
                         )
                     else:
-                        raise RuntimeError("Not a file I know about.")
+                        raise RuntimeError("Not a file type I know about.")
 
                     cp.files.append(f)
-
-                except (OSError, RuntimeError):
-                    # Choked for some reason. Ignore it.
-                    pass
+            except (OSError, RuntimeError):
+                # Choked for some reason. Ignore it.
+                pass
         return cp
 
     def sync(self) -> None:
@@ -122,7 +134,7 @@ class CheckPath:
                 realpath.parent.mkdir(parents=True, exist_ok=True)
                 if file.contents is not None:
                     with open(realpath, "w") as fh:
-                        fh.write(file.contents)
+                        fh.write(str(file.contents))
                         fh.write("\n")
             elif isinstance(file, CheckDir):
                 realpath.mkdir(parents=True, exist_ok=True)
@@ -137,6 +149,16 @@ class CheckPath:
                     shell=True,
                     check=True,
                 )
+
+    def cleanup(self):
+        """Remove the contents of the basepath (but not the path itself)"""
+        self._validate()
+        if self.basepath.exists():
+            for item in self.basepath.iterdir():
+                if item.is_dir():
+                    shutil.rmtree(item)
+                else:
+                    item.unlink()
 
     def check(self) -> Generator[tuple[pathlib.Path, str, str], None, None]:
         """Compare two paths"""
@@ -156,13 +178,13 @@ class CheckPath:
                     yield (
                         self.basepath,
                         "Missing",
-                        f"The path {self.basepath} is missing",
+                        "The file/directory is missing or can't be read.",
                     )
                 else:
                     yield (
                         p.path,
                         "Missing",
-                        f"The path {p.path} is missing in {self.basepath}",
+                        "The file/directory is missing or can't be read.",
                     )
             else:
                 my_file = my_paths[p.path]
@@ -170,10 +192,10 @@ class CheckPath:
                 if my_file.__class__ is not other_file.__class__:
                     yield (
                         p.path,
-                        "Type mismatch.",
-                        f"{p.path} should be a file, not a directory."
+                        "Wrong type",
+                        "Is a directory instead of a file."
                         if isinstance(my_file, CheckFile)
-                        else f"{p.path} should be a directory, not a file.",
+                        else "Is a file instead of a directory.",
                     )
                 if (
                     my_file.owner is not None
@@ -181,7 +203,7 @@ class CheckPath:
                 ):
                     yield (
                         p.path,
-                        "Owner doesn't match.",
+                        "Wrong owner",
                         f"{my_file.owner} != {other_file.owner}",
                     )
                 if (
@@ -190,7 +212,7 @@ class CheckPath:
                 ):
                     yield (
                         p.path,
-                        "Group doesn't match.",
+                        "Wrong group",
                         f"{my_file.group} != {other_file.group}",
                     )
                 if (
@@ -199,25 +221,35 @@ class CheckPath:
                 ):
                     yield (
                         p.path,
-                        "Permissions doesn't match.",
+                        "Wrong permissions",
                         f"{my_file.perms:o} != {other_file.perms:o}",
                     )
                 if isinstance(my_file, CheckFile) and my_file.contents:
-                    if my_file.contents.strip() != other_file.contents.strip():
+                    if (
+                        str(my_file.contents).strip()
+                        != str(other_file.contents).strip()
+                    ):
                         yield (
                             p.path,
-                            "File contents don't match.",
-                            f"{my_file.contents.strip()} != {other_file.contents.strip()}",
+                            "Wrong contents",
+                            f"{str(my_file.contents).strip()} != {str(other_file.contents).strip()}",
                         )
 
         for p in sorted(
             other_path_set.difference(my_path_set), key=lambda x: len(x.parts)
         ):
-            yield (
-                p,
-                "Extra",
-                "The file exists but it should not.",
-            )
+            if self.basepath / p != self.basepath:
+                yield (
+                    p,
+                    "Exists",
+                    "The file/directory should be removed.",
+                )
+
+    def filter(self, function) -> Self:
+        """Create a new CheckPath with files filtered by a function."""
+        return CheckPath(
+            self.basepath, files=list(filter(function, self.files))
+        )
 
     def short_report(self, verbose=0):
         for error in self.check():
@@ -242,31 +274,46 @@ class CheckPath:
         errors = list(self.check())
         if len(errors) == 0:
             return
+
         if verbose == 0:
-            raise AssertionError(f"""
-# Error 
-
-The following paths have errors: 
-
-{"\n".join((f"* {e[0]}" for e in errors))}
-            """)
+            raise AssertionError(
+                textwrap.dedent("""
+                # Error 
+                The following paths have errors:
+                {}
+                """).format(
+                    "\n".join((f"* {self.basepath / e[0]}" for e in errors))
+                )
+            )
         if verbose == 1:
-            raise AssertionError(f"""
-# Error 
+            raise AssertionError(
+                textwrap.dedent("""
+                # Error 
 
-Errors have been detected:
-                                 
-| Path | Error | 
-| --- | --- | 
-{"\n".join((f"| {e[0]} | {e[1]} |" for e in errors))}
-            """)
+                Errors have been detected:
+                                                
+                | {} | Error | 
+                | --- | --- | 
+                {}
+                """).format(
+                    self.basepath,
+                    "\n".join((f"| {e[0]} | {e[1]} |" for e in errors)),
+                )
+            )
         if verbose == 2:
-            raise AssertionError(f"""
-# Error 
+            raise AssertionError(
+                textwrap.dedent("""
+                # Error 
 
-Errors have been detected:
-                                 
-| Path | Error | Detail | 
-| --- | --- | --- | 
-{"\n".join((f"| {e[0]} | {e[1]} | {e[2]} |" for e in errors))}
-            """)
+                Errors have been detected:
+                                                
+                | {} | Error | Detail | 
+                | --- | --- | --- | 
+                {}
+            """).format(
+                    self.basepath,
+                    "\n".join(
+                        (f"| {e[0]} | {e[1]} | {e[2]} |" for e in errors)
+                    ),
+                )
+            )

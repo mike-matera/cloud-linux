@@ -8,7 +8,7 @@ Screen {
 }
 
 .content Markdown {
-    max-width: 80;
+    max-width: 100;
     background-tint: $foreground 5%;
 }
 

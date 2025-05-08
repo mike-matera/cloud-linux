@@ -25,6 +25,7 @@ class Question(ABC):
     tries: int = 0
     can_skip: bool = True
     points: int = 0
+    debug: bool = False
 
     def __init__(self, **kwargs):
         for key in kwargs:

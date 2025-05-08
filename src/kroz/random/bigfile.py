@@ -6,6 +6,10 @@ from os import PathLike
 import pathlib
 from collections.abc import Generator
 from typing import Union
+
+from kroz.app import notify
+
+
 from .words import random_words
 from kroz import setup_hook, get_appconfig
 
@@ -33,7 +37,9 @@ class RandomBigFile:
         self._cols = cols
         self._sep = sep
         self._end = end
-        self._path = pathlib.Path(self._name).resolve()
+        self._path = name
+        if self._path is not None:
+            self._path = pathlib.Path(self._name).resolve()
         self._words = []
 
     def setup(self):
@@ -42,13 +48,16 @@ class RandomBigFile:
 
         self._words = [words.choices(self._cols) for _ in range(self._rows)]
 
-        with open(self._path, "w") as fh:
-            for line in self.lines():
-                fh.write(line)
+        if self._path is not None:
+            with open(self._path, "w") as fh:
+                for line in self.lines():
+                    fh.write(line)
+            notify(f"{self._path} was created!")
 
     def cleanup(self):
         """Remove the file."""
-        self._path.unlink()
+        if self._path:
+            self._path.unlink(missing_ok=True)
 
     @property
     def path(self):
@@ -76,6 +85,10 @@ class RandomBigFile:
         if line > 0:
             line -= 1
         return self._sep.join(self._words[line]) + self._end
+
+    def __str__(self):
+        """Return the file contents."""
+        return "".join(self.lines())
 
 
 def random_big_file(

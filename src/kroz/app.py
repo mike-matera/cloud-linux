@@ -321,26 +321,31 @@ class KrozApp(App):
 
     def ask(self, question: Question) -> Question.Result:
         """Ask the question."""
-        question.setup()
         tries_left = question.tries
-        try:
-            while question.tries == 0 or tries_left > 0:
-                answer = self.show(
-                    QuestionScreen(
-                        text=question.text,
-                        placeholder=question.placeholder,
-                        validators=question.validators,
-                        can_skip=question.can_skip,
-                    )
+        while question.tries == 0 or tries_left > 0:
+            question.setup()
+
+            answer = self.show(
+                QuestionScreen(
+                    text=question.text,
+                    placeholder=question.placeholder,
+                    validators=question.validators,
+                    can_skip=question.can_skip,
                 )
-                if answer is None:
-                    return Question.Result.SKIPPED
+            )
+            if answer is None:
+                return Question.Result.SKIPPED
 
-                try:
-                    result = question.check(answer)
-                except Exception as e:
-                    result = e
+            try:
+                result = question.check(answer)
+            except AssertionError as e:
+                result = e
+            except Exception as e:
+                result = e
+                if question.debug:
+                    raise e
 
+            try:
                 if isinstance(result, Exception):
                     if isinstance(result, AssertionError):
                         border_title = "Incorrect Answer"
@@ -364,8 +369,7 @@ class KrozApp(App):
                         )
                     )
                     return Question.Result.CORRECT
+            finally:
+                question.cleanup()
 
-            return Question.Result.INCORRECT
-
-        finally:
-            question.cleanup()
+        return Question.Result.INCORRECT
