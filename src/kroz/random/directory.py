@@ -6,7 +6,7 @@ from os import PathLike
 import pathlib
 from typing import Union
 from kroz import setup_hook
-from kroz.app import get_appconfig
+from kroz.app import get_appconfig, notify
 from .path import CheckPath, CheckFile
 from .bigfile import RandomBigFile
 from .words import random_words
@@ -52,6 +52,10 @@ class RandomDirectory:
                 CheckFile(random_words().choice(), contents=rbf)
             )
         self.checkpath.sync()
+        notify(
+            f"{self.checkpath.basepath} has been updated!",
+            title="Directory Updated",
+        )
 
     def filter(self, function):
         """Return a CheckPath that's filtered by the function."""

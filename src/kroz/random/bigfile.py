@@ -52,7 +52,10 @@ class RandomBigFile:
             with open(self._path, "w") as fh:
                 for line in self.lines():
                     fh.write(line)
-            notify(f"{self._path} was created!")
+            notify(
+                f"{self._path} has been updated!",
+                title="File Updated",
+            )
 
     def cleanup(self):
         """Remove the file."""
