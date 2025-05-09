@@ -18,6 +18,7 @@ class Question(ABC):
         CORRECT = 1
         INCORRECT = 2
         SKIPPED = 3
+        CHECKPOINTED = 4
 
     text: str = None
     validators: Iterable[Validator] = []
@@ -26,6 +27,7 @@ class Question(ABC):
     can_skip: bool = True
     points: int = 0
     debug: bool = False
+    checkpoint: str = None
 
     def __init__(self, **kwargs):
         for key in kwargs:

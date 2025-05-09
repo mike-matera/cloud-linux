@@ -10,6 +10,7 @@ import pathlib
 import subprocess
 from enum import Enum
 from typing import Any, Callable
+import uuid
 
 from textual.app import App
 from textual.containers import Vertical
@@ -25,14 +26,19 @@ from textual.widgets import (
 from textual.worker import Worker, WorkType, get_current_worker
 
 from kroz.screen import KrozScreen, QuestionScreen
+from kroz.secrets import ConfirmationCode, JsonBoxFile
 from kroz.widget.score_header import ScoreHeader
 from kroz.question import Question
+
 
 _setuphooks = []
 
 _default_config = {
     "default_path": pathlib.Path(os.environ.get("HOME", os.getcwd())),
     "random_seed": None,
+    "secret": None,
+    "home": None,
+    "state_file": None,
 }
 
 
@@ -204,7 +210,7 @@ class KrozApp(App):
     score: Reactive[int] = Reactive(0)
     score_format: Reactive[str] = Reactive("Score: {score}")
 
-    def __init__(self, title: str, *, user_config={}):
+    def __init__(self, title: str, **user_config):
         super().__init__()
         self.title = title
         self._main_func = lambda: ...
@@ -213,6 +219,7 @@ class KrozApp(App):
         self._user_config = user_config
         self._showing = None
         self._progress_screen = None
+        self._state = None
 
     def compose(self):
         yield ScoreHeader()
@@ -223,6 +230,26 @@ class KrozApp(App):
         try:
             self._config = _default_config
             self._config.update(self._user_config)
+            if self._config["secret"] is None:
+                self._config["secret"] = str(uuid.getnode())
+            if self._config["home"] is None:
+                self._config["home"] = pathlib.Path.home() / ".kroz"
+            self._config["home"] = pathlib.Path(self._config["home"])
+            if not self._config["home"].exists():
+                self._config["home"].mkdir(parents=True)
+            else:
+                if not self._config["home"].is_dir():
+                    raise RuntimeError(
+                        f"The home configuration must be a directory: {self._config['home']}"
+                    )
+            if self._config["state_file"] is not None:
+                self._state = JsonBoxFile(
+                    self._config["secret"],
+                    self._config["home"] / self._config["state_file"],
+                )
+                if "checkpoints" not in self._state:
+                    self._state["checkpoints"] = {}
+
             for hook in _setuphooks:
                 hook()
             self._main_func()
@@ -243,7 +270,11 @@ class KrozApp(App):
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
         if event.worker.name == "main" and event.worker.is_finished:
-            self.exit(0, message="Put the confirmation code here.")
+            cc = ConfirmationCode(key=self.config["secret"])
+            self.exit(
+                0,
+                message=f"Your confirmation code is: {cc.confirmation({'score': self.score})}",
+            )
 
     def on_score_message(self, msg: ScoreMessage):
         if msg._update:
@@ -316,13 +347,17 @@ class KrozApp(App):
     def update_score(self, points: int):
         self.post_message(ScoreMessage(update=points))
 
-    @property
-    def config(self):
-        """A dictionary of configuration parameters."""
-        return self._config
-
     def ask(self, question: Question) -> Question.Result:
         """Ask the question."""
+        checkpoint_result = Question.Result.INCORRECT
+        if (
+            question.checkpoint is not None
+            and question.checkpoint in self.state["checkpoints"]
+            and self.state["checkpoints"][question.checkpoint]
+            == "Result.CORRECT"
+        ):
+            self.score += question.points
+            return Question.Result.CHECKPOINTED
         try:
             question.setup()
             tries_left = question.tries
@@ -345,6 +380,7 @@ class KrozApp(App):
                     ):
                         raise KrozApp.GroupFailedException()
 
+                    checkpoint_result = Question.Result.SKIPPED
                     return Question.Result.SKIPPED
 
                 try:
@@ -381,15 +417,23 @@ class KrozApp(App):
                                 classes="congrats",
                             )
                         )
+                        self.score += question.points
+                        checkpoint_result = Question.Result.CORRECT
                         return Question.Result.CORRECT
                 finally:
                     question.cleanup_attempt()
         finally:
             question.cleanup()
+            if question.checkpoint is not None:
+                self.state["checkpoints"][question.checkpoint] = str(
+                    checkpoint_result
+                )
+                self.state.store()
+
         return Question.Result.INCORRECT
 
     @contextmanager
-    def group(self):
+    def group(self, checkpoint=None):
         """
         A context manager to group questions together. If any of the questions
         in the group are skipped or answered incorrectly, the group exits
@@ -408,3 +452,15 @@ class KrozApp(App):
             pass
         finally:
             self._group = old_group
+
+    @property
+    def config(self):
+        """A dictionary of configuration parameters."""
+        return self._config
+
+    @property
+    def state(self):
+        """A dictionary that's persisted in a state file."""
+        if self._state is None:
+            raise RuntimeError("No state file was given, can't save state.")
+        return self._state

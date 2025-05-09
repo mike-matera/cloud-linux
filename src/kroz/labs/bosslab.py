@@ -2,17 +2,8 @@ import pathlib
 from kroz import KrozApp
 from kroz.app import get_appconfig
 from kroz.question import Question
-from kroz.random.directory import random_directory
+from kroz.random.bigdir import random_directory
 from kroz.random.words import random_words
-
-
-app = KrozApp("Like a BOSS!", user_config={"random_seed": 1})
-
-WELCOME = """
-# Use Linux Like a BOSS!
-
-In this lab you will use the advanced command features you learned in X Y 
-"""
 
 
 class RandomRando(Question):
@@ -107,13 +98,22 @@ class DeepMessage(Question):
         assert answer.strip() == self._answer, """That's not correct!"""
 
 
+app = KrozApp("Like a BOSS!", state_file="bosslab")
+
+WELCOME = """
+# Use Linux Like a BOSS!
+
+In this lab you will use the advanced command features you learned in X Y 
+"""
+
+
 @app.main
 def main():
     app.show(WELCOME, classes="welcome")
-    app.ask(RandomRando())
-    app.ask(RandomDeleteMe())
-    app.ask(RandomRandoTick())
-    app.ask(DeepMessage())
+    app.ask(RandomRando(points=10, checkpoint="1"))
+    app.ask(RandomDeleteMe(points=10, checkpoint="2"))
+    app.ask(RandomRandoTick(points=10, checkpoint="3"))
+    app.ask(DeepMessage(points=10, checkpoint="4"))
 
 
 if __name__ == "__main__":
