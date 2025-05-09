@@ -4,6 +4,7 @@ The Kroz Application Player
 This module is a UI for Linux labs.
 """
 
+from contextlib import contextmanager
 import os
 import pathlib
 import subprocess
@@ -30,7 +31,8 @@ from kroz.question import Question
 _setuphooks = []
 
 _default_config = {
-    "default_path": pathlib.Path(os.environ.get("HOME", os.getcwd()))
+    "default_path": pathlib.Path(os.environ.get("HOME", os.getcwd())),
+    "random_seed": None,
 }
 
 
@@ -321,55 +323,88 @@ class KrozApp(App):
 
     def ask(self, question: Question) -> Question.Result:
         """Ask the question."""
-        tries_left = question.tries
-        while question.tries == 0 or tries_left > 0:
+        try:
             question.setup()
+            tries_left = question.tries
+            while question.tries == 0 or tries_left > 0:
+                question.setup_attempt()
 
-            answer = self.show(
-                QuestionScreen(
-                    text=question.text,
-                    placeholder=question.placeholder,
-                    validators=question.validators,
-                    can_skip=question.can_skip,
+                answer = self.show(
+                    QuestionScreen(
+                        text=question.text,
+                        placeholder=question.placeholder,
+                        validators=question.validators,
+                        can_skip=question.can_skip,
+                    )
                 )
-            )
-            if answer is None:
-                return Question.Result.SKIPPED
+                if answer is None:
+                    worker = get_current_worker()
+                    if (
+                        hasattr(worker, "_question_group")
+                        and worker._question_group
+                    ):
+                        raise KrozApp.GroupFailedException()
 
-            try:
-                result = question.check(answer)
-            except AssertionError as e:
-                result = e
-            except Exception as e:
-                result = e
-                if question.debug:
-                    raise e
+                    return Question.Result.SKIPPED
 
-            try:
-                if isinstance(result, Exception):
-                    if isinstance(result, AssertionError):
-                        border_title = "Incorrect Answer"
+                try:
+                    result = question.check(answer)
+                except AssertionError as e:
+                    result = e
+                except Exception as e:
+                    result = e
+                    if question.debug:
+                        raise e
+
+                try:
+                    if isinstance(result, Exception):
+                        if isinstance(result, AssertionError):
+                            border_title = "Incorrect Answer"
+                        else:
+                            border_title = (
+                                f"Error: {result.__class__.__name__}"
+                            )
+                        self.show(
+                            KrozScreen(
+                                str(result),
+                                title=border_title,
+                                classes="feedback",
+                            )
+                        )
+                        tries_left -= 1
                     else:
-                        border_title = f"Error: {result.__class__.__name__}"
-                    self.show(
-                        KrozScreen(
-                            str(result),
-                            title=border_title,
-                            classes="feedback",
+                        self.update_score(question.points)
+                        self.show(
+                            KrozScreen(
+                                "# Congratulations" if not result else result,
+                                title="Success",
+                                classes="congrats",
+                            )
                         )
-                    )
-                    tries_left -= 1
-                else:
-                    self.update_score(question.points)
-                    self.show(
-                        KrozScreen(
-                            "# Congratulations" if not result else result,
-                            title="Success",
-                            classes="congrats",
-                        )
-                    )
-                    return Question.Result.CORRECT
-            finally:
-                question.cleanup()
-
+                        return Question.Result.CORRECT
+                finally:
+                    question.cleanup_attempt()
+        finally:
+            question.cleanup()
         return Question.Result.INCORRECT
+
+    @contextmanager
+    def group(self):
+        """
+        A context manager to group questions together. If any of the questions
+        in the group are skipped or answered incorrectly, the group exits
+        without asking any further questions. A question group is useful when
+        a set of questions build on each other and when the desired behavior of
+        the lab is to allow students to skip ahead, bypassing the entire group.
+        """
+        worker = get_current_worker()
+        if not hasattr(worker, "_question_group"):
+            worker._question_group = False
+        old_group = worker._question_group
+        worker._question_group = True
+        try:
+            yield
+        except KrozApp.GroupFailedException:
+            pass
+        finally:
+            self._group = old_group

@@ -2,11 +2,10 @@
 Some lab called iolab or whatever.
 """
 
-import random
-
 import kroz
 
 from kroz.question import Question
+import kroz.random as random
 from kroz.random.bigfile import random_big_file
 
 import textual.validation
@@ -22,7 +21,9 @@ class WordInBigfile(Question):
         find=(None, None),
         from_bottom=False,
         from_right=False,
+        **kwargs,
     ):
+        super().__init__(**kwargs)
         self._file = random_big_file(rows=rows, cols=cols)
         self._find = [*find]
         if find[0] is None:
@@ -104,19 +105,18 @@ class CountOranges(Question):
         Hint: Look in the manual for `grep`.
         """
 
-    def __init__(
-        self,
-    ):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._file = random_big_file(rows=10000, cols=100)
         self._solution = None
 
-    def setup(self):
+    def setup_attempt(self):
         self._file.setup()
         self._solution = int(
             self.shell(f"grep -iw orange {self._file.path}  | wc -l")
         )
 
-    def cleanup(self):
+    def cleanup_attempt(self):
         self._file.cleanup()
 
     def check(self, answer: str):
@@ -131,7 +131,8 @@ class CountOranges(Question):
 class SortedWords(Question):
     """Sort words in a file."""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._file = random_big_file(rows=1000, cols=1)
 
     @property
@@ -148,11 +149,11 @@ class SortedWords(Question):
 
     placeholder = "Word"
 
-    def setup(self):
+    def setup_attempt(self):
         self._file.setup()
         self._word = self.shell(f"sort {self._file.path} | head -n 1").strip()
 
-    def cleanup(self):
+    def cleanup_attempt(self):
         self._file.cleanup()
 
     def check(self, answer):
@@ -183,13 +184,13 @@ class UniqueWords(Question):
     validators = [textual.validation.Integer()]
     placeholder = "Number of unique words"
 
-    def setup(self):
+    def setup_attempt(self):
         self._file.setup()
         self._answer = int(
             self.shell(f"sort {self._file.path} | uniq | wc -l")
         )
 
-    def cleanup(self):
+    def cleanup_attempt(self):
         self._file.cleanup()
 
     def check(self, answer):
@@ -214,10 +215,10 @@ app = kroz.KrozApp("The I/O Lab")
 @app.main
 def main():
     app.show(WELCOME, classes="welcome")
+    app.ask(WordInBigfile(find=[None, 1]))
     app.ask(CountOranges())
     app.ask(UniqueWords(points=10))
     app.ask(SortedWords())
-    app.ask(WordInBigfile(find=[None, 1]))
     app.ask(WordInBigfile(from_bottom=True, find=[None, 1]))
     app.ask(WordInBigfile())
     app.ask(WordInBigfile(from_right=True))

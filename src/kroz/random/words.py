@@ -2,8 +2,8 @@
 Helper for streams of random words.
 """
 
+import kroz.random as random
 from os import PathLike
-import random
 from typing import Union
 from kroz import setup_hook, get_appconfig
 
@@ -22,9 +22,9 @@ class RandomWord:
         Initialize the randomizer. This must be done before any other calls
         can be used.
         """
-        with open(dictionary) as w:
-            for word in w:
-                self._words.append(word.strip())
+
+        with open(dictionary) as fh:
+            self._words = [w.strip() for w in fh]
 
     def choice(self) -> str:
         """Return a single random word."""
@@ -58,5 +58,7 @@ def _setup():
 
 setup_hook(
     hook=_setup,
-    defconfig={"dictionary": "/usr/share/dict/words"},
+    defconfig={
+        "dictionary": "/usr/share/dict/words",
+    },
 )

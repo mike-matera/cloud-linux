@@ -5,7 +5,8 @@ from kroz.question import Question
 from kroz.random.directory import random_directory
 from kroz.random.words import random_words
 
-app = KrozApp("Like a BOSS!")
+
+app = KrozApp("Like a BOSS!", user_config={"random_seed": 1})
 
 WELCOME = """
 # Use Linux Like a BOSS!
@@ -98,7 +99,7 @@ class DeepMessage(Question):
             "Files/deep/there's/a/light/over/at/the/Frankenstein/place/there's/a/li/ii/ii/ii/ii/ii/ii/ight/burning/in/the/fire/place"
         )
         file = path / ".secret"
-        path.mkdir(parents=True)
+        path.mkdir(parents=True, exist_ok=True)
         with open(file.resolve(), "w") as fh:
             fh.write(self._answer + "\n")
 
@@ -109,10 +110,10 @@ class DeepMessage(Question):
 @app.main
 def main():
     app.show(WELCOME, classes="welcome")
-    app.ask(DeepMessage())
+    app.ask(RandomRando())
     app.ask(RandomDeleteMe())
     app.ask(RandomRandoTick())
-    app.ask(RandomRando())
+    app.ask(DeepMessage())
 
 
 if __name__ == "__main__":

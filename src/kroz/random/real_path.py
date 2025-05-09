@@ -5,7 +5,7 @@ Randomized system paths.
 from collections import namedtuple
 from collections.abc import Callable, Generator
 import pathlib
-import random
+import kroz.random as random
 from typing import Iterable
 
 from kroz import setup_hook, get_appconfig

@@ -50,15 +50,28 @@ class Question(ABC):
 
     def setup(self) -> None:
         """
-        This optional method is called before the question is displayed to the
-        user. Use it to setup the question if needed.
+        This optional method is called once before the question is first
+        displayed to the student. Put setup tasks that only run once in it.
         """
 
     def cleanup(self):
         """
-        This optional method is called after the question is answered correctly
-        or it has been skipped. Use it to cleanup after the question if
-        necessary.
+        This optional method is called after the user has finished the question
+        successfully or unsuccessfully. Any final cleanup tasks should run
+        here.
+        """
+
+    def setup_attempt(self) -> None:
+        """
+        This optional method is called each time before the question is
+        displayed to the student. If the question allows multiple attempts it
+        will be called just before every attempt.
+        """
+
+    def cleanup_attempt(self):
+        """
+        This optional method is called each time after the question has been
+        answered. Use it to cleanup after the attempt if necessary.
         """
 
     def shell(self, command):
