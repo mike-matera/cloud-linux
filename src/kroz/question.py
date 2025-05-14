@@ -20,9 +20,18 @@ class Question(ABC):
         SKIPPED = 3
         CHECKPOINTED = 4
 
+    # The displayed text of the question. Interpreted as Markdown
     text: str = None
+
+    # Textual Validators that will be used by the input. Help students get the
+    # right type of answer (e.g. int)
     validators: Iterable[Validator] = []
+
+    # Placeholder that will show in the empty Input. Help students figure out
+    # what the answer should look like.
     placeholder: str = "Answer"
+
+    # Number of tries
     tries: int = 0
     can_skip: bool = True
     points: int = 0
@@ -46,8 +55,6 @@ class Question(ABC):
         Other exceptions will be displayed as feedback with no stack trace,
         unless debugging is enabled. When debugging is on non-`AssertionError`s
         will crash the app and be displayed on the console.
-
-        FIXME: Debugging!
         """
 
     def setup(self) -> None:

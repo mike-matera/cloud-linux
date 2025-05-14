@@ -210,13 +210,32 @@ class KrozApp(App):
     score: Reactive[int] = Reactive(0)
     score_format: Reactive[str] = Reactive("Score: {score}")
 
-    def __init__(self, title: str, **user_config):
+    def __init__(
+        self,
+        title: str,
+        default_path: str = None,
+        random_seed: int = None,
+        secret: str = None,
+        home: str = None,
+        state_file: str = None,
+        **user_config,
+    ):
         super().__init__()
         self.title = title
         self._main_func = lambda: ...
         self._main_worker = None
         self._config = {}
         self._user_config = user_config
+        if default_path:
+            self._user_config["default_path"] = default_path
+        if random_seed:
+            self._user_config["random_seed"] = random_seed
+        if secret:
+            self._user_config["secret"] = secret
+        if home:
+            self._user_config["home"] = home
+        if state_file:
+            self._user_config["state_file"] = state_file
         self._showing = None
         self._progress_screen = None
         self._state = None
@@ -266,6 +285,7 @@ class KrozApp(App):
         self._main_worker = self.run_worker(
             self._run_user_app, "main", thread=True
         )
+        self._main_worker._question_group = False
 
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
@@ -349,6 +369,7 @@ class KrozApp(App):
 
     def ask(self, question: Question) -> Question.Result:
         """Ask the question."""
+        worker = get_current_worker()
         checkpoint_result = Question.Result.INCORRECT
         if (
             question.checkpoint is not None
@@ -356,6 +377,10 @@ class KrozApp(App):
             and self.state["checkpoints"][question.checkpoint]
             == "Result.CORRECT"
         ):
+            if worker._question_group:
+                raise RuntimeError(
+                    "You can't checkpoint questions in a group."
+                )
             self.score += question.points
             return Question.Result.CHECKPOINTED
         try:
@@ -364,6 +389,18 @@ class KrozApp(App):
             while question.tries == 0 or tries_left > 0:
                 question.setup_attempt()
 
+                if tries_left >= 2:
+                    self.notify(
+                        f"You have {tries_left} tries left.",
+                        title="Notice",
+                        severity="warning",
+                    )
+                elif tries_left == 1:
+                    self.notify(
+                        "You have one try left!",
+                        title="Last Try",
+                        severity="error",
+                    )
                 answer = self.show(
                     QuestionScreen(
                         text=question.text,
@@ -373,11 +410,7 @@ class KrozApp(App):
                     )
                 )
                 if answer is None:
-                    worker = get_current_worker()
-                    if (
-                        hasattr(worker, "_question_group")
-                        and worker._question_group
-                    ):
+                    if worker._question_group:
                         raise KrozApp.GroupFailedException()
 
                     checkpoint_result = Question.Result.SKIPPED
@@ -442,10 +475,9 @@ class KrozApp(App):
         the lab is to allow students to skip ahead, bypassing the entire group.
         """
         worker = get_current_worker()
-        if not hasattr(worker, "_question_group"):
-            worker._question_group = False
         old_group = worker._question_group
         worker._question_group = True
+
         try:
             yield
         except KrozApp.GroupFailedException:
