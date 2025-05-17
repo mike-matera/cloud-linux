@@ -4,9 +4,14 @@ Abstract Question Base
 
 from abc import ABC, abstractmethod
 from enum import Enum
+import random
+import re
 import subprocess
+import textwrap
 from typing import Iterable
+import textual
 from textual.validation import Validator
+import textual.validation
 
 
 class Question(ABC):
@@ -36,7 +41,7 @@ class Question(ABC):
     can_skip: bool = True
     points: int = 0
     debug: bool = False
-    checkpoint: str = None
+    checkpoint: bool = False
 
     def __init__(self, **kwargs):
         for key in kwargs:
@@ -44,6 +49,23 @@ class Question(ABC):
                 setattr(self, key, kwargs[key])
             else:
                 raise RuntimeError(f"Invalid keyword argument: {key}")
+
+    @property
+    def name(self) -> str:
+        """
+        This is the identifier used to checkpoint this question. It should be
+        unique inside of a lab to ensure checkpoints work correctly. If not
+        specified it will be the name of the class.
+        """
+        if hasattr(self, "_name"):
+            return self._name
+        else:
+            return f"{self.__module__}.{self.__class__.__name__}"
+
+    @name.setter
+    def name(self, value):
+        """Set the name so subclasses and instances can override the name."""
+        self._name = value
 
     @abstractmethod
     def check(self, answer: str) -> None:
@@ -95,3 +117,108 @@ class Question(ABC):
             stdout=subprocess.PIPE,
             encoding="utf-8",
         ).stdout
+
+
+class MultipleChoiceQuestion(Question):
+    """A multiple choice question for the KROZ player."""
+
+    placeholder = "Enter the choice number."
+
+    def __init__(self, text: str, *choices: str, help: str = None, **kwargs):
+        super().__init__(**kwargs)
+        self._text = text
+        self._solution = choices[0]
+        self._choices = list(choices)
+        self._help = help
+
+    @property
+    def validators(self) -> textual.validation.Validator:
+        return [
+            textual.validation.Integer(minimum=1, maximum=len(self._choices))
+        ]
+
+    @property
+    def name(self) -> str:
+        return self._text
+
+    @property
+    def text(self):
+        random.shuffle(self._choices)
+        text = textwrap.dedent(f"""
+        # Multiple Choice 
+
+        {self._text}
+
+        """)
+        for i, c in enumerate(self._choices):
+            text += f"{i + 1}. {c}\n"
+        return text
+
+    def check(self, answer):
+        assert self._choices[int(answer) - 1] == self._solution, (
+            self._help if self._help is not None else "That's not correct."
+        )
+
+
+class TrueOrFalseQuestion(Question):
+    """A true or false question for the KROZ player."""
+
+    placeholder = "Enter t or f"
+
+    def __init__(self, text: str, solution: bool, help: str = None, **kwargs):
+        super().__init__(**kwargs)
+        self._text = text
+        self._solution = solution
+        self._help = help
+
+    validators = textual.validation.Regex(
+        r"\s*[tf]\s*", re.I, failure_description="""Enter t or f"""
+    )
+
+    @property
+    def name(self) -> str:
+        return self._text
+
+    @property
+    def text(self):
+        text = f"""
+        # True or False?
+
+        {self._text}
+
+        """
+        return text
+
+    def check(self, answer):
+        assert self._solution == (answer.strip() in ["T", "t"]), (
+            self._help if self._help is not None else "That's not correct."
+        )
+
+
+class ShortAnswerQuestion(Question):
+    """A (vert) short answer question for the KROZ player."""
+
+    def __init__(self, text: str, solution: bool, help: str = None, **kwargs):
+        super().__init__(**kwargs)
+        self._text = text
+        self._solution = solution
+        self._help = help
+
+    @property
+    def name(self) -> str:
+        return self._text
+
+    @property
+    def text(self):
+        text = f"""
+        # Question
+
+        {self._text}
+
+        """
+        return text
+
+    def check(self, answer):
+        assert self._solution == answer.strip(), (
+            self._help if self._help is not None else "That's not correct."
+        )

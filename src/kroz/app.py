@@ -185,7 +185,7 @@ class ScoreMessage(Message):
         self._to = to
 
 
-class KrozApp(App):
+class KrozApp(App[str]):
     """
     A Kroz UI application. The application enables the construction of gamified
     Linux labs. Client code provides a `main()` function that is called by the
@@ -290,11 +290,7 @@ class KrozApp(App):
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
         if event.worker.name == "main" and event.worker.is_finished:
-            cc = ConfirmationCode(key=self.config["secret"])
-            self.exit(
-                0,
-                message=f"Your confirmation code is: {cc.confirmation({'score': self.score})}",
-            )
+            self.exit(result=self.confirmation(), return_code=0)
 
     def on_score_message(self, msg: ScoreMessage):
         if msg._update:
@@ -335,22 +331,24 @@ class KrozApp(App):
 
         super().post_message(message)
 
-    def show(self, screen: str | Screen, classes: str = "") -> Any:
+    def show(
+        self, screen: str | Screen, classes: str = "", title: str = None
+    ) -> Any:
         """Show a screen."""
 
         worker = get_current_worker()
         if worker.is_cancelled:
             raise KrozApp.CancelledWorkerException()
-        result = self.call_from_thread(self._show, screen, classes)
+        result = self.call_from_thread(self._show, screen, classes, title)
         if worker.is_cancelled:
             raise KrozApp.CancelledWorkerException()
         return result
 
-    async def _show(self, screen: str | Screen, classes: str) -> None:
+    async def _show(
+        self, screen: str | Screen, classes: str, title: str
+    ) -> None:
         if isinstance(screen, str):
-            self._showing = KrozScreen(
-                screen, title="Welcome", classes=classes
-            )
+            self._showing = KrozScreen(screen, classes=classes, title=title)
         elif isinstance(screen, Screen):
             self._showing = screen
         else:
@@ -372,10 +370,9 @@ class KrozApp(App):
         worker = get_current_worker()
         checkpoint_result = Question.Result.INCORRECT
         if (
-            question.checkpoint is not None
-            and question.checkpoint in self.state["checkpoints"]
-            and self.state["checkpoints"][question.checkpoint]
-            == "Result.CORRECT"
+            question.checkpoint
+            and question.name in self.state["checkpoints"]
+            and self.state["checkpoints"][question.name] == "Result.CORRECT"
         ):
             if worker._question_group:
                 raise RuntimeError(
@@ -457,8 +454,8 @@ class KrozApp(App):
                     question.cleanup_attempt()
         finally:
             question.cleanup()
-            if question.checkpoint is not None:
-                self.state["checkpoints"][question.checkpoint] = str(
+            if question.checkpoint:
+                self.state["checkpoints"][question.name] = str(
                     checkpoint_result
                 )
                 self.state.store()
@@ -496,3 +493,9 @@ class KrozApp(App):
         if self._state is None:
             raise RuntimeError("No state file was given, can't save state.")
         return self._state
+
+    def confirmation(self):
+        """Get the base64 encoded confirmation code."""
+        return ConfirmationCode(key=self.config["secret"]).confirmation(
+            {"score": self.score}
+        )
