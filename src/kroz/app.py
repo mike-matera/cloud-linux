@@ -447,7 +447,6 @@ class KrozApp(App[str]):
                                 classes="congrats",
                             )
                         )
-                        self.score += question.points
                         checkpoint_result = Question.Result.CORRECT
                         return Question.Result.CORRECT
                 finally:
