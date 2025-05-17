@@ -157,7 +157,8 @@ class NewYearFuture(Question):
 
     @property
     def text(self):
-        return f"""# Future New Year
+        return f"""
+        # Future New Year
         
         On what day of the week does new year's eve fall on in the
         year {self._year}?"""
