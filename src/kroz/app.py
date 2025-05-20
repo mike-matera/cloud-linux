@@ -7,7 +7,6 @@ This module is a UI for Linux labs.
 from contextlib import contextmanager
 import os
 import pathlib
-import subprocess
 from enum import Enum
 from typing import Any, Callable
 import uuid
@@ -30,6 +29,7 @@ from kroz.secrets import ConfirmationCode, JsonBoxFile
 from kroz.widget.score_header import ScoreHeader
 from kroz.question import Question
 
+from kroz.terminal import Terminal
 
 _setuphooks = []
 
@@ -315,8 +315,27 @@ class KrozApp(App[str]):
                 self._progress_screen._task_log.write(msg.message)
 
     def action_shell_escape(self):
-        with self.suspend():
-            subprocess.run("$SHELL", shell=True)
+        class TerminalScreen(Screen):
+            def compose(self):
+                yield Terminal(
+                    command="/usr/bin/bash",
+                    id="terminal",
+                )
+
+            def on_mount(self) -> None:
+                terminal: Terminal = self.query_one("#terminal")
+                terminal.start()
+
+            def on_terminal_started(self, event: Terminal.Started) -> None:
+                self.log("terminal started:", event)
+
+            def on_terminal_stopped(self, event: Terminal.Stopped) -> None:
+                self.log("terminal stopped:", event)
+                self.dismiss()
+
+        self.push_screen(TerminalScreen())
+        # with self.suspend():
+        #    subprocess.run("$SHELL", shell=True)
 
     async def action_cleanup_quit(self):
         self.workers.cancel_all()

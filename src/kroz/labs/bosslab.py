@@ -1,7 +1,12 @@
 import pathlib
 from kroz import KrozApp
 from kroz.app import get_appconfig
-from kroz.question import Question
+from kroz.question import (
+    MultipleChoiceQuestion,
+    Question,
+    ShortAnswerQuestion,
+    TrueOrFalseQuestion,
+)
 from kroz.random.bigdir import random_directory
 from kroz.random.words import random_words
 
@@ -107,9 +112,36 @@ In this lab you will use the advanced command features you learned in X Y
 """
 
 
+class Test(MultipleChoiceQuestion):
+    pass
+
+
 @app.main
 def main():
     app.show(WELCOME, classes="welcome")
+
+    app.ask(
+        ShortAnswerQuestion(
+            "What command shows you a calendar?",
+            "cal",
+            help="Really butt munch?",
+        )
+    )
+
+    app.ask(
+        TrueOrFalseQuestion("Linux is rad.", True, help="Really butt munch?")
+    )
+    app.ask(
+        MultipleChoiceQuestion(
+            "What the fuck?",
+            "Suck?",
+            "Fuck?",
+            "Duck?",
+            "Schmuck?",
+            help="Eat shit and die.",
+        )
+    )
+
     app.ask(RandomRando(points=10, checkpoint="1"))
     app.ask(RandomDeleteMe(points=10, checkpoint="2"))
     app.ask(RandomRandoTick(points=10, checkpoint="3"))

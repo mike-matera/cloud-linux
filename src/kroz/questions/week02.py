@@ -185,17 +185,6 @@ class WhatsUname(Question):
         HARDWARE_PLATFORM = ("-i", "the hardware platform")
         OPERATING_SYSTEM = ("-o", "the operating system")
 
-    #  -a, --all                print all information, in the following order,
-    #                             except omit -p and -i if unknown:
-    #  -s, --kernel-name        print the kernel name
-    #  -n, --nodename           print the network node hostname
-    #  -r, --kernel-release     print the kernel release
-    #  -v, --kernel-version     print the kernel version
-    #  -m, --machine            print the machine hardware name
-    #  -p, --processor          print the processor type (non-portable)
-    #  -i, --hardware-platform  print the hardware platform (non-portable)
-    #  -o, --operating-system   print the operating system
-
     def __init__(self, key: Keys, **kwargs):
         super().__init__(**kwargs)
         assert isinstance(key, WhatsUname.Keys), """Bad key"""
