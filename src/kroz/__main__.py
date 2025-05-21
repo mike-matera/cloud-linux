@@ -81,6 +81,7 @@ def main() -> int:
         title="subcommands",
         description="valid subcommands",
         help="additional help",
+        required=True,
     )
 
     secrets_cli(subparsers)
