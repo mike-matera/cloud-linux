@@ -1,6 +1,9 @@
 """
 A terminal emulator for Textual.
 
+Adapted from this dead project:
+https://github.com/mitosch/textual-terminal
+
 Based on David Brochart's pyte example:
 https://github.com/selectel/pyte/blob/master/examples/terminal_emulator.py
 """
