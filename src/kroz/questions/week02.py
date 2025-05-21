@@ -92,7 +92,7 @@ questions = [
 class FreeMemory(Question):
     """Use the `free` command."""
 
-    def __init__(self, key, **kwargs):
+    def __init__(self, key: str, **kwargs):
         """Key should correspond exactly to a column from `free`"""
         super().__init__(**kwargs)
         self.get_key(key)  # Validate

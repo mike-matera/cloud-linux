@@ -40,7 +40,7 @@ class FlagFile(Question):
 
     def setup(self):
         self._secret = random_real_path().random_file().resolve()
-        self._flag = Path(get_appconfig("default_dir")) / "flag"
+        self._flag = Path(get_appconfig("default_path")) / "flag"
         with open(self._flag, "w") as fh:
             fh.write(self.flag())
 

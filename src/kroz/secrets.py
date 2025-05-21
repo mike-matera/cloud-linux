@@ -8,13 +8,12 @@ import platform
 import getpass
 import json
 import datetime
-import argparse
+import uuid
 import nacl.secret
 import nacl.exceptions
 import nacl.encoding
 import pathlib
 import sys
-import uuid
 
 from typing import Any
 
@@ -119,15 +118,12 @@ class ConfirmationCode:
         return data
 
 
-def main():
-    """
-    Decode confirmation numbers from stdin.
-    """
-
-    parser = argparse.ArgumentParser(
-        description="Process confirmation numbers from stdin."
+def cli(subparsers):
+    secrets_parser = subparsers.add_parser(
+        "secrets", help="Decode secrets from STDIN."
     )
-    parser.add_argument(
+
+    secrets_parser.add_argument(
         "-k",
         "--key",
         type=str,
@@ -135,11 +131,16 @@ def main():
         default=str(uuid.getnode()),
         help="The key used for operations.",
     )
-    parser.add_argument(
+    secrets_parser.add_argument(
         "-f", "--file", type=str, help="The encrypted file to read."
     )
+    secrets_parser.set_defaults(func=main)
 
-    args = parser.parse_args()
+
+def main(args):
+    """
+    Decode confirmation numbers from stdin.
+    """
 
     vault = ConfirmationCode(key=args.key)
 
@@ -174,7 +175,3 @@ def main():
                         pass
     else:
         print(JsonBoxFile(key=args.key, filename=args.file)._data)
-
-
-if __name__ == "__main__":
-    main()
