@@ -111,11 +111,10 @@ class FreeMemory(Question):
     def check(self, answer):
         answer = int(answer)
         solution = self.get_key(self._key)
-        assert abs(solution - answer) < (
-            solution * 0.1
-        ), """That's not the correct answer. 
+        assert abs(solution - answer) < (solution * 0.1), """
+            That's not the correct answer. 
             
-            *It's possible that some values change rapidly. Please check your 
+            *It's possible that memory values change rapidly. Please check your 
             work and try again.*
             """
 
@@ -234,9 +233,8 @@ class OsRelease(Question):
         """
 
     def check(self, answer):
-        assert (
-            self._solution == answer.replace('"', "").strip()
-        ), """That's not correct. The command that shows you operating system
+        assert self._solution == answer.replace('"', "").strip(), """
+            That's not correct. The command that shows you operating system
             information also shows a lot of other information. Make sure you find
             the exact information that I asked for. 
             """

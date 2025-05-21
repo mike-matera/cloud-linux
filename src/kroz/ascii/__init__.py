@@ -19,3 +19,4 @@ def from_file(filename, format="raw", indent=0):
 #    return files("kroz.ascii").joinpath("robot.txt").read_text()
 
 robot = functools.partial(from_file, filename="robot.txt")
+tux = functools.partial(from_file, filename="tux.txt")
