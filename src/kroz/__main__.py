@@ -63,7 +63,7 @@ def ask(args) -> int:
         else:
             kwargs[key] = val
 
-    app = KrozApp(module)
+    app = KrozApp(module, debug=True)
 
     def _main():
         app.ask(modns[question](**kwargs))
