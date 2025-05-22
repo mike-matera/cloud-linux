@@ -29,7 +29,7 @@ class Islands2(Question):
     debug = True
 
     try:
-        cis90_grp = grp.getgrnam("cis90").gr_gid
+        grp.getgrnam("cis90")
         cis90_grp = "cis90"
     except KeyError:
         cis90_grp = "adm"  # for testing on my machine
@@ -122,7 +122,7 @@ class Islands2(Question):
                 newpath = Path("Fictional") / file.path
                 newperms = 0o600
             else:
-                raise ValueError("Ooops!")
+                raise ValueError("Ooops:", file.contents)
             self.check_files.files.append(
                 CheckFile(
                     newpath,

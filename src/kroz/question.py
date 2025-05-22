@@ -26,24 +26,25 @@ class Question(ABC):
         CHECKPOINTED = 4
 
     # The displayed text of the question. Interpreted as Markdown
-    text: str = None
+    text: str | property
 
     # Textual Validators that will be used by the input. Help students get the
     # right type of answer (e.g. int)
-    validators: Iterable[Validator] = []
+    validators: Validator | Iterable[Validator] | property = []
 
     # Placeholder that will show in the empty Input. Help students figure out
     # what the answer should look like.
-    placeholder: str = "Answer"
+    placeholder: str | property = "Answer"
 
     # Number of tries
-    tries: int = 0
-    can_skip: bool = True
-    points: int = 0
-    debug: bool = False
-    checkpoint: bool = False
+    tries: int | property = 0
+    can_skip: bool | property = True
+    points: int | property = 0
+    checkpoint: bool | property = False
+    debug: bool | property = False
 
     def __init__(self, **kwargs):
+        self._name: str | None = None
         for key in kwargs:
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
@@ -57,7 +58,7 @@ class Question(ABC):
         unique inside of a lab to ensure checkpoints work correctly. If not
         specified it will be the name of the class.
         """
-        if hasattr(self, "_name"):
+        if self._name:
             return self._name
         else:
             return f"{self.__module__}.{self.__class__.__name__}"
@@ -124,22 +125,21 @@ class MultipleChoiceQuestion(Question):
 
     placeholder = "Enter the choice number."
 
-    def __init__(self, text: str, *choices: str, help: str = None, **kwargs):
+    def __init__(
+        self, text: str, *choices: str, help: str | None = None, **kwargs
+    ):
         super().__init__(**kwargs)
         self._text = text
         self._solution = choices[0]
         self._choices = list(choices)
         self._help = help
+        self.name = text
 
     @property
-    def validators(self) -> textual.validation.Validator:
+    def validators(self) -> list[textual.validation.Validator]:
         return [
             textual.validation.Integer(minimum=1, maximum=len(self._choices))
         ]
-
-    @property
-    def name(self) -> str:
-        return self._text
 
     @property
     def text(self):
@@ -165,19 +165,20 @@ class TrueOrFalseQuestion(Question):
 
     placeholder = "Enter t or f"
 
-    def __init__(self, text: str, solution: bool, help: str = None, **kwargs):
+    def __init__(
+        self, text: str, solution: bool, help: str | None = None, **kwargs
+    ):
         super().__init__(**kwargs)
         self._text = text
         self._solution = solution
         self._help = help
+        self.name = text
 
-    validators = textual.validation.Regex(
-        r"\s*[tf]\s*", re.I, failure_description="""Enter t or f"""
-    )
-
-    @property
-    def name(self) -> str:
-        return self._text
+    validators = [
+        textual.validation.Regex(
+            r"\s*[tf]\s*", re.I, failure_description="""Enter t or f"""
+        )
+    ]
 
     @property
     def text(self):
@@ -198,15 +199,14 @@ class TrueOrFalseQuestion(Question):
 class ShortAnswerQuestion(Question):
     """A (vert) short answer question for the KROZ player."""
 
-    def __init__(self, text: str, solution: bool, help: str = None, **kwargs):
+    def __init__(
+        self, text: str, solution: str, help: str | None = None, **kwargs
+    ):
         super().__init__(**kwargs)
         self._text = text
         self._solution = solution
         self._help = help
-
-    @property
-    def name(self) -> str:
-        return self._text
+        self.name = text
 
     @property
     def text(self):

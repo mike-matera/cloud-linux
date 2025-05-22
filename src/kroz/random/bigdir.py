@@ -4,7 +4,6 @@ Make a directory of random files.
 
 from os import PathLike
 import pathlib
-from typing import Union
 from kroz import setup_hook
 from kroz.app import get_appconfig, notify
 from .path import CheckPath, CheckFile
@@ -20,7 +19,7 @@ class RandomDirectory:
 
     def __init__(
         self,
-        name: Union[str | PathLike[str]],
+        name: str | PathLike[str],
         count: int,
         rows: int,
         cols: int,
@@ -41,7 +40,7 @@ class RandomDirectory:
         self.checkpath = CheckPath(self.name)
         for _ in range(self.count):
             rbf = RandomBigFile(
-                name=None,
+                path=None,
                 rows=self.rows,
                 cols=self.cols,
                 sep=self.sep,
@@ -49,7 +48,7 @@ class RandomDirectory:
             )
             rbf.setup()
             self.checkpath.files.append(
-                CheckFile(random_words().choice(), contents=rbf)
+                CheckFile(random_words().choice(), contents=str(rbf))
             )
         self.checkpath.sync()
         notify(
@@ -59,10 +58,12 @@ class RandomDirectory:
 
     def filter(self, function):
         """Return a CheckPath that's filtered by the function."""
+        assert self.checkpath is not None, """Setup has not been run."""
         return self.checkpath.filter(function)
 
     def cleanup(self):
         """Clean up the random directory."""
+        assert self.checkpath is not None, """Setup has not been run."""
         self.checkpath.cleanup()
 
 

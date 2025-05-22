@@ -51,7 +51,7 @@ class JsonBoxFile:
 
     def load(self):
         try:
-            with open(self._path) as fh:
+            with open(self._path, "b") as fh:
                 self._data = json.loads(
                     self._box.decrypt(
                         fh.read(), encoder=nacl.encoding.URLSafeBase64Encoder
@@ -79,7 +79,7 @@ class ConfirmationCode:
     Access to secret codes and data files.
     """
 
-    def __init__(self, key: str = None):
+    def __init__(self, key: str):
         self.key = hashlib.blake2b(
             key.encode("utf-8"), digest_size=nacl.secret.SecretBox.KEY_SIZE
         ).digest()

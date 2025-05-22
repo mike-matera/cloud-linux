@@ -16,7 +16,7 @@ from textual.binding import Binding
 
 from typing import Iterable
 from textual.validation import Validator
-
+from textual.app import ComposeResult
 
 from textual import on
 from textual.widgets import (
@@ -56,7 +56,7 @@ class KrozScreen(Screen[str]):
         self,
         text: str,
         *,
-        title: str = None,
+        title: str | None = None,
         can_skip: bool = False,
         **kwargs,
     ):
@@ -65,7 +65,7 @@ class KrozScreen(Screen[str]):
         self._can_skip = can_skip
         self._text_title = title
 
-    def compose(self):
+    def compose(self) -> ComposeResult:
         yield ScoreHeader()
         yield Footer()
         yield MarkdownViewer(
@@ -131,7 +131,7 @@ class QuestionScreen(KrozScreen):
         self,
         text: str,
         placeholder: str,
-        validators: Iterable[Validator],
+        validators: Validator | Iterable[Validator],
         **kwargs,
     ):
         super().__init__(text, **kwargs)
@@ -139,7 +139,7 @@ class QuestionScreen(KrozScreen):
         self._validators = validators
         self._result = None
 
-    def compose(self):
+    def compose(self) -> ComposeResult:
         yield from super().compose()
         with VerticalGroup(classes="answer"):
             with HorizontalGroup():
@@ -156,7 +156,7 @@ class QuestionScreen(KrozScreen):
 
     @on(Input.Submitted)
     async def submit(self, event: Input.Changed) -> None:
-        input = self.query_one("Input")
+        input: Input = self.query_one("Input")  # type: ignore
         query = self.query("#validation")
         if query:
             feedback = query.first()
@@ -167,7 +167,7 @@ class QuestionScreen(KrozScreen):
         if not event.validation_result or event.validation_result.is_valid:
             self.dismiss(event.value)
         else:
-            self.query_one("#validation").update(
+            self.query_one("#validation").update(  # type: ignore
                 "\n".join(
                     (
                         f"❌ {x}"

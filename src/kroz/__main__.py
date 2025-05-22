@@ -8,7 +8,7 @@ from kroz.secrets import cli as secrets_cli
 from kroz.app import KrozApp
 
 
-def run(args):
+def run(args) -> int:
     """Run a script or a module"""
     module: str = args.module
     if module.endswith(".py"):
@@ -25,18 +25,17 @@ def run(args):
         modns = runpy.run_module(mod)
 
     if app not in modns:
-        raise RuntimeError(
-            f"""No application named "{app}" is in module {mod}"""
-        )
+        raise RuntimeError(f"""No application named "{app}" is in {module}""")
     if not isinstance(modns[app], KrozApp):
         raise RuntimeError(
-            f"""The member named "{app}" is not a KrozApp in module {mod}"""
+            f"""The member named "{app}" is not a KrozApp in {module}"""
         )
     modns[app]._debug = args.debug
     modns[app].run()
+    return 0
 
 
-def ask(args):
+def ask(args) -> int:
     """
     Ask a single question by creating an instance and a wrapper application. The
     question is instantiated using the supplied arguments which must be in the
@@ -71,6 +70,7 @@ def ask(args):
 
     app.main(_main)
     app.run()
+    return 0
 
 
 def main() -> int:
@@ -108,7 +108,7 @@ def main() -> int:
     askparser.set_defaults(func=ask)
 
     args = parser.parse_args()
-    args.func(args)
+    return args.func(args)
 
 
 if __name__ == "__main__":

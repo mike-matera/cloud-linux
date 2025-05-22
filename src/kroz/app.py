@@ -9,7 +9,8 @@ import os
 import pathlib
 from enum import Enum
 import subprocess
-from typing import Any, Callable
+from typing import Any, Literal
+from collections.abc import Callable
 import uuid
 
 from textual.app import App
@@ -23,7 +24,7 @@ from textual.widgets import (
     ProgressBar,
     RichLog,
 )
-from textual.worker import Worker, WorkType, get_current_worker
+from textual.worker import Worker, get_current_worker
 
 from kroz.screen import KrozScreen, QuestionScreen
 from kroz.secrets import ConfirmationCode, JsonBoxFile
@@ -40,27 +41,6 @@ _default_config = {
     "config_dir": None,
     "state_file": None,
 }
-
-
-def get_app() -> dict:
-    return get_current_worker().node
-
-
-def get_appconfig(key: str) -> dict:
-    return get_current_worker().node.config[key]
-
-
-def setup_hook(*, hook: Callable[[], None] = None, defconfig={}) -> None:
-    global _setuphooks, _default_config
-    if hook is not None:
-        _setuphooks.append(hook)
-    _default_config.update(defconfig)
-
-
-def notify(message, *, title=None, severity="information", timeout=None):
-    get_current_worker().node.notify(
-        message, title=title, severity=severity, timeout=timeout
-    )
 
 
 class progress:
@@ -213,19 +193,19 @@ class KrozApp(App[str]):
     def __init__(
         self,
         title: str,
-        default_path: str = None,
-        random_seed: int = None,
-        secret: str = None,
-        config_dir: str = None,
-        state_file: str = None,
+        default_path: str | None = None,
+        random_seed: int | None = None,
+        secret: str | None = None,
+        config_dir: str | None = None,
+        state_file: str | None = None,
         debug: bool = False,
         **user_config,
     ):
         super().__init__()
         self.title = title
         self._debug = debug
-        self._main_func = lambda: ...
-        self._main_worker = None
+        self._main_func: Callable[[], None] = lambda: None
+        self._main_worker: Worker | None = None
         self._config = {}
         self._user_config = user_config
         if default_path:
@@ -239,7 +219,7 @@ class KrozApp(App[str]):
         if state_file:
             self._user_config["state_file"] = state_file
         self._showing = None
-        self._progress_screen = None
+        self._progress_screen: ProgressScreen | None = None
         self._state = None
 
     def compose(self):
@@ -275,19 +255,21 @@ class KrozApp(App[str]):
             if self._config["state_file"] is not None:
                 self._state = JsonBoxFile(
                     self._config["secret"],
-                    self._config["config_dir"] / self._config["state_file"],
+                    (
+                        self._config["config_dir"] / self._config["state_file"]
+                    ).with_suffix(".krs"),
                 )
                 if "checkpoints" not in self._state:
                     self._state["checkpoints"] = {}
 
             for hook in _setuphooks:
                 hook()
-            self._main_func()
+            self._main_func()  # type: ignore
         except KrozApp.CancelledWorkerException:
             # Don't propagate
             pass
 
-    def main(self, func: WorkType):
+    def main(self, func: Callable[[], None]):
         """Decorator for the main() function."""
         self._main_func = func
         return func
@@ -296,7 +278,7 @@ class KrozApp(App[str]):
         self._main_worker = self.run_worker(
             self._run_user_app, "main", thread=True
         )
-        self._main_worker._question_group = False
+        self._main_worker._question_group = False  # type: ignore
 
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
@@ -313,10 +295,16 @@ class KrozApp(App[str]):
         if msg.state == progress.ProgressMessage.State.START:
             self._progress_screen = ProgressScreen(msg.message)
             self.push_screen(self._progress_screen)
-        elif msg.state == progress.ProgressMessage.State.STOP:
+        elif (
+            self._progress_screen
+            and msg.state == progress.ProgressMessage.State.STOP
+        ):
             self._progress_screen.dismiss()
             self._progress_screen = None
-        elif msg.state == progress.ProgressMessage.State.UPDATE:
+        elif (
+            self._progress_screen
+            and msg.state == progress.ProgressMessage.State.UPDATE
+        ):
             if msg.percent:
                 self._progress_screen._progress.total = 100
                 self._progress_screen._progress.progress = msg.percent
@@ -348,7 +336,7 @@ class KrozApp(App[str]):
     async def action_cleanup_quit(self):
         self.workers.cancel_all()
 
-    def post_message(self, message: Message):
+    def post_message(self, message: Message) -> bool:
         # Kill canceled workers that send a progress message.
         if (
             isinstance(message, progress.ProgressMessage)
@@ -356,10 +344,10 @@ class KrozApp(App[str]):
         ):
             raise KrozApp.CancelledWorkerException()
 
-        super().post_message(message)
+        return super().post_message(message)
 
     def show(
-        self, screen: str | Screen, classes: str = "", title: str = None
+        self, screen: str | Screen, classes: str = "", title: str | None = None
     ) -> Any:
         """Show a screen."""
 
@@ -406,7 +394,7 @@ class KrozApp(App[str]):
             and question.name in self.state["checkpoints"]
             and self.state["checkpoints"][question.name] == "Result.CORRECT"
         ):
-            if worker._question_group:
+            if worker._question_group:  # type: ignore
                 raise RuntimeError(
                     "You can't checkpoint questions in a group."
                 )
@@ -444,7 +432,7 @@ class KrozApp(App[str]):
                         checkpoint_result = Question.Result.CORRECT
                         return Question.Result.CORRECT
 
-                    if worker._question_group:
+                    if worker._question_group:  # type: ignore
                         raise KrozApp.GroupFailedException()
 
                     checkpoint_result = Question.Result.SKIPPED
@@ -508,8 +496,8 @@ class KrozApp(App[str]):
         the lab is to allow students to skip ahead, bypassing the entire group.
         """
         worker = get_current_worker()
-        old_group = worker._question_group
-        worker._question_group = True
+        old_group = worker._question_group  # type: ignore
+        worker._question_group = True  # type: ignore
 
         try:
             yield
@@ -535,3 +523,32 @@ class KrozApp(App[str]):
         return ConfirmationCode(key=self.config["secret"]).confirmation(
             {"score": self.score}
         )
+
+
+def get_app() -> KrozApp:
+    return get_current_worker().node  # type: ignore
+
+
+def get_appconfig(key: str) -> Any:
+    return get_app().config[key]
+
+
+def setup_hook(
+    *, hook: Callable[[], None] | None = None, defconfig={}
+) -> None:
+    global _setuphooks, _default_config
+    if hook is not None:
+        _setuphooks.append(hook)
+    _default_config.update(defconfig)
+
+
+def notify(
+    message,
+    *,
+    title: str = "",
+    severity: Literal["information"]
+    | Literal["warning"]
+    | Literal["error"] = "information",
+    timeout: float | None = None,
+):
+    get_app().notify(message, title=title, severity=severity, timeout=timeout)

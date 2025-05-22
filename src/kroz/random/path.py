@@ -8,43 +8,62 @@ import pathlib
 from dataclasses import dataclass, field
 import shutil
 import textwrap
-from typing import Any, Self
+from typing import Self
 from kroz import get_appconfig
 
 
 @dataclass
 class CheckFile:
     path: pathlib.Path
-    contents: Any = ""
-    owner: str = field(default=None)
-    group: str = field(default=None)
-    perms: int = field(default=None)
+    contents: str = ""
+    owner: str | None = field(default=None)
+    group: str | None = field(default=None)
+    perms: int | None = field(default=None)
 
-    def __post_init__(self):
-        self.path = pathlib.Path(self.path)
+    def __init__(
+        self,
+        path: str | pathlib.Path,
+        contents: str = "",
+        *,
+        owner: str | None = None,
+        group: str | None = None,
+        perms: int | None = None,
+    ):
+        self.path = pathlib.Path(path)
         if self.path.is_absolute():
-            raise ValueError("A CheckFile path must not be absolute.")
+            raise ValueError("A check path or file must not be absolute.")
+        self.contents = contents
+        self.owner = owner
+        self.group = group
+        self.perms = perms
 
 
 @dataclass
-class CheckDir:
-    path: pathlib.Path
-    owner: str = field(default=None)
-    group: str = field(default=None)
-    perms: int = field(default=None)
-
-    def __post_init__(self):
-        self.path = pathlib.Path(self.path)
-        if self.path.is_absolute():
-            raise ValueError("A CheckDir path must not be absolute.")
+class CheckDir(CheckFile):
+    def __init__(
+        self,
+        path: str | pathlib.Path,
+        owner: str | None = None,
+        group: str | None = None,
+        perms: int | None = None,
+    ):
+        super().__init__(path, owner=owner, group=group, perms=perms)
 
 
 @dataclass
 class CheckPath:
     basepath: pathlib.Path
-    files: list[CheckFile] = field(default_factory=list)
+    files: list[CheckFile | CheckDir] = field(
+        default_factory=list[CheckFile | CheckDir]
+    )
 
-    def __post_init__(self):
+    def __init__(
+        self,
+        basepath: str | pathlib.Path,
+        files: list[CheckDir | CheckFile] = [],
+    ):
+        self.basepath = pathlib.Path(basepath)
+        self.files = files
         self._validate()
 
     def _validate(self):
@@ -76,7 +95,7 @@ class CheckPath:
 
         root = CheckDir(
             "",
-            owner=path.owner,
+            owner=path.owner(),
             group=path.group(),
             perms=path.stat().st_mode & 0o777,
         )
@@ -134,7 +153,7 @@ class CheckPath:
                 realpath.parent.mkdir(parents=True, exist_ok=True)
                 if file.contents is not None:
                     with open(realpath, "w") as fh:
-                        fh.write(str(file.contents))
+                        fh.write(file.contents)
                         fh.write("\n")
             elif isinstance(file, CheckDir):
                 realpath.mkdir(parents=True, exist_ok=True)
@@ -176,7 +195,7 @@ class CheckPath:
             if p.path not in other_paths:
                 if self.basepath / p.path == self.basepath:
                     yield (
-                        self.basepath,
+                        pathlib.Path("."),
                         "Missing",
                         "The file/directory is missing or can't be read.",
                     )
@@ -236,7 +255,8 @@ class CheckPath:
                         )
 
         for p in sorted(
-            other_path_set.difference(my_path_set), key=lambda x: len(x.parts)
+            other_path_set.difference(my_path_set),
+            key=lambda x: len(x.parts),
         ):
             if self.basepath / p != self.basepath:
                 yield (
@@ -245,7 +265,7 @@ class CheckPath:
                     "The file/directory should be removed.",
                 )
 
-    def filter(self, function) -> Self:
+    def filter(self, function) -> "CheckPath":
         """Create a new CheckPath with files filtered by a function."""
         return CheckPath(
             self.basepath, files=list(filter(function, self.files))

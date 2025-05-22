@@ -11,4 +11,11 @@ from kroz.app import (
     get_app,
 )
 
-__all__ = [KrozApp, progress, notify, setup_hook, get_appconfig, get_app]
+__all__ = [
+    "KrozApp",
+    "progress",
+    "notify",
+    "setup_hook",
+    "get_appconfig",
+    "get_app",
+]

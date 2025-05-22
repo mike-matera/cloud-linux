@@ -4,7 +4,6 @@ Helper for streams of random words.
 
 import kroz.random as random
 from os import PathLike
-from typing import Union
 from kroz import setup_hook, get_appconfig
 
 
@@ -17,7 +16,7 @@ class RandomWord:
         """Create a word randomizer based on the selected dictionary."""
         self._words = []
 
-    def setup(self, dictionary: Union[str | PathLike[str]]):
+    def setup(self, dictionary: str | PathLike[str]):
         """
         Initialize the randomizer. This must be done before any other calls
         can be used.

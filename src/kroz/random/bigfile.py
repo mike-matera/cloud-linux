@@ -5,7 +5,6 @@ Randomized system paths.
 from os import PathLike
 import pathlib
 from collections.abc import Generator
-from typing import Union
 
 from kroz.app import notify
 
@@ -22,7 +21,7 @@ class RandomBigFile:
 
     def __init__(
         self,
-        name: Union[str | PathLike[str]],
+        path: str | PathLike[str] | None,
         rows: int,
         cols: int,
         *,
@@ -32,14 +31,15 @@ class RandomBigFile:
         """
         Create a file with a particular shape (rows, columns)
         """
-        self._name = name
+        if path is not None:
+            self._path = pathlib.Path(path).resolve()
+        else:
+            self._path = None
+
         self._rows = rows
         self._cols = cols
         self._sep = sep
         self._end = end
-        self._path = name
-        if self._path is not None:
-            self._path = pathlib.Path(self._name).resolve()
         self._words = []
 
     def setup(self):
@@ -59,11 +59,11 @@ class RandomBigFile:
 
     def cleanup(self):
         """Remove the file."""
-        if self._path:
-            self._path.unlink(missing_ok=True)
+        assert self._path is not None, """This big file has no path."""
+        self._path.unlink(missing_ok=True)
 
     @property
-    def path(self):
+    def path(self) -> PathLike | None:
         """The path of the bigfile."""
         return self._path
 

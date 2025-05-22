@@ -1,4 +1,4 @@
-from textual.app import RenderResult
+from textual.app import RenderResult, ComposeResult
 from textual.widgets import (
     Header,
 )
@@ -50,7 +50,7 @@ class ScoreHeader(Header):
         self._score = None
         self._score_widget = ScoreHeader.HeaderScore()
 
-    def compose(self):
+    def compose(self) -> ComposeResult:  # type: ignore
         yield HeaderIcon().data_bind(Header.icon)
         yield HeaderTitle()
         yield self._score_widget
