@@ -252,6 +252,7 @@ class KrozApp(App[str]):
             self._config = _default_config
             self._config.update(self._user_config)
 
+            # Debugging overrides.
             if self._debug:
                 self._config["secret"] = None
                 self._config["config_dir"] = pathlib.Path(os.getcwd())
@@ -393,6 +394,11 @@ class KrozApp(App[str]):
 
     def ask(self, question: Question) -> Question.Result:
         """Ask the question."""
+
+        if self._debug:
+            question.debug = True
+            question.can_skip = True
+
         worker = get_current_worker()
         checkpoint_result = Question.Result.INCORRECT
         if (
@@ -433,6 +439,11 @@ class KrozApp(App[str]):
                     )
                 )
                 if answer is None:
+                    if self._debug:
+                        # Skips are correct in debug mode
+                        checkpoint_result = Question.Result.CORRECT
+                        return Question.Result.CORRECT
+
                     if worker._question_group:
                         raise KrozApp.GroupFailedException()
 
