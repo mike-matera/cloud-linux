@@ -37,7 +37,7 @@ _default_config = {
     "default_path": pathlib.Path(os.environ.get("HOME", os.getcwd())),
     "random_seed": None,
     "secret": None,
-    "home": None,
+    "config_dir": None,
     "state_file": None,
 }
 
@@ -216,12 +216,14 @@ class KrozApp(App[str]):
         default_path: str = None,
         random_seed: int = None,
         secret: str = None,
-        home: str = None,
+        config_dir: str = None,
         state_file: str = None,
+        debug: bool = False,
         **user_config,
     ):
         super().__init__()
         self.title = title
+        self._debug = debug
         self._main_func = lambda: ...
         self._main_worker = None
         self._config = {}
@@ -232,8 +234,8 @@ class KrozApp(App[str]):
             self._user_config["random_seed"] = random_seed
         if secret:
             self._user_config["secret"] = secret
-        if home:
-            self._user_config["home"] = home
+        if config_dir:
+            self._user_config["config_dir"] = config_dir
         if state_file:
             self._user_config["state_file"] = state_file
         self._showing = None
@@ -249,22 +251,30 @@ class KrozApp(App[str]):
         try:
             self._config = _default_config
             self._config.update(self._user_config)
+
+            if self._debug:
+                self._config["secret"] = None
+                self._config["config_dir"] = pathlib.Path(os.getcwd())
+                self._config["default_path"] = pathlib.Path(os.getcwd())
+
             if self._config["secret"] is None:
                 self._config["secret"] = str(uuid.getnode())
-            if self._config["home"] is None:
-                self._config["home"] = pathlib.Path.home() / ".kroz"
-            self._config["home"] = pathlib.Path(self._config["home"])
-            if not self._config["home"].exists():
-                self._config["home"].mkdir(parents=True)
+            if self._config["config_dir"] is None:
+                self._config["config_dir"] = pathlib.Path.home() / ".kroz"
+            self._config["config_dir"] = pathlib.Path(
+                self._config["config_dir"]
+            )
+            if not self._config["config_dir"].exists():
+                self._config["config_dir"].mkdir(parents=True)
             else:
-                if not self._config["home"].is_dir():
+                if not self._config["config_dir"].is_dir():
                     raise RuntimeError(
                         f"The home configuration must be a directory: {self._config['home']}"
                     )
             if self._config["state_file"] is not None:
                 self._state = JsonBoxFile(
                     self._config["secret"],
-                    self._config["home"] / self._config["state_file"],
+                    self._config["config_dir"] / self._config["state_file"],
                 )
                 if "checkpoints" not in self._state:
                     self._state["checkpoints"] = {}
@@ -435,7 +445,7 @@ class KrozApp(App[str]):
                     result = e
                 except Exception as e:
                     result = e
-                    if question.debug:
+                    if question.debug or self._debug:
                         raise e
 
                 try:

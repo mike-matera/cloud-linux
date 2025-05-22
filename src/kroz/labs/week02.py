@@ -2,6 +2,7 @@
 Lab for week 2.
 """
 
+import textwrap
 from kroz import KrozApp
 from kroz.questions.week02 import (
     FreeMemory,
@@ -10,6 +11,7 @@ from kroz.questions.week02 import (
     WhatsUname,
     questions,
 )
+from kroz.ascii import tux
 
 app = KrozApp("Anatomy of a Command", state_file="anatomy")
 
@@ -17,8 +19,10 @@ app = KrozApp("Anatomy of a Command", state_file="anatomy")
 @app.main
 def main():
     app.show(
-        """
+        textwrap.dedent("""
         # The Anatomy of a Command 
+
+        {}
 
         This lab tests your knowledge of the material from the second week of class and 
         Chapter 1 of the book. You should familiarize yourself with the commands for the 
@@ -26,7 +30,7 @@ def main():
 
         This lab starts with some questions. Get them all correct to move on to the 
         challenges that are worth points. 
-        """,
+        """).format(tux(indent=4)),
         classes="welcome",
         title="Welcome!",
     )

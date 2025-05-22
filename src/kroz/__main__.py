@@ -13,7 +13,8 @@ def run(args):
     module: str = args.module
     if module.endswith(".py"):
         # Run an app in a Python file.
-        runpy.run_path(module, run_name="__main__")
+        modns = runpy.run_path(module)
+        app = "app"
     else:
         # Run an app after importing a module
         if ":" in module:
@@ -22,15 +23,17 @@ def run(args):
             mod = module
             app = "app"
         modns = runpy.run_module(mod)
-        if app not in modns:
-            raise RuntimeError(
-                f"""No application named "{app}" is in module {mod}"""
-            )
-        if not isinstance(modns[app], KrozApp):
-            raise RuntimeError(
-                f"""The member named "{app}" is not a KrozApp in module {mod}"""
-            )
-        modns[app].run()
+
+    if app not in modns:
+        raise RuntimeError(
+            f"""No application named "{app}" is in module {mod}"""
+        )
+    if not isinstance(modns[app], KrozApp):
+        raise RuntimeError(
+            f"""The member named "{app}" is not a KrozApp in module {mod}"""
+        )
+    modns[app]._debug = args.debug
+    modns[app].run()
 
 
 def ask(args):
@@ -87,6 +90,9 @@ def main() -> int:
     secrets_cli(subparsers)
 
     runparser = subparsers.add_parser("run", help="Run a module or class.")
+    runparser.add_argument(
+        "-d", "--debug", action="store_true", help="Run in debugging mode."
+    )
     runparser.add_argument(
         "module", help="The name of a script or a module to execute."
     )
