@@ -4,7 +4,7 @@ Lab for week 3.
 
 from pathlib import Path
 from kroz import KrozApp
-from kroz.questions.week03 import FileAttrs, FlagFile, RelativePaths, questions
+from kroz.questions.week03 import PathAttrs, FlagFile, RelativePaths, questions
 
 app = KrozApp("The Filesystem", state_file="fs")
 
@@ -50,16 +50,16 @@ def main():
         )
     )
     app.ask(
-        FileAttrs(
-            type=FileAttrs.AttrType.SIZE,
+        PathAttrs(
+            type=PathAttrs.AttrType.SIZE,
             points=5,
             name="filesize",
             checkpoint=True,
         )
     )
     app.ask(
-        FileAttrs(
-            type=FileAttrs.AttrType.INODE,
+        PathAttrs(
+            type=PathAttrs.AttrType.INODE,
             points=5,
             name="fileinode",
             checkpoint=True,

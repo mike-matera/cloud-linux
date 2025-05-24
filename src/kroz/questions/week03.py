@@ -176,8 +176,13 @@ class FlagFile(Question):
         """
 
 
-class FileAttrs(Question):
+class PathAttrs(Question):
     """Examine the attributes of an existing file."""
+
+    class PathType(Enum):
+        FILE = "file"
+        DIR = "directory"
+        LINK = "symbolic link"
 
     class AttrType(Enum):
         SIZE = ("Size", "What is the **size** of", [Integer()])
@@ -192,12 +197,24 @@ class FileAttrs(Question):
         BLOCKS = ("Blocks", "How many **blocks** are used by", [Integer()])
 
     def __init__(
-        self, type: AttrType, path: str | Path | None = None, **kwargs
+        self,
+        type: AttrType,
+        path: str | Path | None = None,
+        path_type: PathType = PathType.FILE,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self._type = type
+        self._path_type = path_type
         if path is None:
-            self._path = random_real_path().random_file().resolve()
+            if self._path_type == PathAttrs.PathType.FILE:
+                self._path = random_real_path().random_file()
+            elif self._path_type == PathAttrs.PathType.DIR:
+                self._path = random_real_path().random_dir()
+            elif self._path_type == PathAttrs.PathType.LINK:
+                self._path = random_real_path().random_link()
+            else:
+                raise ValueError("Bat path type.")
         else:
             self._path = Path(path)
 
@@ -208,9 +225,9 @@ class FileAttrs(Question):
     @property
     def text(self):
         return f"""
-        # File {self._type.value[0]}
+        # Find the {self._type.value[0]}
 
-        {self._type.value[1]} the file:
+        {self._type.value[1]} the {self._path_type.value}:
 
             {self._path}
 
@@ -221,28 +238,28 @@ class FileAttrs(Question):
         return self._type.value[2]
 
     def check(self, answer):
-        if self._type == FileAttrs.AttrType.SIZE:
+        if self._type == PathAttrs.AttrType.SIZE:
             assert int(answer) == self._path.stat().st_size, (
                 """That's not correct."""
             )
-        elif self._type == FileAttrs.AttrType.INODE:
+        elif self._type == PathAttrs.AttrType.INODE:
             assert int(answer) == self._path.stat().st_ino, (
                 """That's not correct."""
             )
-        elif self._type == FileAttrs.AttrType.OWNER:
+        elif self._type == PathAttrs.AttrType.OWNER:
             assert answer == pwd.getpwuid(self._path.stat().st_uid).pw_name, (
                 """That's not correct."""
             )
-        elif self._type == FileAttrs.AttrType.GROUP:
+        elif self._type == PathAttrs.AttrType.GROUP:
             assert answer == grp.getgrgid(self._path.stat().st_gid).gr_name, (
                 """That's not correct."""
             )
-        elif self._type == FileAttrs.AttrType.PERMS:
+        elif self._type == PathAttrs.AttrType.PERMS:
             assert (
                 IsPermission.from_string(answer)
                 == self._path.stat().st_mode & 0o777
             ), """That's not correct."""
-        elif self._type == FileAttrs.AttrType.BLOCKS:
+        elif self._type == PathAttrs.AttrType.BLOCKS:
             assert int(answer) == self._path.stat().st_blocks, (
                 """That's not correct."""
             )
