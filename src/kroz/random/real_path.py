@@ -40,7 +40,7 @@ class RandomRealPath:
             try:
                 f.stat()
                 return True
-            except:
+            except:  # noqa: E722
                 return False
 
         self._trees = [

@@ -38,4 +38,4 @@ venv-linux
 *.pyc
 .vscode
 venv/
-anatomy.krs
+*.krs

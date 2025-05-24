@@ -51,7 +51,7 @@ class JsonBoxFile:
 
     def load(self):
         try:
-            with open(self._path, "b") as fh:
+            with open(self._path, "rb") as fh:
                 self._data = json.loads(
                     self._box.decrypt(
                         fh.read(), encoder=nacl.encoding.URLSafeBase64Encoder

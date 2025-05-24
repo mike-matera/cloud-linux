@@ -14,7 +14,10 @@ import textwrap
 from kroz.app import get_appconfig
 import kroz.ascii
 from kroz.question import (
+    MultipleChoiceQuestion,
     Question,
+    ShortAnswerQuestion,
+    TrueOrFalseQuestion,
 )
 from kroz.random.real_path import random_real_path
 from kroz.validation import (
@@ -25,11 +28,59 @@ from kroz.validation import (
     IsUser,
     PathIsDir,
     PathIsFile,
+    RelativePath,
 )
 from textual.validation import Integer
 
 
-questions = []
+questions = [
+    TrueOrFalseQuestion(
+        "UNIX, like Windows uses a *hierarchical directory structure*.", True
+    ),
+    TrueOrFalseQuestion(
+        "A directory is sometimes called a folder on other operating systems.",
+        True,
+    ),
+    MultipleChoiceQuestion(
+        "Which of the following is an **relative** path?",
+        "Poems",
+        "/home/student",
+        "~/Poems/Neruda",
+        "/dev/null",
+        help="""
+            Relative paths are paths that start at the current working 
+            directory. Relative paths do not begin with a slash (**/**).
+            """,
+    ),
+    MultipleChoiceQuestion(
+        "Which of the following is an **absolute** path?",
+        "Both ~/Poems/Neruda and /home/student",
+        "/home/student",
+        "~/Poems/Neruda",
+        "Poems",
+        help="""
+            Absolute paths are paths that begin with the **root** directory. The
+            root directory is represented by a slash (**/**). So absolute paths 
+            always begin with a **/**. There's one exception, the **~** is a 
+            shortcut for the absolute path of your home directory. 
+            """,
+    ),
+    TrueOrFalseQuestion(
+        "In UNIX a file that begins with a period (**.**) is called a *hidden* file.",
+        True,
+    ),
+    ShortAnswerQuestion(
+        "What is the command that shows you the **path** of the current working directory?",
+        "pwd",
+    ),
+    ShortAnswerQuestion(
+        "What is the command that changes current working directory?", "cd"
+    ),
+    ShortAnswerQuestion(
+        "What is the command that shows the **contents** of the current working directory?",
+        "ls",
+    ),
+]
 
 
 class FlagFile(Question):
@@ -40,8 +91,16 @@ class FlagFile(Question):
         DIR = 2
         FULL = 3
 
-    def __init__(self, type: FlagType):
+    def __init__(
+        self, type: FlagType, path: str | Path | None = None, **kwargs
+    ):
+        super().__init__(**kwargs)
         self._type = type
+        if path is None:
+            self._secret = random_real_path().random_file().resolve()
+        else:
+            self._secret = Path(path)
+        self._flag = Path(get_appconfig("default_path")) / "flag"
 
     @property
     def validators(self):
@@ -69,8 +128,6 @@ class FlagFile(Question):
         )
 
     def setup(self):
-        self._secret = random_real_path().random_file().resolve()
-        self._flag = Path(get_appconfig("default_path")) / "flag"
         with open(self._flag, "w") as fh:
             fh.write(self.flag())
 
@@ -134,11 +191,15 @@ class FileAttrs(Question):
         )
         BLOCKS = ("Blocks", "How many **blocks** are used by", [Integer()])
 
-    def __init__(self, type: AttrType):
+    def __init__(
+        self, type: AttrType, path: str | Path | None = None, **kwargs
+    ):
+        super().__init__(**kwargs)
         self._type = type
-
-    def setup(self):
-        self._path = random_real_path().random_file().resolve()
+        if path is None:
+            self._path = random_real_path().random_file().resolve()
+        else:
+            self._path = Path(path)
 
     @property
     def placeholder(self):
@@ -187,3 +248,60 @@ class FileAttrs(Question):
             )
         else:
             raise ValueError("Bad type")
+
+
+class RelativePaths(Question):
+    """
+    Ask students to construct relative paths.
+    """
+
+    def __init__(
+        self,
+        from_path: str | Path | None = None,
+        to_path: str | Path | None = None,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+        if from_path is None:
+            self._from = random_real_path().random_dir().resolve()
+        else:
+            self._from = Path(from_path)
+        if to_path is None:
+            self._to = random_real_path().random_dir().resolve()
+        else:
+            self._to = Path(to_path)
+
+    validators = [RelativePath()]
+
+    @property
+    def text(self):
+        return f"""
+        # Relative Path 
+
+        What is the relative path between these two directories?
+
+        * From: `{self._from}`
+        * To: `{self._to}`
+
+        """
+
+    def check(self, answer):
+        answer = Path(answer)
+        calculated = (self._from / answer).resolve()
+
+        feedback = textwrap.dedent(f"""
+        # The Path Journey
+
+        Consider the trip between the *from* and the *to* directories. Your answer
+        should be a relative path that contains the entire journey. The journey 
+        starts at **{self._from}**  and the path we take is your answer **{answer}**. 
+        
+        Here's what it looks like when we take the journey one step at a time: 
+        """)
+        loc = self._from
+        for i, part in enumerate(answer.parts):
+            loc /= part
+            feedback += f"{i + 1}. {part} → {loc.resolve()}\n"
+
+        feedback += f"\nThe end of the journey is **{loc.resolve()}** but should have been **{self._to}**\n"
+        assert calculated == self._to, feedback
