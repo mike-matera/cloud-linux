@@ -3,7 +3,7 @@ Randomized system paths.
 """
 
 from collections import namedtuple
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Generator, Hashable
 import pathlib
 import kroz.random as random
 from typing import Iterable
@@ -43,14 +43,14 @@ class RandomRealPath:
             except:  # noqa: E722
                 return False
 
-        self._trees = [
-            [
+        self._trees = {
+            tree.root: [
                 path
                 for path in pathlib.Path(tree.root).glob(tree.glob)
                 if can_stat(path)
             ]
             for tree in search
-        ]
+        }
 
     def random_file(self):
         return self.find_one(
@@ -62,22 +62,43 @@ class RandomRealPath:
             lambda c: c.is_dir() and not c.is_symlink()
         ).resolve()
 
-    def find_one(self, filter):
+    def random_link(self):
+        return self.find_one(lambda c: c.is_symlink()).resolve()
+
+    def find_one(
+        self,
+        filter: Callable[[pathlib.Path], bool],
+        normalize: None | Callable[[pathlib.Path], Hashable] = None,
+    ):
         """Search the candidate files until a condition matches."""
-        for path in self.find(filter):
+        for path in self.find(filter, normalize=normalize):
             return path
         raise RuntimeError("No path found!")
 
     def find(
-        self, filter: Callable[[pathlib.Path], bool]
+        self,
+        filter: Callable[[pathlib.Path], bool],
+        normalize: None | Callable[[pathlib.Path], Hashable] = None,
     ) -> Generator[pathlib.Path]:
         """Return a generator of paths that match the filter"""
         if self._trees is None:
             raise RuntimeError(
                 "Paths have not been initialized. You have not run setup()."
             )
-        for tree in random.sample(self._trees, k=len(self._trees)):
-            for path in random.sample(tree, k=len(tree)):
+        if normalize is None:
+            normals = self._trees
+        else:
+            normals = {}
+            for root in self._trees:
+                for path in self._trees[root]:
+                    key = normalize(path)
+                    if key not in normals:
+                        normals[key] = [path]
+                    else:
+                        normals[key].append(path)
+
+        for tree in random.sample(list(normals), k=len(self._trees)):
+            for path in random.sample(normals[tree], k=len(normals[tree])):
                 if filter(path):
                     yield path
 
