@@ -57,7 +57,8 @@ def ask(args) -> int:
         assert "=" in extra, (
             f"""Argument "{extra}" must be in the format parameter=value"""
         )
-        key, val = extra.split("=")
+        parts = extra.split("=")
+        key, val = parts[0], "=".join(parts[1:])
         if key.endswith(":"):
             kwargs[key[:-1]] = eval(val, modns, None)
         else:
