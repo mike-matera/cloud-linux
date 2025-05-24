@@ -9,6 +9,16 @@ import re
 from textual.validation import ValidationResult, Validator
 
 
+class NotEmpty(Validator):
+    """A non empty text field."""
+
+    def validate(self, value: str) -> ValidationResult:
+        if not value:
+            return self.failure("The answer cannot be empty.")
+        else:
+            return self.success()
+
+
 class ExistingPath(Validator):
     """A path that must exist."""
 
