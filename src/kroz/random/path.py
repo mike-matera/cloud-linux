@@ -11,6 +11,8 @@ import textwrap
 from typing import Self
 from kroz import get_appconfig
 
+CONTENT_LIMIT: int = 1024 * 32
+
 
 @dataclass
 class CheckFile:
@@ -39,28 +41,14 @@ class CheckFile:
 
 
 @dataclass
-class CheckDir(CheckFile):
-    def __init__(
-        self,
-        path: str | pathlib.Path,
-        owner: str | None = None,
-        group: str | None = None,
-        perms: int | None = None,
-    ):
-        super().__init__(path, owner=owner, group=group, perms=perms)
-
-
-@dataclass
 class CheckPath:
     basepath: pathlib.Path
-    files: list[CheckFile | CheckDir] = field(
-        default_factory=list[CheckFile | CheckDir]
-    )
+    files: list[CheckFile] = field(default_factory=list)
 
     def __init__(
         self,
         basepath: str | pathlib.Path,
-        files: list[CheckDir | CheckFile] = [],
+        files: list[CheckFile] = [],
     ):
         self.basepath = pathlib.Path(basepath)
         self.files = files
@@ -93,7 +81,7 @@ class CheckPath:
         if not path.exists():
             return cp
 
-        root = CheckDir(
+        root = CheckFile(
             "",
             owner=path.owner(),
             group=path.group(),
@@ -103,29 +91,22 @@ class CheckPath:
 
         for file in path.glob("**/*"):
             try:
-                if not file.is_symlink():
-                    if file.is_file():
-                        f = CheckFile(
-                            file.relative_to(path),
-                            owner=file.owner(),
-                            group=file.group(),
-                            perms=file.stat().st_mode & 0o777,
-                        )
-                        with open(file) as fh:
-                            f.contents = fh.read()
-                    elif file.is_dir():
-                        f = CheckDir(
-                            file.relative_to(path),
-                            owner=file.owner(),
-                            group=file.group(),
-                            perms=file.stat().st_mode & 0o777,
-                        )
-                    else:
-                        raise RuntimeError("Not a file type I know about.")
-
-                    cp.files.append(f)
+                f = CheckFile(
+                    file.relative_to(path),
+                    owner=file.owner(),
+                    group=file.group(),
+                    perms=file.stat().st_mode & 0o777,
+                )
+                if (
+                    not file.is_symlink()
+                    and file.is_file()
+                    and file.stat().st_size <= CONTENT_LIMIT
+                ):
+                    with open(file) as fh:
+                        f.contents = fh.read()
+                cp.files.append(f)
             except (OSError, RuntimeError):
-                # Choked for some reason. Ignore it.
+                # Choked for some reason. Ignore this path.
                 pass
         return cp
 
@@ -149,17 +130,11 @@ class CheckPath:
 
         for file in self.files:
             realpath = self.basepath / file.path
-            if isinstance(file, CheckFile):
-                realpath.parent.mkdir(parents=True, exist_ok=True)
-                if file.contents is not None:
-                    with open(realpath, "w") as fh:
-                        fh.write(file.contents)
-                        fh.write("\n")
-            elif isinstance(file, CheckDir):
-                realpath.mkdir(parents=True, exist_ok=True)
-            else:
-                raise ValueError("Invalid file:", file)
-
+            realpath.parent.mkdir(parents=True, exist_ok=True)
+            if file.contents is not None:
+                with open(realpath, "w") as fh:
+                    fh.write(file.contents)
+                    fh.write("\n")
             if file.perms is not None:
                 realpath.chmod(file.perms)
             if file.group is not None:
@@ -243,16 +218,16 @@ class CheckPath:
                         "Wrong permissions",
                         f"{my_file.perms:o} != {other_file.perms:o}",
                     )
-                if isinstance(my_file, CheckFile) and my_file.contents:
-                    if (
-                        str(my_file.contents).strip()
-                        != str(other_file.contents).strip()
-                    ):
-                        yield (
-                            p.path,
-                            "Wrong contents",
-                            f"{str(my_file.contents).strip()} != {str(other_file.contents).strip()}",
-                        )
+                if (
+                    my_file.contents is not None
+                    and str(my_file.contents).strip()
+                    != str(other_file.contents).strip()
+                ):
+                    yield (
+                        p.path,
+                        "Wrong contents",
+                        f"{str(my_file.contents).strip()} != {str(other_file.contents).strip()}",
+                    )
 
         for p in sorted(
             other_path_set.difference(my_path_set),
@@ -316,7 +291,7 @@ class CheckPath:
                 | --- | --- | 
                 {}
                 """).format(
-                    self.basepath,
+                    str(self.basepath).replace(str(pathlib.Path.home()), "~"),
                     "\n".join((f"| {e[0]} | {e[1]} |" for e in errors)),
                 )
             )
@@ -331,7 +306,7 @@ class CheckPath:
                 | --- | --- | --- | 
                 {}
             """).format(
-                    self.basepath,
+                    str(self.basepath).replace(str(pathlib.Path.home()), "~"),
                     "\n".join(
                         (f"| {e[0]} | {e[1]} | {e[2]} |" for e in errors)
                     ),
