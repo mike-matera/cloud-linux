@@ -3,8 +3,8 @@ Lab for week 04
 """
 
 from kroz import KrozApp
-from kroz.questions.week03 import PathAttrs
-from kroz.questions.week04 import FileType, WordInBigfile
+from kroz.questions.week03 import PathAttrs, RelativePaths
+from kroz.questions.week04 import FileType, LinkInfo, WordInBigfile
 
 app = KrozApp(title="Files Lab", state_file="files")
 
@@ -37,7 +37,9 @@ def main():
 
     app.ask(WordInBigfile(find=(1, 1)))
     app.ask(FileType())
-
+    app.ask(RelativePaths())
+    app.ask(LinkInfo(type=LinkInfo.Info.TARGET_PATH))
+    app.ask(LinkInfo(type=LinkInfo.Info.REL_OR_ABS))
 
 if __name__ == "__main__":
     print("Your confirmation code is:", app.run())
