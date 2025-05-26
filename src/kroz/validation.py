@@ -145,6 +145,20 @@ class IsPermission(Validator):
         else:
             raise ValueError("Invalid permission string.")
 
+    @staticmethod
+    def to_string(value: int) -> str:
+        rval = ""
+        bit = 0o1000
+        letters = ['r', 'w', 'x']
+        letter = 0
+        while (bit := bit >> 1) != 0:
+            if value & bit:
+                rval += letters[letter]
+            else:
+                rval += "-"
+            letter = (letter + 1) % len(letters)
+        return rval 
+    
     def validate(self, value: str) -> ValidationResult:
         if not value:
             return self.failure("The answer cannot be empty.")
