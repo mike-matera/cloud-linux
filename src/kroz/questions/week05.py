@@ -36,7 +36,7 @@ class Islands(Question):
                 CheckFile(
                     "langkawi", "Langkawi is an island in the Indian ocean"
                 ),
-                CheckFile("Sabang", "Sabang is an island in the Indian ocean"),
+                CheckFile("sabang", "Sabang is an island in the Indian ocean"),
                 CheckFile(
                     "nublar",
                     "Nublar is a fictional island in the movie Jurassic Park",
