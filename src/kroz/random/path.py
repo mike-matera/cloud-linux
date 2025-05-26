@@ -440,6 +440,7 @@ class CheckPath:
                 if depth == 0:
                     stub = ""
                     new_preamble = ""
+                    key = str(self.basepath).replace(str(pathlib.Path.home()), "~")
 
                 rval += f"{preamble}{stub}{details}{key}\n"
                 rval += pretty(val["files"], depth=depth+1, maxdepth=maxdepth, preamble=new_preamble)
