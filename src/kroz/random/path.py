@@ -15,12 +15,31 @@ CONTENT_LIMIT: int = 1024 * 32
 
 
 @dataclass
-class CheckFile:
+class CheckItem:
     path: pathlib.Path
+    owner: str | None = field(default=None, kw_only=True)
+    group: str | None = field(default=None, kw_only=True)
+    perms: int | None = field(default=None, kw_only=True)
+
+    def __init__(
+        self,
+        path: str | pathlib.Path,
+        *,
+        owner: str | None = None,
+        group: str | None = None,
+        perms: int | None = None,
+    ):
+        self.path = pathlib.Path(path)
+        if self.path.is_absolute():
+            raise ValueError("A check item must not be absolute.")
+        self.owner = owner
+        self.group = group
+        self.perms = perms
+
+
+@dataclass
+class CheckFile(CheckItem):
     contents: str = ""
-    owner: str | None = field(default=None)
-    group: str | None = field(default=None)
-    perms: int | None = field(default=None)
 
     def __init__(
         self,
@@ -31,24 +50,41 @@ class CheckFile:
         group: str | None = None,
         perms: int | None = None,
     ):
-        self.path = pathlib.Path(path)
-        if self.path.is_absolute():
-            raise ValueError("A check path or file must not be absolute.")
+        super().__init__(path=path, owner=owner, group=group, perms=perms)
         self.contents = contents
-        self.owner = owner
-        self.group = group
-        self.perms = perms
+
+
+@dataclass(init=False)
+class CheckDir(CheckItem):
+    pass
+
+
+@dataclass
+class CheckLink(CheckItem):
+    target: pathlib.Path
+
+    def __init__(
+        self,
+        path: str | pathlib.Path,
+        target: str | pathlib.Path,
+        *,
+        owner: str | None = None,
+        group: str | None = None,
+        perms: int | None = None,
+    ):
+        super().__init__(path=path, owner=owner, group=group, perms=perms)
+        self.target = pathlib.Path(target)
 
 
 @dataclass
 class CheckPath:
     basepath: pathlib.Path
-    files: list[CheckFile] = field(default_factory=list)
+    files: list[CheckItem] = field(default_factory=list)
 
     def __init__(
         self,
         basepath: str | pathlib.Path,
-        files: list[CheckFile] = [],
+        files: list[CheckItem] = [],
     ):
         self.basepath = pathlib.Path(basepath)
         self.files = files
@@ -91,19 +127,34 @@ class CheckPath:
 
         for file in path.glob("**/*"):
             try:
-                f = CheckFile(
-                    file.relative_to(path),
-                    owner=file.owner(),
-                    group=file.group(),
-                    perms=file.stat().st_mode & 0o777,
-                )
-                if (
-                    not file.is_symlink()
-                    and file.is_file()
-                    and file.stat().st_size <= CONTENT_LIMIT
-                ):
-                    with open(file) as fh:
-                        f.contents = fh.read()
+                if file.is_symlink():
+                    f = CheckLink(
+                        file.relative_to(path),
+                        file.readlink(),
+                        owner=file.owner(),
+                        group=file.group(),
+                        perms=file.lstat().st_mode & 0o777,
+                    )
+                elif file.is_file():
+                    f = CheckFile(
+                        file.relative_to(path),
+                        owner=file.owner(),
+                        group=file.group(),
+                        perms=file.stat().st_mode & 0o777,
+                    )
+                    if file.stat().st_size <= CONTENT_LIMIT:
+                        with open(file) as fh:
+                            f.contents = fh.read()
+                elif file.is_dir():
+                    f = CheckDir(
+                        file.relative_to(path),
+                        owner=file.owner(),
+                        group=file.group(),
+                        perms=file.stat().st_mode & 0o777,
+                    )
+                else:
+                    raise RuntimeError(f"I don't understand this file: {file}")
+
                 cp.files.append(f)
             except (OSError, RuntimeError):
                 # Choked for some reason. Ignore this path.
@@ -131,10 +182,17 @@ class CheckPath:
         for file in self.files:
             realpath = self.basepath / file.path
             realpath.parent.mkdir(parents=True, exist_ok=True)
-            if file.contents is not None:
+            if isinstance(file, CheckLink):
+                realpath.symlink_to(file.target)
+            elif isinstance(file, CheckFile):
                 with open(realpath, "w") as fh:
                     fh.write(file.contents)
                     fh.write("\n")
+            elif isinstance(file, CheckDir):
+                realpath.mkdir()
+            else:
+                raise RuntimeError(f"What is this: {file}")
+
             if file.perms is not None:
                 realpath.chmod(file.perms)
             if file.group is not None:
@@ -183,14 +241,37 @@ class CheckPath:
             else:
                 my_file = my_paths[p.path]
                 other_file = other_paths[p.path]
-                if my_file.__class__ is not other_file.__class__:
+                if isinstance(my_file, CheckFile) and isinstance(
+                    other_file, CheckFile
+                ):
+                    if my_file.contents.strip() != other_file.contents.strip():
+                        yield (
+                            p.path,
+                            "Wrong contents",
+                            f"{my_file.contents.strip()} != {other_file.contents.strip()}",
+                        )
+                elif isinstance(my_file, CheckDir) and isinstance(
+                    other_file, CheckDir
+                ):
+                    # No directory specific checks.
+                    pass
+                elif isinstance(my_file, CheckLink) and isinstance(
+                    other_file, CheckLink
+                ):
+                    if my_file.path.readlink() != other_file.path.readlink():
+                        yield (
+                            p.path,
+                            "Wrong link target.",
+                            f"{my_file.path.readlink()} != {other_file.path.readlink()}",
+                        )
+                else:
                     yield (
                         p.path,
                         "Wrong type",
-                        "Is a directory instead of a file."
-                        if isinstance(my_file, CheckFile)
-                        else "Is a file instead of a directory.",
+                        f"{other_file.path} Is not a {my_file.__class__.__name__.replace('Check', '').lower()}.",
                     )
+
+                # Check common attributes.
                 if (
                     my_file.owner is not None
                     and my_file.owner != other_file.owner
@@ -218,16 +299,6 @@ class CheckPath:
                         "Wrong permissions",
                         f"{my_file.perms:o} != {other_file.perms:o}",
                     )
-                if (
-                    my_file.contents is not None
-                    and str(my_file.contents).strip()
-                    != str(other_file.contents).strip()
-                ):
-                    yield (
-                        p.path,
-                        "Wrong contents",
-                        f"{str(my_file.contents).strip()} != {str(other_file.contents).strip()}",
-                    )
 
         for p in sorted(
             other_path_set.difference(my_path_set),
@@ -237,7 +308,7 @@ class CheckPath:
                 yield (
                     p,
                     "Exists",
-                    "The file/directory should be removed.",
+                    "The file, directory link should be removed.",
                 )
 
     def filter(self, function) -> "CheckPath":

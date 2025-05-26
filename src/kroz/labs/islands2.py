@@ -7,7 +7,7 @@ from pathlib import Path
 
 import kroz
 from kroz.question import Question
-from kroz.random.path import CheckPath, CheckFile
+from kroz.random.path import CheckDir, CheckPath, CheckFile
 
 WELCOME = """
 # Sort the Islands (Part 2) 
@@ -99,11 +99,11 @@ class Islands2(Question):
         self.check_files = CheckPath(
             "Oceans",
             files=[
-                CheckFile("", group=self.cis90_grp),
-                CheckFile("Pacific", group=self.cis90_grp),
-                CheckFile("Atlantic", group=self.cis90_grp),
-                CheckFile("Indian", group=self.cis90_grp),
-                CheckFile("Fictional", group=self.cis90_grp),
+                CheckDir("", group=self.cis90_grp),
+                CheckDir("Pacific", group=self.cis90_grp),
+                CheckDir("Atlantic", group=self.cis90_grp),
+                CheckDir("Indian", group=self.cis90_grp),
+                CheckDir("Fictional", group=self.cis90_grp),
             ],
         )
 
