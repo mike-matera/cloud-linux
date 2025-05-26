@@ -10,6 +10,7 @@ import shutil
 import textwrap
 from typing import Self
 from kroz import get_appconfig
+from kroz.validation import IsPermission
 
 CONTENT_LIMIT: int = 1024 * 32
 
@@ -383,3 +384,66 @@ class CheckPath:
                     ),
                 )
             )
+
+    def markdown(self, *, detail: bool = True, depth: int = 0):
+        """
+        A markdown representation of the expected path that's similar to the 
+        output of the `tree` command.
+        """
+        paths = { self.basepath / file.path: file for file in self.files}
+        tree = {str(self.basepath): {"check": None, "files": {}}}
+        if self.basepath in paths:
+            tree[str(self.basepath)]["check"] = paths[self.basepath]
+        for file in self.files:
+            root = tree[str(self.basepath)]
+            pathparts = self.basepath
+            for part in file.path.parts:
+                if part not in root["files"]:
+                    root["files"][part] = {"check": None, "files": {}}
+                pathparts /= part
+                if pathparts in paths:
+                    root["files"][part]["check"] = paths[pathparts]
+                root = root["files"][part]
+
+        def pretty(root: dict, *, depth: int = 0, maxdepth: int = 0, preamble="") -> str:
+            if maxdepth and depth >= maxdepth:
+                return ""
+            rval = ""
+            for i, (key, val) in enumerate(root.items()):
+                details = ""
+                if detail and val["check"] is not None:
+                    details = []
+                    if val["check"].owner is not None:
+                        details.append(f"owner={val["check"].owner}")
+                    if val["check"].group is not None:
+                        details.append(f"group={val["check"].group}")
+                    if val["check"].perms is not None:
+                        permtype = "-"
+                        if isinstance(val["check"], CheckDir):
+                            permtype = "d"
+                        elif isinstance(val["check"], CheckLink):
+                            permtype = "l"
+                        perms = f"{permtype}{IsPermission.to_string(val["check"].perms)}"
+                        details.append(perms)
+                    if details:
+                        details = f"[{" ".join(details)}] "
+                    else:
+                        details = ""
+
+                if i == len(root) - 1:
+                    stub = "└── "
+                    new_preamble = preamble + "    "
+                else:
+                    stub = "├── "
+                    new_preamble = preamble + "│   "
+
+                if depth == 0:
+                    stub = ""
+                    new_preamble = ""
+
+                rval += f"{preamble}{stub}{details}{key}\n"
+                rval += pretty(val["files"], depth=depth+1, maxdepth=maxdepth, preamble=new_preamble)
+
+            return rval
+        
+        return f"```\n{pretty(root=tree, maxdepth=depth)}\n```"
