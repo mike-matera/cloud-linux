@@ -3,14 +3,15 @@ Tools for building randomized paths and checkers.
 """
 
 from collections.abc import Generator
+import itertools
 import subprocess
 import pathlib
 from dataclasses import dataclass, field
 import shutil
 import textwrap
-from typing import Self
 from kroz import get_appconfig
 from kroz.validation import IsPermission
+
 
 CONTENT_LIMIT: int = 1024 * 32
 
@@ -85,10 +86,10 @@ class CheckPath:
     def __init__(
         self,
         basepath: str | pathlib.Path,
-        files: list[CheckItem] = [],
+        files: list[CheckItem] = list(),
     ):
         self.basepath = pathlib.Path(basepath)
-        self.files = files
+        self.files = files.copy()
         self._validate()
 
     def _validate(self):
@@ -109,24 +110,16 @@ class CheckPath:
                 "A CheckPath base path must never be the $HOME directory."
             )
 
-    @classmethod
-    def from_path(cls: type[Self], path: str | pathlib.Path) -> Self:
+    @staticmethod
+    def from_path(path: str | pathlib.Path) -> "CheckPath":
         """Create a CheckPath object from a real path."""
         path = pathlib.Path(path)
-        cp = cls(path)
+        cp = CheckPath(path)
 
         if not path.exists():
             return cp
 
-        root = CheckFile(
-            "",
-            owner=path.owner(),
-            group=path.group(),
-            perms=path.stat().st_mode & 0o777,
-        )
-        cp.files.append(root)
-
-        for file in path.glob("**/*"):
+        for file in itertools.chain([path], path.glob("**/*")):
             try:
                 if file.is_symlink():
                     f = CheckLink(
@@ -269,7 +262,7 @@ class CheckPath:
                     yield (
                         p.path,
                         "Wrong type",
-                        f"{other_file.path} Is not a {my_file.__class__.__name__.replace('Check', '').lower()}.",
+                        f"The path {other_file.path} is not a {my_file.__class__.__name__.replace('Check', '').lower()}.",
                     )
 
                 # Check common attributes.
