@@ -39,20 +39,17 @@ def main():
 
     for i, q in enumerate(questions):
         q.checkpoint = True
-        app.ask(q)
+        q.ask()
 
-    app.ask(
-        PathAttrs(
-            path_type=PathAttrs.PathType.DIR, type=PathAttrs.AttrType.INODE
-        )
-    )
-
-    app.ask(WordInBigfile(find=(1, 1)))
-    app.ask(FileType())
-    app.ask(RelativePaths())
-    app.ask(LinkInfo(type=LinkInfo.Info.TARGET_PATH))
-    app.ask(LinkInfo(type=LinkInfo.Info.REL_OR_ABS))
-    app.ask(MakeLink(name="my_link"))
+    PathAttrs(
+        path_type=PathAttrs.PathType.DIR, type=PathAttrs.AttrType.INODE
+    ).ask()
+    WordInBigfile(find=(1, 1)).ask()
+    FileType().ask()
+    RelativePaths().ask()
+    LinkInfo(type=LinkInfo.Info.TARGET_PATH).ask()
+    LinkInfo(type=LinkInfo.Info.REL_OR_ABS).ask()
+    MakeLink(name="my_link").ask()
 
 
 if __name__ == "__main__":

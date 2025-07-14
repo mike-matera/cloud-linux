@@ -317,10 +317,6 @@ class KrozApp(App[str]):
 
         return super().post_message(message)
 
-    ## FIXME: Maintain compatibility with ask() API
-    def ask(self, question):
-        question.ask()
-
     def show(
         self, screen: str | Screen, classes: str = "", title: str | None = None
     ) -> Any:

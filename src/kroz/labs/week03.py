@@ -3,8 +3,9 @@ Lab for week 3.
 """
 
 from pathlib import Path
+
 from kroz import KrozApp
-from kroz.questions.week03 import PathAttrs, FlagFile, RelativePaths, questions
+from kroz.questions.week03 import FlagFile, PathAttrs, RelativePaths, questions
 
 app = KrozApp("The Filesystem", state_file="fs")
 
@@ -31,41 +32,33 @@ def main():
 
     for i, q in enumerate(questions):
         q.checkpoint = True
-        app.ask(q)
+        q.ask()
 
-    app.ask(
-        FlagFile(
-            type=FlagFile.FlagType.NAME,
-            points=3,
-            name="flagname",
-            checkpoint=True,
-        )
-    )
-    app.ask(
-        FlagFile(
-            type=FlagFile.FlagType.DIR,
-            points=2,
-            name="flagdir",
-            checkpoint=True,
-        )
-    )
-    app.ask(
-        PathAttrs(
-            type=PathAttrs.AttrType.SIZE,
-            points=5,
-            name="filesize",
-            checkpoint=True,
-        )
-    )
-    app.ask(
-        PathAttrs(
-            type=PathAttrs.AttrType.INODE,
-            points=5,
-            name="fileinode",
-            checkpoint=True,
-        )
-    )
-    app.ask(RelativePaths(from_path=Path.home(), points=5, checkpoint=True))
+    FlagFile(
+        type=FlagFile.FlagType.NAME,
+        points=3,
+        name="flagname",
+        checkpoint=True,
+    ).ask()
+    FlagFile(
+        type=FlagFile.FlagType.DIR,
+        points=2,
+        name="flagdir",
+        checkpoint=True,
+    ).ask()
+    PathAttrs(
+        type=PathAttrs.AttrType.SIZE,
+        points=5,
+        name="filesize",
+        checkpoint=True,
+    ).ask()
+    PathAttrs(
+        type=PathAttrs.AttrType.INODE,
+        points=5,
+        name="fileinode",
+        checkpoint=True,
+    ).ask()
+    RelativePaths(from_path=Path.home(), points=5, checkpoint=True)
     app.show(
         """
         # Complete! 
