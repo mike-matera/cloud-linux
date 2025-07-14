@@ -1,87 +1,11 @@
-"""
-Some lab called iolab or whatever.
-"""
+"""Questions for Week 7"""
 
-import kroz
 
 from kroz.question import Question
 import kroz.random as random
 from kroz.random.bigfile import random_big_file
 
 import textual.validation
-
-
-class WordInBigfile(Question):
-    """Find a particular word in a big big file."""
-
-    def __init__(
-        self,
-        rows=100000,
-        cols=100,
-        find=(None, None),
-        from_bottom=False,
-        from_right=False,
-        **kwargs,
-    ):
-        super().__init__(**kwargs)
-        self._file = random_big_file(rows=rows, cols=cols)
-        self._find = [*find]
-        if find[0] is None:
-            if not from_bottom:
-                self._find[0] = random.randint(0, rows - 1) + 1
-            else:
-                self._find[0] = random.randint(1 - rows, -1)
-
-        if find[1] is None:
-            if not from_right:
-                self._find[1] = random.randint(0, cols - 1) + 1
-            else:
-                self._find[1] = random.randint(1 - cols, -1)
-
-    @property
-    def text(self):
-        if self._find[0] >= 0:
-            line_no = self._find[0]
-        else:
-            line_no = f"{-self._find[0]} from the **bottom** of the file."
-
-        if self._find[1] >= 0:
-            word_no = self._find[1]
-        else:
-            word_no = f"{-self._find[1]} from the **end** of the line."
-
-        return f"""
-        # Find the Word 
-
-        I have just created the file called:
-         
-        `{self._file.path}`
-        
-        Inside of it you will find a lot of words. To solve this challenge find 
-        the word in the following place: 
-
-        * Line number: {line_no} 
-        * Word number: {word_no}
-
-        Enter the word in the answer box below.
-        """
-
-    placeholder = "Word"
-    validators = []
-
-    def setup(self):
-        self._file.setup()
-
-    def cleanup(self):
-        self._file.cleanup()
-
-    def check(self, answer):
-        solution = self._file.word_at(self._find[0], self._find[1])
-        assert answer.strip() == solution, """
-        # Incorrect!
-
-        That is not the correct word.
-        """
 
 
 class CountOranges(Question):
@@ -100,7 +24,8 @@ class CountOranges(Question):
         `{self._file.path}`
 
         How many lines contain the word "orange" or "Orange" where "orange" 
-        is not a part of another word (i.e. "oranges" and "orangeade" do not count)?
+        is not a part of another word (i.e. "oranges" and "orangeade" do not 
+        count)?
 
         Hint: Look in the manual for `grep`.
         """
@@ -201,28 +126,3 @@ class UniqueWords(Question):
             but will change after you exit this screen. 
             """
 
-
-WELCOME = f"""
-# I/O Lab 
-
-{"This is foo." * 100}
-"""
-
-
-app = kroz.KrozApp("The I/O Lab")
-
-
-@app.main
-def main():
-    app.show(WELCOME, classes="welcome")
-    app.ask(WordInBigfile(find=[None, 1]))
-    app.ask(CountOranges())
-    app.ask(UniqueWords(points=10))
-    app.ask(SortedWords())
-    app.ask(WordInBigfile(from_bottom=True, find=[None, 1]))
-    app.ask(WordInBigfile())
-    app.ask(WordInBigfile(from_right=True))
-
-
-if __name__ == "__main__":
-    quit(app.run())

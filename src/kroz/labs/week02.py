@@ -3,7 +3,9 @@ Lab for week 2.
 """
 
 import textwrap
+
 from kroz import KrozApp
+from kroz.ascii import tux
 from kroz.questions.week02 import (
     FreeMemory,
     NewYearFuture,
@@ -11,7 +13,6 @@ from kroz.questions.week02 import (
     WhatsUname,
     questions,
 )
-from kroz.ascii import tux
 
 app = KrozApp("Anatomy of a Command", state_file="anatomy")
 
@@ -37,7 +38,7 @@ def main():
 
     for i, q in enumerate(questions):
         q.checkpoint = True
-        app.ask(q)
+        q.ask()
 
     app.show(
         """
@@ -52,14 +53,12 @@ def main():
         classes="welcome",
     )
 
-    app.ask(FreeMemory(key="total", points=5, checkpoint=True))
-    app.ask(
-        WhatsUname(
-            key=WhatsUname.Keys.KERNEL_VERSION, points=5, checkpoint=True
-        )
-    )
-    app.ask(OsRelease(key="NAME", points=5, checkpoint=True))
-    app.ask(NewYearFuture(points=5, checkpoint=True))
+    FreeMemory(key="total", points=5, checkpoint=True).ask()
+    WhatsUname(
+        key=WhatsUname.Keys.KERNEL_VERSION, points=5, checkpoint=True
+    ).ask()
+    OsRelease(key="NAME", points=5, checkpoint=True).ask()
+    NewYearFuture(points=5, checkpoint=True).ask()
     app.show(
         """
         # Complete! 

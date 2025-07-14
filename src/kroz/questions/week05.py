@@ -1,11 +1,14 @@
 """
-Week 5 Questions 
+Week 5 Questions
 """
 
-from pathlib import Path
 import textwrap
+from pathlib import Path
+
 from kroz.question import Question
 from kroz.random.path import CheckDir, CheckFile, CheckPath
+
+questions: list[Question] = []
 
 
 class Islands(Question):
@@ -31,7 +34,7 @@ class Islands(Question):
                     "madeira", "Madeira is an island in the Atlantic ocean"
                 ),
                 CheckFile(
-                    "azores", "Azores is an island in the Atlantic ocean"
+                    "azores", "Azores are islands in the Atlantic ocean"
                 ),
                 CheckFile(
                     "langkawi", "Langkawi is an island in the Indian ocean"
@@ -77,7 +80,7 @@ class Islands(Question):
             )
 
     @property
-    def text(self): 
+    def text(self):
         return textwrap.dedent("""
         # Sort the Islands 
         
@@ -92,7 +95,9 @@ class Islands(Question):
         should look like this: 
 
         {}
-        """).format(self.start_files.markdown(), self.check_files.markdown(detail=True))
+        """).format(
+            self.start_files.markdown(), self.check_files.markdown(detail=True)
+        )
 
     def setup(self):
         self.start_files.sync()

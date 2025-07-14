@@ -2,22 +2,30 @@
 Abstract Question Base
 """
 
-from abc import ABC, abstractmethod
-from enum import Enum
 import random
 import re
 import subprocess
 import textwrap
+from abc import ABC, abstractmethod
+from contextlib import contextmanager
+from enum import Enum
 from typing import Iterable
+
 import textual
-from textual.validation import Validator
 import textual.validation
+from textual.validation import Validator
+
+from kroz.app import get_app
+from kroz.screen import KrozScreen, QuestionScreen
 
 
 class Question(ABC):
     """
     The base class of a question for the KROZ player.
     """
+
+    class _GroupFailedException(BaseException):
+        pass
 
     class Result(Enum):
         CORRECT = 1
@@ -118,6 +126,129 @@ class Question(ABC):
             stdout=subprocess.PIPE,
             encoding="utf-8",
         ).stdout
+
+    def ask(self) -> Result:
+        """Ask the question."""
+
+        app = get_app()
+
+        if self.debug or app._debug:
+            self.debug = True
+            self.can_skip = True
+
+        checkpoint_result = Question.Result.INCORRECT
+        if (
+            self.checkpoint
+            and self.name in app.state["checkpoints"]
+            and app.state["checkpoints"][self.name] == "Result.CORRECT"
+        ):
+            if app.state.get("in_group", False):
+                raise RuntimeError(
+                    "You can't checkpoint questions in a group."
+                )
+            app.score += self.points
+            return Question.Result.CHECKPOINTED
+        try:
+            self.setup()
+            tries_left = self.tries
+            while self.tries == 0 or tries_left > 0:
+                self.setup_attempt()
+
+                if tries_left >= 2:
+                    app.notify(
+                        f"You have {tries_left} tries left.",
+                        title="Notice",
+                        severity="warning",
+                    )
+                elif tries_left == 1:
+                    app.notify(
+                        "You have one try left!",
+                        title="Last Try",
+                        severity="error",
+                    )
+                answer = app.show(
+                    QuestionScreen(
+                        text=self.text,
+                        placeholder=self.placeholder,
+                        validators=self.validators,
+                        can_skip=self.can_skip,
+                    )
+                )
+                if answer is None:
+                    if self.debug:
+                        # Skips are correct in debug mode
+                        checkpoint_result = Question.Result.CORRECT
+                        return Question.Result.CORRECT
+
+                    if app.state.get("in_group", False):
+                        raise Question._GroupFailedException()
+
+                    checkpoint_result = Question.Result.SKIPPED
+                    return Question.Result.SKIPPED
+
+                try:
+                    result = self.check(answer)
+                except AssertionError as e:
+                    result = e
+                except Exception as e:
+                    result = e
+                    if self.debug:
+                        raise e
+
+                try:
+                    if isinstance(result, Exception):
+                        if isinstance(result, AssertionError):
+                            border_title = "Incorrect Answer"
+                        else:
+                            border_title = (
+                                f"Error: {result.__class__.__name__}"
+                            )
+                        app.show(
+                            KrozScreen(
+                                str(result),
+                                title=border_title,
+                                classes="feedback",
+                            )
+                        )
+                        tries_left -= 1
+                    else:
+                        app.update_score(self.points)
+                        app.show(
+                            KrozScreen(
+                                "# Congratulations" if not result else result,
+                                title="Success",
+                                classes="congrats",
+                            )
+                        )
+                        checkpoint_result = Question.Result.CORRECT
+                        return Question.Result.CORRECT
+                finally:
+                    self.cleanup_attempt()
+        finally:
+            self.cleanup()
+            if self.checkpoint:
+                app.state["checkpoints"][self.name] = str(checkpoint_result)
+                app.state.store()
+
+        return Question.Result.INCORRECT
+
+    @contextmanager
+    def group(self, checkpoint=None):
+        """
+        A context manager to group questions together. If any of the questions
+        in the group are skipped or answered incorrectly, the group exits
+        without asking any further questions. A question group is useful when
+        a set of questions build on each other and when the desired behavior of
+        the lab is to allow students to skip ahead, bypassing the entire group.
+        """
+        app = get_app()
+        old_group = app.state.get("in_group", False, store=True)
+        try:
+            yield
+        except Question._GroupFailedException:
+            pass
+        finally:
+            self._group = old_group
 
 
 class MultipleChoiceQuestion(Question):

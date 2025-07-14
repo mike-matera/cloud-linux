@@ -4,7 +4,13 @@ Lab for week 04
 
 from kroz import KrozApp
 from kroz.questions.week03 import PathAttrs, RelativePaths
-from kroz.questions.week04 import FileType, LinkInfo, WordInBigfile
+from kroz.questions.week04 import (
+    FileType,
+    LinkInfo,
+    MakeLink,
+    WordInBigfile,
+    questions,
+)
 
 app = KrozApp(title="Files Lab", state_file="files")
 
@@ -22,12 +28,18 @@ def main():
         1. `ls`
         2. `file`
         3. `less`
+        3. `cat`
+        3. `ln -s`
 
         Make sure to watch the lesson before you continue. 
         """,
         classes="welcome",
         title="Welcome!",
     )
+
+    for i, q in enumerate(questions):
+        q.checkpoint = True
+        app.ask(q)
 
     app.ask(
         PathAttrs(
@@ -40,6 +52,8 @@ def main():
     app.ask(RelativePaths())
     app.ask(LinkInfo(type=LinkInfo.Info.TARGET_PATH))
     app.ask(LinkInfo(type=LinkInfo.Info.REL_OR_ABS))
+    app.ask(MakeLink(name="my_link"))
+
 
 if __name__ == "__main__":
     print("Your confirmation code is:", app.run())

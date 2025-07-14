@@ -4,14 +4,12 @@ The Kroz Application Player
 This module is a UI for Linux labs.
 """
 
-from contextlib import contextmanager
 import os
 import pathlib
-from enum import Enum
-import subprocess
-from typing import Any, Literal
-from collections.abc import Callable
 import uuid
+from collections.abc import Callable
+from enum import Enum
+from typing import Any, Literal
 
 from textual.app import App
 from textual.containers import Vertical
@@ -26,11 +24,9 @@ from textual.widgets import (
 )
 from textual.worker import Worker, get_current_worker
 
-from kroz.screen import KrozScreen, QuestionScreen
+from kroz.screen import KrozScreen
 from kroz.secrets import ConfirmationCode, JsonBoxFile
 from kroz.widget.score_header import ScoreHeader
-from kroz.question import Question
-
 
 _setuphooks = []
 
@@ -179,11 +175,7 @@ class KrozApp(App[str]):
     class CancelledWorkerException(BaseException):
         pass
 
-    class GroupFailedException(BaseException):
-        pass
-
     BINDINGS = [
-        ("ctrl+s", "shell_escape", "Shell"),
         ("ctrl+q", "app.cleanup_quit", "Quit"),
     ]
 
@@ -278,7 +270,6 @@ class KrozApp(App[str]):
         self._main_worker = self.run_worker(
             self._run_user_app, "main", thread=True
         )
-        self._main_worker._question_group = False  # type: ignore
 
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
@@ -313,26 +304,6 @@ class KrozApp(App[str]):
             if msg.message:
                 self._progress_screen._task_log.write(msg.message)
 
-    def action_shell_escape(self):
-        # TODO: Someday this could be entirely web based!
-        # class TerminalScreen(Screen):
-        #    def compose(self):
-        #        yield Terminal(
-        #            command="/usr/bin/bash",
-        #            id="terminal",
-        #        )
-        #    def on_mount(self) -> None:
-        #        terminal: Terminal = self.query_one("#terminal")
-        #        terminal.start()
-        #    def on_terminal_started(self, event: Terminal.Started) -> None:
-        #        self.log("terminal started:", event)
-        #    def on_terminal_stopped(self, event: Terminal.Stopped) -> None:
-        #        self.log("terminal stopped:", event)
-        #        self.dismiss()
-        # self.push_screen(TerminalScreen())
-        with self.suspend():
-            subprocess.run("$SHELL", shell=True)
-
     async def action_cleanup_quit(self):
         self.workers.cancel_all()
 
@@ -345,6 +316,10 @@ class KrozApp(App[str]):
             raise KrozApp.CancelledWorkerException()
 
         return super().post_message(message)
+
+    ## FIXME: Maintain compatibility with ask() API
+    def ask(self, question):
+        question.ask()
 
     def show(
         self, screen: str | Screen, classes: str = "", title: str | None = None
@@ -380,136 +355,15 @@ class KrozApp(App[str]):
     def update_score(self, points: int):
         self.post_message(ScoreMessage(update=points))
 
-    def ask(self, question: Question) -> Question.Result:
-        """Ask the question."""
-
-        if self._debug:
-            question.debug = True
-            question.can_skip = True
-
-        worker = get_current_worker()
-        checkpoint_result = Question.Result.INCORRECT
-        if (
-            question.checkpoint
-            and question.name in self.state["checkpoints"]
-            and self.state["checkpoints"][question.name] == "Result.CORRECT"
-        ):
-            if worker._question_group:  # type: ignore
-                raise RuntimeError(
-                    "You can't checkpoint questions in a group."
-                )
-            self.score += question.points
-            return Question.Result.CHECKPOINTED
-        try:
-            question.setup()
-            tries_left = question.tries
-            while question.tries == 0 or tries_left > 0:
-                question.setup_attempt()
-
-                if tries_left >= 2:
-                    self.notify(
-                        f"You have {tries_left} tries left.",
-                        title="Notice",
-                        severity="warning",
-                    )
-                elif tries_left == 1:
-                    self.notify(
-                        "You have one try left!",
-                        title="Last Try",
-                        severity="error",
-                    )
-                answer = self.show(
-                    QuestionScreen(
-                        text=question.text,
-                        placeholder=question.placeholder,
-                        validators=question.validators,
-                        can_skip=question.can_skip,
-                    )
-                )
-                if answer is None:
-                    if self._debug:
-                        # Skips are correct in debug mode
-                        checkpoint_result = Question.Result.CORRECT
-                        return Question.Result.CORRECT
-
-                    if worker._question_group:  # type: ignore
-                        raise KrozApp.GroupFailedException()
-
-                    checkpoint_result = Question.Result.SKIPPED
-                    return Question.Result.SKIPPED
-
-                try:
-                    result = question.check(answer)
-                except AssertionError as e:
-                    result = e
-                except Exception as e:
-                    result = e
-                    if question.debug or self._debug:
-                        raise e
-
-                try:
-                    if isinstance(result, Exception):
-                        if isinstance(result, AssertionError):
-                            border_title = "Incorrect Answer"
-                        else:
-                            border_title = (
-                                f"Error: {result.__class__.__name__}"
-                            )
-                        self.show(
-                            KrozScreen(
-                                str(result),
-                                title=border_title,
-                                classes="feedback",
-                            )
-                        )
-                        tries_left -= 1
-                    else:
-                        self.update_score(question.points)
-                        self.show(
-                            KrozScreen(
-                                "# Congratulations" if not result else result,
-                                title="Success",
-                                classes="congrats",
-                            )
-                        )
-                        checkpoint_result = Question.Result.CORRECT
-                        return Question.Result.CORRECT
-                finally:
-                    question.cleanup_attempt()
-        finally:
-            question.cleanup()
-            if question.checkpoint:
-                self.state["checkpoints"][question.name] = str(
-                    checkpoint_result
-                )
-                self.state.store()
-
-        return Question.Result.INCORRECT
-
-    @contextmanager
-    def group(self, checkpoint=None):
-        """
-        A context manager to group questions together. If any of the questions
-        in the group are skipped or answered incorrectly, the group exits
-        without asking any further questions. A question group is useful when
-        a set of questions build on each other and when the desired behavior of
-        the lab is to allow students to skip ahead, bypassing the entire group.
-        """
-        worker = get_current_worker()
-        old_group = worker._question_group  # type: ignore
-        worker._question_group = True  # type: ignore
-
-        try:
-            yield
-        except KrozApp.GroupFailedException:
-            pass
-        finally:
-            self._group = old_group
-
     @property
     def config(self):
         """A dictionary of configuration parameters."""
         return self._config
+
+    # FIXME: (someday)... is accessing app.state[] really valid? Since show()
+    # blocks this thread and Kroz doesn't do anything when a screen is not
+    # showing it's probably not going to cause any trouble. Should it be
+    # synchronized with a thread safe API?
 
     @property
     def state(self):
@@ -526,7 +380,9 @@ class KrozApp(App[str]):
 
 
 def get_app() -> KrozApp:
-    return get_current_worker().node  # type: ignore
+    app: KrozApp = get_current_worker().node  # type: ignore
+    assert isinstance(app, KrozApp)
+    return app
 
 
 def get_appconfig(key: str) -> Any:

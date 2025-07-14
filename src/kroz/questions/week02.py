@@ -6,17 +6,18 @@ Chapter 1 of the book.
 """
 
 import datetime
-from enum import Enum
 import random
 import re
+from enum import Enum
+
 import textual.validation
+
 from kroz.question import (
     MultipleChoiceQuestion,
     Question,
     ShortAnswerQuestion,
     TrueOrFalseQuestion,
 )
-
 
 questions = [
     TrueOrFalseQuestion(
@@ -131,13 +132,13 @@ class NewYearFuture(Question):
     """Use the `cal` program."""
 
     DAYS = [
-        "Sunday",
         "Monday",
         "Tuesday",
         "Wednesday",
         "Thursday",
         "Friday",
         "Saturday",
+        "Sunday",
     ]
 
     placeholder = "Enter a day of the week"
@@ -151,7 +152,7 @@ class NewYearFuture(Question):
         super().__init__(**kwargs)
         self._year = random.randint(2040, 2150)
         self._solution = NewYearFuture.DAYS[
-            datetime.date(self._year, 1, 1).isoweekday()
+            datetime.date(self._year, 1, 1).isoweekday() - 1
         ]
 
     @property

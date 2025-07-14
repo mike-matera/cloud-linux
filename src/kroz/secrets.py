@@ -3,19 +3,19 @@ Library for generating and managing copy-and-paste confirmation messages.
 """
 
 import base64
-import hashlib
-import platform
-import getpass
-import json
 import datetime
-import uuid
-import nacl.secret
-import nacl.exceptions
-import nacl.encoding
+import getpass
+import hashlib
+import json
 import pathlib
+import platform
 import sys
-
+import uuid
 from typing import Any
+
+import nacl.encoding
+import nacl.exceptions
+import nacl.secret
 
 
 class JsonBoxFile:
@@ -52,11 +52,12 @@ class JsonBoxFile:
     def load(self):
         try:
             with open(self._path, "rb") as fh:
-                self._data = json.loads(
+                self._data: dict[str, Any] = json.loads(
                     self._box.decrypt(
                         fh.read(), encoder=nacl.encoding.URLSafeBase64Encoder
                     )
                 )
+                assert isinstance(self._data, dict)
         except (nacl.exceptions.CryptoError, OSError):
             self._data = {}
 
@@ -70,8 +71,15 @@ class JsonBoxFile:
     def __contains__(self, key):
         return key in self._data
 
-    def get(self, key: Any, default: Any = None) -> Any:
-        return self._data.get(key, default)
+    def get(
+        self, key: Any, default: Any = None, *, store: bool = False
+    ) -> Any:
+        if key in self._data:
+            return self._data[key]
+        else:
+            if store:
+                self._data[key] = default
+            return default
 
 
 class ConfirmationCode:

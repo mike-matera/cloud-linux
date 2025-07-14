@@ -2,18 +2,77 @@
 Questions for Week 4 covering Chapter 3
 """
 
-from enum import Enum
 import os
-from pathlib import Path
 import re
+from enum import Enum
+from pathlib import Path
 from typing import Callable
-from kroz.question import Question
+
+from textual.validation import Regex
+
 import kroz.random as random
+from kroz.app import get_appconfig
+from kroz.question import (
+    MultipleChoiceQuestion,
+    Question,
+    ShortAnswerQuestion,
+    TrueOrFalseQuestion,
+)
 from kroz.random.bigfile import random_big_file
 from kroz.random.real_path import random_real_path
 from kroz.validation import AbsolutePath, NotEmpty
 
-from textual.validation import Regex
+questions: list[Question] = [
+    MultipleChoiceQuestion(
+        "Which of these is a *hidden* file?",
+        ".file",
+        "~/file",
+        "file",
+        "There are no hidden files",
+    ),
+    MultipleChoiceQuestion(
+        "Which option to the `ls` command shows hidden files?",
+        "-a",
+        "-h",
+        "-l",
+        "-r",
+    ),
+    TrueOrFalseQuestion(
+        "A files *extension* (e.g. `.jpeg`) determines the file type.",
+        False,
+        help="""
+                        # File Types 
+                        The type of a file is determined by its *contents*, not its 
+                        name. In other words, the name of a file and what it 
+                        contains are not strictly related. However, it's a good 
+                        idea to name files appropriately so that, most of the time, 
+                        a person doesn't need the `file` command to figure out 
+                        what's inside of a file.
+                        """,
+    ),
+    MultipleChoiceQuestion(
+        "What is the difference between `cat` and `less`?",
+        "`cat` prints the whole file while `less` lets you scroll through it.",
+        "`less` as invented to replace `cat`.",
+        "`cat` is a *pager* while `less` determines the file type.",
+        "`less` is old and shouldn't be used anymore.",
+    ),
+    ShortAnswerQuestion(
+        "What command lists the contents of a directory?", "ls"
+    ),
+    ShortAnswerQuestion(
+        "What command shows what *type* of data a file contains?", "file"
+    ),
+    ShortAnswerQuestion(
+        "What command lets you use the arrows keys to scroll through the contents of a file?",
+        "less",
+    ),
+    ShortAnswerQuestion(
+        "What command dumps the entire contents of a file to the terminal?",
+        "cat",
+    ),
+    ShortAnswerQuestion("What command creates *symbolic links*?", "ln -s"),
+]
 
 
 class WordInBigfile(Question):
@@ -222,3 +281,75 @@ class LinkInfo(Question):
                 )
         else:
             raise ValueError("Bad type")
+
+
+class MakeLink(Question):
+    """Make a symbolic link."""
+
+    def __init__(
+        self,
+        name: str | Path,
+        target: str | Path | None = None,
+        rel: bool | None = None,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+        self._path = Path(name)
+        if not self._path.is_absolute():
+            self._path = (
+                Path(get_appconfig("default_path")) / self._path
+            ).absolute()
+        else:
+            try:
+                self._path.relative_to(Path(get_appconfig("default_path")))
+            except ValueError:
+                raise RuntimeError(
+                    "The path of a link must be relative to the app's default_path"
+                )
+
+        self._path = Path(name).absolute()
+        if target is None:
+            self._target = random_real_path().random_file()
+        else:
+            target = Path(target)
+        self._rel = rel
+
+    @property
+    def text(self):
+        rel = ""
+        if self._rel is not None:
+            if self._rel:
+                rel = "The link should be a relative link."
+            else:
+                rel = "The link should be an absolute link."
+        return f"""
+        # Make a Symbolic Link 
+
+        Make a symbolic link named `{str(self._path).replace(str(Path.home()), "~")}` 
+        that points to `{self._target}`. 
+        **{rel}** 
+        
+        When you have made the link type `Enter` to continue.
+        """
+
+    placeholder = "Enter to continue"
+
+    def check(self, answer):
+        assert self._path.exists(), (
+            f"""I can't find anything with at {self._path}"""
+        )
+        assert self._path.is_symlink(), (
+            f"""The path `{self._path}` is not a symbolic link."""
+        )
+        assert self._path.readlink().resolve() == self._target.resolve(), (
+            f"""The link `{self._path}` doesn't point to the right place."""
+        )
+        if self._rel is not None:
+            if self._rel:
+                assert not self._path.readlink().is_absolute(), (
+                    f"""The link `{self._path}` is not relative."""
+                )
+            else:
+                assert self._path.readlink().is_absolute(), (
+                    f"""The link `{self._path}` is not absolute."""
+                )
