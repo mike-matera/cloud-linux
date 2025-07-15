@@ -19,14 +19,16 @@ app = kroz.KrozApp("The I/O Lab")
 @app.main
 def main():
     app.show(WELCOME, classes="welcome")
-    WordInBigfile(find=[None, 1]).ask()
-    CountOranges().ask()
-    UniqueWords(points=10).ask()
-    SortedWords().ask()
-    WordInBigfile(from_bottom=True, find=[None, 1]).ask()
-    WordInBigfile().ask()
-    WordInBigfile(from_right=True).ask()
+    WordInBigfile(find=[None, 1]).show()
+    CountOranges().show()
+    UniqueWords(points=10).show()
+    SortedWords().show()
+    WordInBigfile(from_bottom=True, find=[None, 1]).show()
+    WordInBigfile().show()
+    WordInBigfile(from_right=True).show()
+
+    return app.confirmation()
 
 
 if __name__ == "__main__":
-    quit(app.run())
+    app.run()

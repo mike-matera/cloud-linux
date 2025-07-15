@@ -39,25 +39,25 @@ def main():
         points=3,
         name="flagname",
         checkpoint=True,
-    ).ask()
+    ).show()
     FlagFile(
         type=FlagFile.FlagType.DIR,
         points=2,
         name="flagdir",
         checkpoint=True,
-    ).ask()
+    ).show()
     PathAttrs(
         type=PathAttrs.AttrType.SIZE,
         points=5,
         name="filesize",
         checkpoint=True,
-    ).ask()
+    ).show()
     PathAttrs(
         type=PathAttrs.AttrType.INODE,
         points=5,
         name="fileinode",
         checkpoint=True,
-    ).ask()
+    ).show()
     RelativePaths(from_path=Path.home(), points=5, checkpoint=True)
     app.show(
         """
@@ -72,7 +72,8 @@ def main():
         title="Bye!",
     )
 
+    return app.confirmation()
+
 
 if __name__ == "__main__":
-    code = app.run()
-    print("Your confirmation code is:", code)
+    app.run()

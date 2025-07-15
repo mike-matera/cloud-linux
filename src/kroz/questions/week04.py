@@ -12,7 +12,7 @@ from textual.validation import Regex
 
 import kroz.random as random
 from kroz.app import get_appconfig
-from kroz.question import (
+from kroz.flows.question import (
     MultipleChoiceQuestion,
     Question,
     ShortAnswerQuestion,

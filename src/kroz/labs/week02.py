@@ -38,7 +38,7 @@ def main() -> str:
 
     for i, q in enumerate(questions):
         q.checkpoint = True
-        q.ask()
+        q.show()
 
     app.show(
         """
@@ -53,12 +53,12 @@ def main() -> str:
         classes="welcome",
     )
 
-    FreeMemory(key="total", points=5, checkpoint=True).ask()
+    FreeMemory(key="total", points=5, checkpoint=True).show()
     WhatsUname(
         key=WhatsUname.Keys.KERNEL_VERSION, points=5, checkpoint=True
-    ).ask()
-    OsRelease(key="NAME", points=5, checkpoint=True).ask()
-    NewYearFuture(points=5, checkpoint=True).ask()
+    ).show()
+    OsRelease(key="NAME", points=5, checkpoint=True).show()
+    NewYearFuture(points=5, checkpoint=True).show()
     app.show(
         """
         # Complete! 

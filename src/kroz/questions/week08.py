@@ -1,7 +1,8 @@
 import pathlib
+
 from kroz import KrozApp
 from kroz.app import get_appconfig
-from kroz.question import (
+from kroz.flows.question import (
     Question,
 )
 from kroz.random.bigdir import random_directory

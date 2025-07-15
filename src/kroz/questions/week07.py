@@ -1,11 +1,10 @@
 """Questions for Week 7"""
 
-
-from kroz.question import Question
-import kroz.random as random
-from kroz.random.bigfile import random_big_file
-
 import textual.validation
+
+import kroz.random as random
+from kroz.flows.question import Question
+from kroz.random.bigfile import random_big_file
 
 
 class CountOranges(Question):
@@ -125,4 +124,3 @@ class UniqueWords(Question):
             That was not the correct answer. The correct answer is {self._answer}
             but will change after you exit this screen. 
             """
-

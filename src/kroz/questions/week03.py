@@ -5,15 +5,18 @@ Chapter 2 of the book.
 
 """
 
-from enum import Enum
 import grp
 import os
-from pathlib import Path
 import pwd
 import textwrap
-from kroz.app import get_appconfig
+from enum import Enum
+from pathlib import Path
+
+from textual.validation import Integer
+
 import kroz.ascii
-from kroz.question import (
+from kroz.app import get_appconfig
+from kroz.flows.question import (
     MultipleChoiceQuestion,
     Question,
     ShortAnswerQuestion,
@@ -30,8 +33,6 @@ from kroz.validation import (
     PathIsFile,
     RelativePath,
 )
-from textual.validation import Integer
-
 
 questions = [
     TrueOrFalseQuestion(

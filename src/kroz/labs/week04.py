@@ -39,18 +39,20 @@ def main():
 
     for i, q in enumerate(questions):
         q.checkpoint = True
-        q.ask()
+        q.show()
 
     PathAttrs(
         path_type=PathAttrs.PathType.DIR, type=PathAttrs.AttrType.INODE
-    ).ask()
-    WordInBigfile(find=(1, 1)).ask()
-    FileType().ask()
-    RelativePaths().ask()
-    LinkInfo(type=LinkInfo.Info.TARGET_PATH).ask()
-    LinkInfo(type=LinkInfo.Info.REL_OR_ABS).ask()
-    MakeLink(name="my_link").ask()
+    ).show()
+    WordInBigfile(find=(1, 1)).show()
+    FileType().show()
+    RelativePaths().show()
+    LinkInfo(type=LinkInfo.Info.TARGET_PATH).show()
+    LinkInfo(type=LinkInfo.Info.REL_OR_ABS).show()
+    MakeLink(name="my_link").show()
+
+    return app.confirmation()
 
 
 if __name__ == "__main__":
-    print("Your confirmation code is:", app.run())
+    app.run()

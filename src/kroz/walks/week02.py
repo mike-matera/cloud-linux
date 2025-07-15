@@ -3,7 +3,7 @@ Walk through for week 2: Anatomy of a command.
 """
 
 import kroz
-from kroz.interaction import interaction
+from kroz.flows.interaction import interaction
 
 app = kroz.KrozApp("Anatomy of a Command")
 
@@ -24,6 +24,7 @@ $ cal
 ```
 """,
         lambda cmd: cmd.command == "cal",
+        checkpoint=True,
     )
     interaction(
         """ 

@@ -3,7 +3,7 @@ Walk through for week 3: The File System
 """
 
 import kroz
-from kroz.interaction import interaction
+from kroz.flows.interaction import interaction
 
 app = kroz.KrozApp("The File System")
 

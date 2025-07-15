@@ -20,8 +20,9 @@ app = kroz.KrozApp("Sort the Islands", debug=True)
 @app.main
 def main():
     app.show(WELCOME, classes="welcome")
-    Islands2().ask()
+    Islands2().show()
+    return app.confirmation()
 
 
 if __name__ == "__main__":
-    quit(app.run())
+    app.run()

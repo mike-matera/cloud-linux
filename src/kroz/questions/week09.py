@@ -1,17 +1,18 @@
 """
-Week 9 Questions 
+Week 9 Questions
 """
 
 import grp
-from pathlib import Path
 import textwrap
+from pathlib import Path
+
 from kroz.random.path import CheckDir, CheckFile, CheckPath
 
 from .week05 import Islands
 
+
 class Islands2(Islands):
     """The islands with perms."""
-
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -58,14 +59,13 @@ class Islands2(Islands):
             )
 
     @property
-    def text(self): 
+    def text(self):
         return textwrap.dedent("""
         # Island Permissions 
         
         I have created a directory called `Islands` with the island files from 
         the previous island assignment. For this assignment update the 
-        permissions of your isldand files to match the following:
+        permissions of your island files to match the following:
                                
         {}
         """).format(self.check_files.markdown(detail=True))
-

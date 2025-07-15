@@ -12,7 +12,7 @@ from enum import Enum
 
 import textual.validation
 
-from kroz.question import (
+from kroz.flows.question import (
     MultipleChoiceQuestion,
     Question,
     ShortAnswerQuestion,
