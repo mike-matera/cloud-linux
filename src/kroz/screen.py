@@ -3,6 +3,7 @@ KROZ Screen Base
 """
 
 import textwrap
+from pathlib import Path
 
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -39,7 +40,7 @@ class KrozScreen(Screen[str]):
         Binding("enter", "dismiss", "Continue"),
     ]
 
-    CSS_PATH = "app.tcss"
+    CSS_PATH = Path(__file__).parent / "app.tcss"
 
     def __init__(
         self,
