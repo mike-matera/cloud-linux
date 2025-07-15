@@ -1,11 +1,11 @@
 """
-Testing my fun weird idea....
+Walk through for week 2: Anatomy of a command.
 """
 
 import kroz
 from kroz.interaction import interaction
 
-app = kroz.KrozApp("Command line spy!")
+app = kroz.KrozApp("Anatomy of a Command")
 
 
 @app.main
@@ -113,8 +113,8 @@ $ free -s 1 -L
         lambda cmd: cmd.command == "free" and cmd.result != 0,
     )
 
-    return "Congratulations, your journey is complete."
+    return "Congratulations, your journey is complete!"
 
 
 if __name__ == "__main__":
-    quit(app.run())
+    app.run()
