@@ -196,7 +196,7 @@ class KrozApp(App[str]):
         super().__init__()
         self.title = title
         self._debug = debug
-        self._main_func: Callable[[], None] = lambda: None
+        self._main_func: Callable[[], str] = lambda: ""
         self._main_worker: Worker | None = None
         self._config = {}
         self._user_config = user_config
@@ -218,7 +218,7 @@ class KrozApp(App[str]):
         yield ScoreHeader()
         yield Footer()
 
-    def _run_user_app(self):
+    def _run_user_app(self) -> str:
         global _setuphooks, _default_config
         try:
             self._config = _default_config
@@ -256,12 +256,12 @@ class KrozApp(App[str]):
 
             for hook in _setuphooks:
                 hook()
-            self._main_func()  # type: ignore
+            return self._main_func()
         except KrozApp.CancelledWorkerException:
             # Don't propagate
-            pass
+            return ""
 
-    def main(self, func: Callable[[], None]):
+    def main(self, func: Callable[[], str]):
         """Decorator for the main() function."""
         self._main_func = func
         return func
@@ -274,7 +274,7 @@ class KrozApp(App[str]):
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
         if event.worker.name == "main" and event.worker.is_finished:
-            self.exit(result=self.confirmation(), return_code=0)
+            self.exit(result=event.worker.result, return_code=0)
 
     def on_score_message(self, msg: ScoreMessage):
         if msg._update:
