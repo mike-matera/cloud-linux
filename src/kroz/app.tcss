@@ -10,6 +10,8 @@ Screen {
 .content Markdown {
     max-width: 100;
     background-tint: $foreground 5%;
+    border: heavy $panel;
+    padding: 1;
 }
 
 .answer {
@@ -38,15 +40,12 @@ Screen {
 
 .feedback Markdown {
     border: heavy $error;
-    padding: 1;
 }
 
 .congrats Markdown {
     border: heavy $success;
-    padding: 1;
 }
 
 .welcome Markdown {
     border: heavy $accent;
-    padding: 1;
 }

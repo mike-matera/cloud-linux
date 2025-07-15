@@ -4,8 +4,10 @@ KROZ CLI
 
 import argparse
 import runpy
-from kroz.secrets import cli as secrets_cli
+from importlib.resources import files
+
 from kroz.app import KrozApp
+from kroz.secrets import cli as secrets_cli
 
 
 def run(args) -> int:
@@ -31,7 +33,7 @@ def run(args) -> int:
             f"""The member named "{app}" is not a KrozApp in {module}"""
         )
     modns[app]._debug = args.debug
-    modns[app].run()
+    print(modns[app].run())
     return 0
 
 
@@ -67,10 +69,17 @@ def ask(args) -> int:
     app = KrozApp(module, debug=True)
 
     def _main():
-        app.ask(modns[question](**kwargs))
+        modns[question](**kwargs).ask()
+        return ""
 
     app.main(_main)
-    app.run()
+    print(app.run())
+    return 0
+
+
+def config(args) -> int:
+    """Write the BASH configuration to the screen so it can be eval'd."""
+    print(files("kroz.bash").joinpath("setup.sh").read_text())
     return 0
 
 
@@ -107,6 +116,13 @@ def main() -> int:
         "args", nargs="*", help="An argument to the initializer."
     )
     askparser.set_defaults(func=ask)
+
+    configparser = subparsers.add_parser(
+        "config",
+        help="Echo BASH configuration to the screen.",
+        description=ask.__doc__,
+    )
+    configparser.set_defaults(func=config)
 
     args = parser.parse_args()
     return args.func(args)
