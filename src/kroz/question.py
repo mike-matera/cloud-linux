@@ -1,5 +1,5 @@
 """
-Abstract Question Base
+The protocol and implementation of a question in KROZ.
 """
 
 import random
@@ -13,15 +13,22 @@ from typing import Iterable
 
 import textual
 import textual.validation
+from textual import on
+from textual.app import ComposeResult
+from textual.containers import HorizontalGroup, VerticalGroup
 from textual.validation import Validator
+from textual.widgets import (
+    Input,
+    Label,
+)
 
 from kroz.app import get_app
-from kroz.screen import KrozScreen, QuestionScreen
+from kroz.screen import KrozScreen
 
 
 class Question(ABC):
     """
-    The base class of a question for the KROZ player.
+    The base class of a question for KROZ.
     """
 
     class _GroupFailedException(BaseException):
@@ -252,7 +259,7 @@ class Question(ABC):
 
 
 class MultipleChoiceQuestion(Question):
-    """A multiple choice question for the KROZ player."""
+    """A multiple choice question for KROZ"""
 
     placeholder = "Enter the choice number."
 
@@ -292,7 +299,7 @@ class MultipleChoiceQuestion(Question):
 
 
 class TrueOrFalseQuestion(Question):
-    """A true or false question for the KROZ player."""
+    """A true or false question for KROZ."""
 
     placeholder = "Enter t or f"
 
@@ -328,7 +335,7 @@ class TrueOrFalseQuestion(Question):
 
 
 class ShortAnswerQuestion(Question):
-    """A (vert) short answer question for the KROZ player."""
+    """A (vert) short answer question for KROZ."""
 
     def __init__(
         self, text: str, solution: str, help: str | None = None, **kwargs
@@ -353,3 +360,58 @@ class ShortAnswerQuestion(Question):
         assert self._solution == answer.strip(), (
             self._help if self._help is not None else "That's not correct."
         )
+
+
+class QuestionScreen(KrozScreen):
+    """The visual component of a KROZ question."""
+
+    CSS_PATH = "app.tcss"
+
+    def __init__(
+        self,
+        text: str,
+        placeholder: str,
+        validators: Validator | Iterable[Validator],
+        **kwargs,
+    ):
+        super().__init__(text, **kwargs)
+        self._placeholder = placeholder
+        self._validators = validators
+
+    def compose(self) -> ComposeResult:
+        yield from super().compose()
+        with VerticalGroup(classes="answer"):
+            with HorizontalGroup():
+                yield Label("$", id="prompt")
+                yield Input(
+                    placeholder=self._placeholder,
+                    validate_on=["submitted"],
+                    validators=self._validators,
+                )
+
+    def on_mount(self):
+        super().on_mount()
+        self.query_one("Input").focus()
+
+    @on(Input.Submitted)
+    async def submit(self, event: Input.Changed) -> None:
+        input: Input = self.query_one("Input")  # type: ignore
+        query = self.query("#validation")
+        if query:
+            feedback = query.first()
+        else:
+            feedback = Label("", id="validation")
+            await self.query_one(".answer").mount(feedback, before=0)
+
+        if not event.validation_result or event.validation_result.is_valid:
+            self.dismiss(event.value)
+        else:
+            self.query_one("#validation").update(  # type: ignore
+                "\n".join(
+                    (
+                        f"❌ {x}"
+                        for x in event.validation_result.failure_descriptions
+                    )
+                )
+            )
+        input.clear()

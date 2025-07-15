@@ -1,8 +1,11 @@
 """
-A KROZ screen
+KROZ Screen Base
 """
 
 import textwrap
+
+from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.screen import Screen
 from textual.widgets import (
     Footer,
@@ -10,20 +13,6 @@ from textual.widgets import (
 )
 
 from kroz.widget.score_header import ScoreHeader
-
-
-from textual.binding import Binding
-
-from typing import Iterable
-from textual.validation import Validator
-from textual.app import ComposeResult
-
-from textual import on
-from textual.widgets import (
-    Label,
-    Input,
-)
-from textual.containers import HorizontalGroup, VerticalGroup
 
 
 class KrozScreen(Screen[str]):
@@ -74,7 +63,7 @@ class KrozScreen(Screen[str]):
             classes="content",
         )
 
-    def on_mount(self):
+    def on_mount(self) -> None:
         md = self.query_one("Markdown")
         md.border_title = self._text_title
         self.refresh_bindings()
@@ -122,57 +111,3 @@ class KrozScreen(Screen[str]):
                 return False
         else:
             return True
-
-
-class QuestionScreen(KrozScreen):
-    CSS_PATH = "app.tcss"
-
-    def __init__(
-        self,
-        text: str,
-        placeholder: str,
-        validators: Validator | Iterable[Validator],
-        **kwargs,
-    ):
-        super().__init__(text, **kwargs)
-        self._placeholder = placeholder
-        self._validators = validators
-        self._result = None
-
-    def compose(self) -> ComposeResult:
-        yield from super().compose()
-        with VerticalGroup(classes="answer"):
-            with HorizontalGroup():
-                yield Label("$", id="prompt")
-                yield Input(
-                    placeholder=self._placeholder,
-                    validate_on=["submitted"],
-                    validators=self._validators,
-                )
-
-    def on_mount(self):
-        super().on_mount()
-        self.query_one("Input").focus()
-
-    @on(Input.Submitted)
-    async def submit(self, event: Input.Changed) -> None:
-        input: Input = self.query_one("Input")  # type: ignore
-        query = self.query("#validation")
-        if query:
-            feedback = query.first()
-        else:
-            feedback = Label("", id="validation")
-            await self.query_one(".answer").mount(feedback, before=0)
-
-        if not event.validation_result or event.validation_result.is_valid:
-            self.dismiss(event.value)
-        else:
-            self.query_one("#validation").update(  # type: ignore
-                "\n".join(
-                    (
-                        f"❌ {x}"
-                        for x in event.validation_result.failure_descriptions
-                    )
-                )
-            )
-        input.clear()
