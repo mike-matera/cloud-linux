@@ -2,13 +2,12 @@
 The protocol and implementation of a question in KROZ.
 """
 
+import hashlib
 import random
 import re
 import subprocess
 import textwrap
-from abc import ABC, abstractmethod
-from contextlib import contextmanager
-from enum import Enum
+from abc import abstractmethod
 from typing import Iterable
 
 import textual
@@ -23,25 +22,14 @@ from textual.widgets import (
 )
 
 from kroz.app import get_app
+from kroz.flows.base import KrozFlow
 from kroz.screen import KrozScreen
 
 
-class Question(ABC):
+class Question(KrozFlow):
     """
     The base class of a question for KROZ.
     """
-
-    class _GroupFailedException(BaseException):
-        pass
-
-    class Result(Enum):
-        CORRECT = 1
-        INCORRECT = 2
-        SKIPPED = 3
-        CHECKPOINTED = 4
-
-    # The displayed text of the question. Interpreted as Markdown
-    text: str | property
 
     # Textual Validators that will be used by the input. Help students get the
     # right type of answer (e.g. int)
@@ -52,36 +40,7 @@ class Question(ABC):
     placeholder: str | property = "Answer"
 
     # Number of tries
-    tries: int | property = 0
-    can_skip: bool | property = True
-    points: int | property = 0
-    checkpoint: bool | property = False
-    debug: bool | property = False
-
-    def __init__(self, **kwargs):
-        self._name: str | None = None
-        for key in kwargs:
-            if hasattr(self, key):
-                setattr(self, key, kwargs[key])
-            else:
-                raise RuntimeError(f"Invalid keyword argument: {key}")
-
-    @property
-    def name(self) -> str:
-        """
-        This is the identifier used to checkpoint this question. It should be
-        unique inside of a lab to ensure checkpoints work correctly. If not
-        specified it will be the name of the class.
-        """
-        if self._name:
-            return self._name
-        else:
-            return f"{self.__module__}.{self.__class__.__name__}"
-
-    @name.setter
-    def name(self, value):
-        """Set the name so subclasses and instances can override the name."""
-        self._name = value
+    tries: int = 0
 
     @abstractmethod
     def check(self, answer: str) -> None:
@@ -134,27 +93,10 @@ class Question(ABC):
             encoding="utf-8",
         ).stdout
 
-    def ask(self) -> Result:
+    def run(self) -> KrozFlow.Result:
         """Ask the question."""
 
         app = get_app()
-
-        if self.debug or app._debug:
-            self.debug = True
-            self.can_skip = True
-
-        checkpoint_result = Question.Result.INCORRECT
-        if (
-            self.checkpoint
-            and self.name in app.state["checkpoints"]
-            and app.state["checkpoints"][self.name] == "Result.CORRECT"
-        ):
-            if app.state.get("in_group", False):
-                raise RuntimeError(
-                    "You can't checkpoint questions in a group."
-                )
-            app.score += self.points
-            return Question.Result.CHECKPOINTED
         try:
             self.setup()
             tries_left = self.tries
@@ -184,14 +126,18 @@ class Question(ABC):
                 if answer is None:
                     if self.debug:
                         # Skips are correct in debug mode
-                        checkpoint_result = Question.Result.CORRECT
-                        return Question.Result.CORRECT
+                        return KrozFlow.Result(
+                            message=None,
+                            result=KrozFlow.Result.QuestionResult.CORRECT,
+                        )
 
                     if app.state.get("in_group", False):
                         raise Question._GroupFailedException()
 
-                    checkpoint_result = Question.Result.SKIPPED
-                    return Question.Result.SKIPPED
+                    return KrozFlow.Result(
+                        message="",
+                        result=KrozFlow.Result.QuestionResult.SKIPPED,
+                    )
 
                 try:
                     result = self.check(answer)
@@ -227,35 +173,19 @@ class Question(ABC):
                                 classes="congrats",
                             )
                         )
-                        checkpoint_result = Question.Result.CORRECT
-                        return Question.Result.CORRECT
+                        return KrozFlow.Result(
+                            message=answer,
+                            result=KrozFlow.Result.QuestionResult.CORRECT,
+                        )
                 finally:
                     self.cleanup_attempt()
         finally:
             self.cleanup()
-            if self.checkpoint:
-                app.state["checkpoints"][self.name] = str(checkpoint_result)
-                app.state.store()
 
-        return Question.Result.INCORRECT
-
-    @contextmanager
-    def group(self, checkpoint=None):
-        """
-        A context manager to group questions together. If any of the questions
-        in the group are skipped or answered incorrectly, the group exits
-        without asking any further questions. A question group is useful when
-        a set of questions build on each other and when the desired behavior of
-        the lab is to allow students to skip ahead, bypassing the entire group.
-        """
-        app = get_app()
-        old_group = app.state.get("in_group", False, store=True)
-        try:
-            yield
-        except Question._GroupFailedException:
-            pass
-        finally:
-            self._group = old_group
+        return KrozFlow.Result(
+            message=None,
+            result=KrozFlow.Result.QuestionResult.INCORRECT,
+        )
 
 
 class MultipleChoiceQuestion(Question):
@@ -271,7 +201,7 @@ class MultipleChoiceQuestion(Question):
         self._solution = choices[0]
         self._choices = list(choices)
         self._help = help
-        self.name = text
+        self.name = hashlib.sha1(text.encode("utf-8")).hexdigest()
 
     @property
     def validators(self) -> list[textual.validation.Validator]:
@@ -310,7 +240,7 @@ class TrueOrFalseQuestion(Question):
         self._text = text
         self._solution = solution
         self._help = help
-        self.name = text
+        self.name = hashlib.sha1(text.encode("utf-8")).hexdigest()
 
     validators = [
         textual.validation.Regex(
@@ -344,7 +274,7 @@ class ShortAnswerQuestion(Question):
         self._text = text
         self._solution = solution
         self._help = help
-        self.name = text
+        self.name = hashlib.sha1(text.encode("utf-8")).hexdigest()
 
     @property
     def text(self):
@@ -364,8 +294,6 @@ class ShortAnswerQuestion(Question):
 
 class QuestionScreen(KrozScreen):
     """The visual component of a KROZ question."""
-
-    CSS_PATH = "app.tcss"
 
     def __init__(
         self,

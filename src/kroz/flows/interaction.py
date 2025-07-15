@@ -3,9 +3,10 @@ The protocol and implementation of an interaction in KROZ.
 """
 
 import base64
+import hashlib
 import json
 import textwrap
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from pathlib import Path
 from typing import Callable
 
@@ -14,6 +15,7 @@ from textual.message import Message
 from textual.widgets import Markdown
 
 from kroz.app import get_app
+from kroz.flows.base import KrozFlow
 from kroz.screen import KrozScreen
 
 
@@ -46,14 +48,12 @@ class CommandLineCommand(str):
         return self._result
 
 
-class Interaction(ABC):
+class Interaction(KrozFlow):
     """
     Base class for a KROZ interaction.
     """
 
-    # The initial text of the interaction.
-    text: str
-    debug: bool = False
+    filter: Callable[[CommandLineCommand], bool] = lambda x: False
 
     @abstractmethod
     def on_command(self, command: CommandLineCommand) -> bool:
@@ -70,10 +70,18 @@ class Interaction(ABC):
         This runs in the application's event loop.
         """
 
-    def show(self) -> CommandLineCommand:
+    def run(self) -> KrozFlow.Result:
         app = get_app()
         screen = InteractionScreen(self)
-        return app.show(screen=screen)
+        result = app.show(screen=screen)
+        if result is not None:
+            return KrozFlow.Result(
+                message=result, result=KrozFlow.Result.QuestionResult.CORRECT
+            )
+        else:
+            return KrozFlow.Result(
+                message=None, result=KrozFlow.Result.QuestionResult.SKIPPED
+            )
 
 
 class InteractionScreen(KrozScreen):
@@ -169,15 +177,11 @@ class InteractionScreen(KrozScreen):
 def interaction(
     text: str,
     filter: Callable[[CommandLineCommand], bool],
-    *,
-    debug: bool = False,
-) -> CommandLineCommand:
+    **kwargs,
+) -> KrozFlow.Result:
     class _interaction(Interaction):
-        def __init__(self, text: str, debug: bool):
-            self.text = text
-            self.debug = debug
-
         def on_command(self, command: CommandLineCommand) -> bool:
             return filter(command)
 
-    return _interaction(text, debug=debug).show()
+    name = hashlib.sha1(text.encode("utf-8")).hexdigest()
+    return _interaction(text=text, name=name, filter=filter, **kwargs).show()
