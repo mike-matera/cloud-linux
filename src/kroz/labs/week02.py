@@ -18,7 +18,7 @@ app = KrozApp("Anatomy of a Command", state_file="anatomy")
 
 
 @app.main
-def main():
+def main() -> str:
     app.show(
         textwrap.dedent("""
         # The Anatomy of a Command 
@@ -72,7 +72,8 @@ def main():
         title="Bye!",
     )
 
+    return app.confirmation()
+
 
 if __name__ == "__main__":
-    code = app.run()
-    print("Your confirmation code is:", code)
+    app.run()
