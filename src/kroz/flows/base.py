@@ -15,9 +15,6 @@ class KrozFlow(ABC):
     Abstract base of KROZ flows. Provides grouping and checkpointing services.
     """
 
-    class _GroupFailedException(BaseException):
-        pass
-
     @dataclass
     class Result:
         """Result of a question."""
@@ -65,28 +62,28 @@ class KrozFlow(ABC):
         """Set the name so subclasses and instances can override the name."""
         self._name = value
 
-    @contextmanager
-    def group(self, checkpoint=None):
-        """
-        A context manager to group questions together. If any of the questions
-        in the group are skipped or answered incorrectly, the group exits
-        without asking any further questions. A question group is useful when
-        a set of questions build on each other and when the desired behavior of
-        the lab is to allow students to skip ahead, bypassing the entire group.
-        """
-        app = get_app()
-        old_group = app.state.get("in_group", False, store=True)
-        try:
-            yield
-        except KrozFlow._GroupFailedException:
-            pass
-        finally:
-            self._group = old_group
-
     def show(self) -> Result:
         """Run the flow. Call's derived class's run()."""
 
         app = get_app()
+
+        # Apply Groups
+        groups: list[dict] = app.state.get("_in_group", None)
+        if groups is not None:
+            assert isinstance(groups, list)
+            for group in reversed(groups):
+                assert isinstance(group, dict)
+                for key, value in group.items():
+                    if key == "name":
+                        seq_no = app.state.get("_sequence_no", 0, store=True)
+                        self.name = f"{value}{seq_no}"
+                        app.state["_sequence_no"] = seq_no + 1
+                    else:
+                        setattr(self, key, value)
+
+        # Search checkpoints.
+        if "checkpoints" not in app.state:
+            app.state["checkpoints"] = {}
 
         if self.debug or app._debug:
             self.debug = True
@@ -108,6 +105,20 @@ class KrozFlow(ABC):
             )
         try:
             checkpoint_result = self.run()
+            print(f"DICK: {checkpoint_result.result}")
+            if (
+                checkpoint_result.result
+                == KrozFlow.Result.QuestionResult.CORRECT
+            ):
+                print("MOTHERFUCKER")
+                app.score += self.points
+            elif (
+                self.debug
+                and checkpoint_result.result
+                == KrozFlow.Result.QuestionResult.SKIPPED
+            ):
+                print("COCKSUCKER")
+                app.score += self.points
         finally:
             if self.checkpoint:
                 app.state["checkpoints"][self.name] = {
@@ -117,3 +128,21 @@ class KrozFlow(ABC):
                 app.state.store()
 
         return checkpoint_result
+
+
+@contextmanager
+def settings(
+    **kwargs,
+):
+    """
+    A context manager to override common settings in subsequent invocations of a
+    flow.
+    """
+    app = get_app()
+    groups: list[dict] = app.state.get("_in_group", [], store=True)
+    assert isinstance(groups, list)
+    groups.append(kwargs)
+    try:
+        yield
+    finally:
+        groups.pop()

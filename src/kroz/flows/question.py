@@ -124,16 +124,6 @@ class Question(KrozFlow):
                     )
                 )
                 if answer is None:
-                    if self.debug:
-                        # Skips are correct in debug mode
-                        return KrozFlow.Result(
-                            message=None,
-                            result=KrozFlow.Result.QuestionResult.CORRECT,
-                        )
-
-                    if app.state.get("in_group", False):
-                        raise Question._GroupFailedException()
-
                     return KrozFlow.Result(
                         message="",
                         result=KrozFlow.Result.QuestionResult.SKIPPED,

@@ -3,6 +3,7 @@ Lab for week 04
 """
 
 from kroz import KrozApp
+from kroz.flows import settings
 from kroz.questions.week03 import PathAttrs, RelativePaths
 from kroz.questions.week04 import (
     FileType,
@@ -12,7 +13,7 @@ from kroz.questions.week04 import (
     questions,
 )
 
-app = KrozApp(title="Files Lab", state_file="files")
+app = KrozApp(title="Files Lab", state_file="files", debug=True)
 
 
 @app.main
@@ -37,19 +38,20 @@ def main():
         title="Welcome!",
     )
 
-    for i, q in enumerate(questions):
-        q.checkpoint = True
-        q.show()
+    with settings(checkpoint=True, points=100):
+        for i, q in enumerate(questions):
+            q.show()
 
-    PathAttrs(
-        path_type=PathAttrs.PathType.DIR, type=PathAttrs.AttrType.INODE
-    ).show()
-    WordInBigfile(find=(1, 1)).show()
-    FileType().show()
-    RelativePaths().show()
-    LinkInfo(type=LinkInfo.Info.TARGET_PATH).show()
-    LinkInfo(type=LinkInfo.Info.REL_OR_ABS).show()
-    MakeLink(name="my_link").show()
+        with settings(points=3):
+            PathAttrs(
+                path_type=PathAttrs.PathType.DIR, type=PathAttrs.AttrType.INODE
+            ).show()
+            WordInBigfile(find=(1, 1)).show()
+            FileType().show()
+            RelativePaths().show()
+            LinkInfo(type=LinkInfo.Info.TARGET_PATH).show()
+            LinkInfo(type=LinkInfo.Info.REL_OR_ABS).show()
+            MakeLink(name="my_link").show()
 
     return app.confirmation()
 

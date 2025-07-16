@@ -201,15 +201,15 @@ class KrozApp(App[str]):
         self._config = {}
         self._user_config = user_config
         if default_path:
-            self._user_config["default_path"] = default_path
+            self._user_config["default_path"] = pathlib.Path(default_path)
         if random_seed:
-            self._user_config["random_seed"] = random_seed
+            self._user_config["random_seed"] = int(random_seed)
         if secret:
-            self._user_config["secret"] = secret
+            self._user_config["secret"] = str(secret)
         if config_dir:
             self._user_config["config_dir"] = config_dir
         if state_file:
-            self._user_config["state_file"] = state_file
+            self._user_config["state_file"] = pathlib.Path(state_file)
         self._showing = None
         self._progress_screen: ProgressScreen | None = None
         self._state = None
@@ -221,7 +221,7 @@ class KrozApp(App[str]):
     def _run_user_app(self) -> str:
         global _setuphooks, _default_config
         try:
-            self._config = _default_config
+            self._config = _default_config.copy()
             self._config.update(self._user_config)
 
             # Debugging overrides.
@@ -245,14 +245,16 @@ class KrozApp(App[str]):
                         f"The home configuration must be a directory: {self._config['home']}"
                     )
             if self._config["state_file"] is not None:
+                assert isinstance(self._config["state_file"], pathlib.Path)
+                assert not self._config["state_file"].is_absolute()
                 self._state = JsonBoxFile(
                     self._config["secret"],
                     (
                         self._config["config_dir"] / self._config["state_file"]
                     ).with_suffix(".krs"),
                 )
-                if "checkpoints" not in self._state:
-                    self._state["checkpoints"] = {}
+            else:
+                self._state = JsonBoxFile(self._config["secret"], None)
 
             for hook in _setuphooks:
                 hook()
@@ -365,7 +367,7 @@ class KrozApp(App[str]):
     def state(self):
         """A dictionary that's persisted in a state file."""
         if self._state is None:
-            raise RuntimeError("No state file was given, can't save state.")
+            raise RuntimeError("State has not been initialized.")
         return self._state
 
     def confirmation(self):

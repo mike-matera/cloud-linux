@@ -5,9 +5,10 @@ Lab for week 3.
 from pathlib import Path
 
 from kroz import KrozApp
+from kroz.flows.base import settings
 from kroz.questions.week03 import FlagFile, PathAttrs, RelativePaths, questions
 
-app = KrozApp("The Filesystem", state_file="fs")
+app = KrozApp("The Filesystem", state_file="fs", debug=True)
 
 
 @app.main
@@ -30,35 +31,16 @@ def main():
         title="Welcome!",
     )
 
-    for i, q in enumerate(questions):
-        q.checkpoint = True
-        q.ask()
+    with settings(checkpoint=True, name="week3"):
+        for q in questions:
+            q.show()
 
-    FlagFile(
-        type=FlagFile.FlagType.NAME,
-        points=3,
-        name="flagname",
-        checkpoint=True,
-    ).show()
-    FlagFile(
-        type=FlagFile.FlagType.DIR,
-        points=2,
-        name="flagdir",
-        checkpoint=True,
-    ).show()
-    PathAttrs(
-        type=PathAttrs.AttrType.SIZE,
-        points=5,
-        name="filesize",
-        checkpoint=True,
-    ).show()
-    PathAttrs(
-        type=PathAttrs.AttrType.INODE,
-        points=5,
-        name="fileinode",
-        checkpoint=True,
-    ).show()
-    RelativePaths(from_path=Path.home(), points=5, checkpoint=True)
+        FlagFile(type=FlagFile.FlagType.NAME, points=3).show()
+        FlagFile(type=FlagFile.FlagType.DIR, points=2).show()
+        PathAttrs(type=PathAttrs.AttrType.SIZE, points=5).show()
+        PathAttrs(type=PathAttrs.AttrType.INODE, points=5).show()
+        RelativePaths(from_path=Path.home(), points=5).show()
+
     app.show(
         """
         # Complete! 

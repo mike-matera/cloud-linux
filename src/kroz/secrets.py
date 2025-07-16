@@ -23,14 +23,15 @@ class JsonBoxFile:
     A simple way to have encrypted persistence.
     """
 
-    def __init__(self, key: str, filename: str | pathlib.Path):
+    def __init__(self, key: str, filename: str | pathlib.Path | None):
         """Setup the box."""
         self._box = nacl.secret.SecretBox(
             hashlib.blake2b(
                 key.encode("utf-8"), digest_size=nacl.secret.SecretBox.KEY_SIZE
             ).digest()
         )
-        self._path = pathlib.Path(filename)
+
+        self._path = filename
         self.load()
 
     def store(self):
@@ -41,25 +42,36 @@ class JsonBoxFile:
         self._data["date"] = round(
             datetime.datetime.now(datetime.timezone.utc).timestamp()
         )
-        with open(self._path, "w") as fh:
-            fh.write(
-                self._box.encrypt(
-                    json.dumps(self._data).encode("utf-8"),
-                    encoder=nacl.encoding.URLSafeBase64Encoder,
-                ).decode("utf-8")
-            )
+
+        # Filter out keys that start with _
+        to_store = {}
+        for key, value in self._data.items():
+            if not key.startswith("_"):
+                to_store[key] = value
+
+        if self._path is not None:
+            with open(self._path, "w") as fh:
+                fh.write(
+                    self._box.encrypt(
+                        json.dumps(to_store).encode("utf-8"),
+                        encoder=nacl.encoding.URLSafeBase64Encoder,
+                    ).decode("utf-8")
+                )
 
     def load(self):
-        try:
-            with open(self._path, "rb") as fh:
-                self._data: dict[str, Any] = json.loads(
-                    self._box.decrypt(
-                        fh.read(), encoder=nacl.encoding.URLSafeBase64Encoder
+        self._data = {}
+        if self._path is not None:
+            try:
+                with open(self._path, "rb") as fh:
+                    self._data: dict[str, Any] = json.loads(
+                        self._box.decrypt(
+                            fh.read(),
+                            encoder=nacl.encoding.URLSafeBase64Encoder,
+                        )
                     )
-                )
-                assert isinstance(self._data, dict)
-        except (nacl.exceptions.CryptoError, OSError):
-            self._data = {}
+                    assert isinstance(self._data, dict)
+            except (nacl.exceptions.CryptoError, OSError, AssertionError):
+                self._data = {}
 
     def __getitem__(self, key: Any) -> Any:
         return self._data[key]
@@ -116,9 +128,9 @@ class ConfirmationCode:
         """
 
         raw = base64.b64decode(cfm, validate=True)
-        assert len(raw) > 8
+        assert len(raw) > 8, "Missing digest."
         ah = hashlib.blake2b(raw[8:], digest_size=8, key=self.key).digest()
-        assert ah == raw[0:8]
+        assert ah == raw[0:8], "Invalid digest."
         data = json.loads(raw[8:])
         data["date"] = datetime.datetime.fromtimestamp(data["date"]).strftime(
             "%a %b %d, %Y %I:%M %p"

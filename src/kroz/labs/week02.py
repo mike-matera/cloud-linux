@@ -6,6 +6,7 @@ import textwrap
 
 from kroz import KrozApp
 from kroz.ascii import tux
+from kroz.flows import settings
 from kroz.questions.week02 import (
     FreeMemory,
     NewYearFuture,
@@ -53,12 +54,12 @@ def main() -> str:
         classes="welcome",
     )
 
-    FreeMemory(key="total", points=5, checkpoint=True).show()
-    WhatsUname(
-        key=WhatsUname.Keys.KERNEL_VERSION, points=5, checkpoint=True
-    ).show()
-    OsRelease(key="NAME", points=5, checkpoint=True).show()
-    NewYearFuture(points=5, checkpoint=True).show()
+    with settings(points=5, checkpoint=True):
+        FreeMemory(key="total").show()
+        WhatsUname(key=WhatsUname.Keys.KERNEL_VERSION).show()
+        OsRelease(key="NAME").show()
+        NewYearFuture().show()
+
     app.show(
         """
         # Complete! 

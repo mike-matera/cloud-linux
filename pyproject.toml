@@ -31,5 +31,8 @@ docstring-code-format = true
 
 [dependency-groups]
 dev = [
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.1.0",
+    "pytest-textual-snapshot>=1.1.0",
     "ruff>=0.9.10",
 ]
