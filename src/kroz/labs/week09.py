@@ -3,6 +3,7 @@ Manage files with permissions.
 """
 
 import kroz
+from kroz.flow import FlowContext
 from kroz.questions.week09 import Islands2
 
 WELCOME = """
@@ -14,13 +15,14 @@ this lab you will need to understand the `chmod` and `chgrp` commands.
 Good luck!
 """
 
-app = kroz.KrozApp("Sort the Islands", debug=True)
+app = kroz.KrozApp("Sort the Islands")
 
 
 @app.main
 def main():
     app.show(WELCOME, classes="welcome")
-    Islands2().show()
+    with FlowContext(points=20, can_skip=False) as flow:
+        flow.run(Islands2())
     return app.confirmation()
 
 

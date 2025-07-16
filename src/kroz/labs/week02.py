@@ -6,7 +6,7 @@ import textwrap
 
 from kroz import KrozApp
 from kroz.ascii import tux
-from kroz.flows import settings
+from kroz.flow import FlowContext
 from kroz.questions.week02 import (
     FreeMemory,
     NewYearFuture,
@@ -37,9 +37,9 @@ def main() -> str:
         title="Welcome!",
     )
 
-    for i, q in enumerate(questions):
-        q.checkpoint = True
-        q.show()
+    with FlowContext(checkpoint=True) as flow:
+        for q in questions:
+            flow.run(q)
 
     app.show(
         """
@@ -54,11 +54,11 @@ def main() -> str:
         classes="welcome",
     )
 
-    with settings(points=5, checkpoint=True):
-        FreeMemory(key="total").show()
-        WhatsUname(key=WhatsUname.Keys.KERNEL_VERSION).show()
-        OsRelease(key="NAME").show()
-        NewYearFuture().show()
+    with FlowContext(points=5, checkpoint=True) as flow:
+        flow.run(FreeMemory(key="total"))
+        flow.run(WhatsUname(key=WhatsUname.Keys.KERNEL_VERSION))
+        flow.run(OsRelease(key="NAME"))
+        flow.run(NewYearFuture())
 
     app.show(
         """

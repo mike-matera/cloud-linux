@@ -21,12 +21,12 @@ from textual.widgets import (
     Label,
 )
 
-from kroz.app import get_app
-from kroz.flows.base import KrozFlow
+from kroz import KrozApp
+from kroz.flow.base import KrozFlowABC
 from kroz.screen import KrozScreen
 
 
-class Question(KrozFlow):
+class Question(KrozFlowABC):
     """
     The base class of a question for KROZ.
     """
@@ -40,7 +40,7 @@ class Question(KrozFlow):
     placeholder: str | property = "Answer"
 
     # Number of tries
-    tries: int = 0
+    tries: int | property = 0
 
     @abstractmethod
     def check(self, answer: str) -> None:
@@ -93,10 +93,10 @@ class Question(KrozFlow):
             encoding="utf-8",
         ).stdout
 
-    def run(self) -> KrozFlow.Result:
+    def show(self) -> KrozFlowABC.Result:
         """Ask the question."""
 
-        app = get_app()
+        app = KrozApp.running()
         try:
             self.setup()
             tries_left = self.tries
@@ -124,9 +124,9 @@ class Question(KrozFlow):
                     )
                 )
                 if answer is None:
-                    return KrozFlow.Result(
+                    return KrozFlowABC.Result(
                         message="",
-                        result=KrozFlow.Result.QuestionResult.SKIPPED,
+                        result=KrozFlowABC.Result.QuestionResult.SKIPPED,
                     )
 
                 try:
@@ -163,18 +163,18 @@ class Question(KrozFlow):
                                 classes="congrats",
                             )
                         )
-                        return KrozFlow.Result(
+                        return KrozFlowABC.Result(
                             message=answer,
-                            result=KrozFlow.Result.QuestionResult.CORRECT,
+                            result=KrozFlowABC.Result.QuestionResult.CORRECT,
                         )
                 finally:
                     self.cleanup_attempt()
         finally:
             self.cleanup()
 
-        return KrozFlow.Result(
+        return KrozFlowABC.Result(
             message=None,
-            result=KrozFlow.Result.QuestionResult.INCORRECT,
+            result=KrozFlowABC.Result.QuestionResult.INCORRECT,
         )
 
 

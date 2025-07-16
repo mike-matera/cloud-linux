@@ -16,7 +16,7 @@ from textual.validation import Integer
 
 import kroz.ascii
 from kroz.app import get_appconfig
-from kroz.flows.question import (
+from kroz.flow.question import (
     MultipleChoiceQuestion,
     Question,
     ShortAnswerQuestion,

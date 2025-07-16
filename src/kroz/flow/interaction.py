@@ -14,8 +14,8 @@ from quart import Quart, request
 from textual.message import Message
 from textual.widgets import Markdown
 
-from kroz.app import get_app
-from kroz.flows.base import KrozFlow
+from kroz import KrozApp
+from kroz.flow import KrozFlowABC
 from kroz.screen import KrozScreen
 
 
@@ -48,7 +48,7 @@ class CommandLineCommand(str):
         return self._result
 
 
-class Interaction(KrozFlow):
+class InteractionABC(KrozFlowABC):
     """
     Base class for a KROZ interaction.
     """
@@ -70,18 +70,34 @@ class Interaction(KrozFlow):
         This runs in the application's event loop.
         """
 
-    def run(self) -> KrozFlow.Result:
-        app = get_app()
+    def show(self) -> KrozFlowABC.Result:
+        app = KrozApp.running()
         screen = InteractionScreen(self)
         result = app.show(screen=screen)
         if result is not None:
-            return KrozFlow.Result(
-                message=result, result=KrozFlow.Result.QuestionResult.CORRECT
+            return KrozFlowABC.Result(
+                message=result,
+                result=KrozFlowABC.Result.QuestionResult.CORRECT,
             )
         else:
-            return KrozFlow.Result(
-                message=None, result=KrozFlow.Result.QuestionResult.SKIPPED
+            return KrozFlowABC.Result(
+                message=None, result=KrozFlowABC.Result.QuestionResult.SKIPPED
             )
+
+
+class Interaction(InteractionABC):
+    """A simple interaction."""
+
+    def __init__(
+        self, text: str, filter: Callable[[CommandLineCommand], bool], **kwargs
+    ):
+        super().__init__(**kwargs)
+        self.text = text
+        self.filter = filter
+        self.name = hashlib.sha1(text.encode("utf-8")).hexdigest()
+
+    def on_command(self, command: CommandLineCommand) -> bool:
+        return self.filter(command)
 
 
 class InteractionScreen(KrozScreen):
@@ -99,7 +115,7 @@ class InteractionScreen(KrozScreen):
 
     def __init__(
         self,
-        inter: Interaction,
+        inter: InteractionABC,
         *,
         title: str | None = None,
         can_skip: bool = False,
@@ -123,7 +139,7 @@ class InteractionScreen(KrozScreen):
         md = self.query_one(Markdown)
         try:
             if self._inter.on_command(event.cmd):
-                get_app().notify("Congratulations!", timeout=5)
+                KrozApp.running().notify("Congratulations!", timeout=5)
                 self.dismiss(event.cmd)
             else:
                 md.border_title = f"❌ {event.cmd}"
@@ -172,16 +188,3 @@ class InteractionScreen(KrozScreen):
             self.log(f"ERROR: {e}")
         finally:
             return "okay"
-
-
-def interaction(
-    text: str,
-    filter: Callable[[CommandLineCommand], bool],
-    **kwargs,
-) -> KrozFlow.Result:
-    class _interaction(Interaction):
-        def on_command(self, command: CommandLineCommand) -> bool:
-            return filter(command)
-
-    name = hashlib.sha1(text.encode("utf-8")).hexdigest()
-    return _interaction(text=text, name=name, filter=filter, **kwargs).show()

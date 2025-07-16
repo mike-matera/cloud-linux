@@ -2,12 +2,13 @@
 Make a directory of random files.
 """
 
-from os import PathLike
 import pathlib
-from kroz import setup_hook
-from kroz.app import get_appconfig, notify
-from .path import CheckPath, CheckFile
+from os import PathLike
+
+from kroz import KrozApp
+
 from .bigfile import RandomBigFile
+from .path import CheckFile, CheckPath
 from .words import random_words
 
 CONFIG_KEY = "ranomdir_name"
@@ -51,7 +52,7 @@ class RandomDirectory:
                 CheckFile(random_words().choice(), contents=str(rbf))
             )
         self.checkpath.sync()
-        notify(
+        KrozApp.running().notify(
             f"{self.checkpath.basepath} has been updated!",
             title="Directory Updated",
         )
@@ -76,7 +77,7 @@ def random_directory(
     end: str = "\n",
 ):
     return RandomDirectory(
-        name=get_appconfig("default_path") / get_appconfig(CONFIG_KEY),
+        name=KrozApp.appconfig("default_path") / KrozApp.appconfig(CONFIG_KEY),
         count=count,
         rows=rows,
         cols=cols,
@@ -85,4 +86,4 @@ def random_directory(
     )
 
 
-setup_hook(defconfig={CONFIG_KEY: DEFAULT_FILENAME})
+KrozApp.setup_hook(defconfig={CONFIG_KEY: DEFAULT_FILENAME})

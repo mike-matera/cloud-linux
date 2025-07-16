@@ -2,13 +2,13 @@
 Randomized system paths.
 """
 
+import pathlib
 from collections import namedtuple
 from collections.abc import Callable, Generator, Hashable
-import pathlib
-import kroz.random as random
 from typing import Iterable
 
-from kroz import setup_hook, get_appconfig
+import kroz.random as random
+from kroz import KrozApp
 
 SearchTree = namedtuple("SearchTree", ["root", "glob"])
 CONFIG_KEY = "random_path_search"
@@ -113,10 +113,10 @@ def random_real_path():
 
 def _setup():
     global _paths
-    _paths.setup(get_appconfig(CONFIG_KEY))
+    _paths.setup(KrozApp.appconfig(CONFIG_KEY))
 
 
-setup_hook(
+KrozApp.setup_hook(
     hook=_setup,
     defconfig={CONFIG_KEY: DEFAULT_PATHS},
 )

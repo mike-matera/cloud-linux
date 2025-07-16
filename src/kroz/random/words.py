@@ -2,9 +2,10 @@
 Helper for streams of random words.
 """
 
-import kroz.random as random
 from os import PathLike
-from kroz import setup_hook, get_appconfig
+
+import kroz.random as random
+from kroz import KrozApp
 
 
 class RandomWord:
@@ -52,10 +53,10 @@ def random_words() -> RandomWord:
 
 def _setup():
     global _words
-    _words.setup(get_appconfig("dictionary"))
+    _words.setup(KrozApp.appconfig("dictionary"))
 
 
-setup_hook(
+KrozApp.setup_hook(
     hook=_setup,
     defconfig={
         "dictionary": "/usr/share/dict/words",

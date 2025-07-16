@@ -3,7 +3,7 @@
 import textual.validation
 
 import kroz.random as random
-from kroz.flows.question import Question
+from kroz.flow.question import Question
 from kroz.random.bigfile import random_big_file
 
 

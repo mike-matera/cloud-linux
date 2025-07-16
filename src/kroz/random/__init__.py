@@ -18,8 +18,7 @@ import kroz.random as random
 
 import random as sys_random
 
-from kroz.app import get_appconfig, setup_hook
-
+from kroz import KrozApp
 
 _inst = sys_random.Random()
 seed = _inst.seed
@@ -50,7 +49,7 @@ randbytes = _inst.randbytes
 
 def setup():
     global _inst
-    _inst.seed(a=get_appconfig("random_seed"), version=2)
+    _inst.seed(a=KrozApp.appconfig("random_seed"), version=2)
 
 
-setup_hook(hook=setup)
+KrozApp.setup_hook(hook=setup)

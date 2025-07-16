@@ -3,7 +3,7 @@ Lab for week 04
 """
 
 from kroz import KrozApp
-from kroz.flows import settings
+from kroz.flow import FlowContext
 from kroz.questions.week03 import PathAttrs, RelativePaths
 from kroz.questions.week04 import (
     FileType,
@@ -13,7 +13,7 @@ from kroz.questions.week04 import (
     questions,
 )
 
-app = KrozApp(title="Files Lab", state_file="files", debug=True)
+app = KrozApp(title="Files Lab", state_file="files")
 
 
 @app.main
@@ -38,20 +38,22 @@ def main():
         title="Welcome!",
     )
 
-    with settings(checkpoint=True, points=100):
+    with FlowContext(checkpoint=True, points=0) as flow:
         for i, q in enumerate(questions):
-            q.show()
+            flow.run(q)
 
-        with settings(points=3):
+    with FlowContext(checkpoint=True, points=3) as flow:
+        flow.run(
             PathAttrs(
                 path_type=PathAttrs.PathType.DIR, type=PathAttrs.AttrType.INODE
-            ).show()
-            WordInBigfile(find=(1, 1)).show()
-            FileType().show()
-            RelativePaths().show()
-            LinkInfo(type=LinkInfo.Info.TARGET_PATH).show()
-            LinkInfo(type=LinkInfo.Info.REL_OR_ABS).show()
-            MakeLink(name="my_link").show()
+            )
+        )
+        flow.run(WordInBigfile(find=(1, 1)))
+        flow.run(FileType())
+        flow.run(RelativePaths())
+        flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH))
+        flow.run(LinkInfo(type=LinkInfo.Info.REL_OR_ABS))
+        flow.run(MakeLink(name="my_link"))
 
     return app.confirmation()
 

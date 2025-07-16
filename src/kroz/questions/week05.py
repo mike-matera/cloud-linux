@@ -5,7 +5,7 @@ Week 5 Questions
 import textwrap
 from pathlib import Path
 
-from kroz.flows.question import Question
+from kroz.flow.question import Question
 from kroz.random.path import CheckDir, CheckFile, CheckPath
 
 questions: list[Question] = []

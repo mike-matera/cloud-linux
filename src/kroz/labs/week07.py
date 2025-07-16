@@ -3,6 +3,7 @@ Some lab called iolab or whatever.
 """
 
 import kroz
+from kroz.flow import FlowContext
 from kroz.questions.week04 import WordInBigfile
 from kroz.questions.week07 import CountOranges, SortedWords, UniqueWords
 
@@ -19,13 +20,14 @@ app = kroz.KrozApp("The I/O Lab")
 @app.main
 def main():
     app.show(WELCOME, classes="welcome")
-    WordInBigfile(find=[None, 1]).show()
-    CountOranges().show()
-    UniqueWords(points=10).show()
-    SortedWords().show()
-    WordInBigfile(from_bottom=True, find=[None, 1]).show()
-    WordInBigfile().show()
-    WordInBigfile(from_right=True).show()
+    with FlowContext(checkpoint=True, points=3, name="lab07_") as flow:
+        flow.run(WordInBigfile(find=[None, 1]))
+        flow.run(CountOranges())
+        flow.run(UniqueWords())
+        flow.run(SortedWords())
+        flow.run(WordInBigfile(from_bottom=True, find=[None, 1]))
+        flow.run(WordInBigfile())
+        flow.run(WordInBigfile(from_right=True))
 
     return app.confirmation()
 

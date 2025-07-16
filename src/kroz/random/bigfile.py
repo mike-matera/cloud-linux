@@ -2,15 +2,13 @@
 Randomized system paths.
 """
 
-from os import PathLike
 import pathlib
 from collections.abc import Generator
+from os import PathLike
 
-from kroz.app import notify
-
+from kroz import KrozApp
 
 from .words import random_words
-from kroz import setup_hook, get_appconfig
 
 CONFIG_KEY = "bigfile_name"
 DEFAULT_FILENAME = "bigfile"
@@ -52,7 +50,7 @@ class RandomBigFile:
             with open(self._path, "w") as fh:
                 for line in self.lines():
                     fh.write(line)
-            notify(
+            KrozApp.running().notify(
                 f"{self._path} has been updated!",
                 title="File Updated",
             )
@@ -102,7 +100,7 @@ def random_big_file(
     end="\n",
 ):
     return RandomBigFile(
-        get_appconfig("default_path") / get_appconfig(CONFIG_KEY),
+        KrozApp.appconfig("default_path") / KrozApp.appconfig(CONFIG_KEY),
         rows=rows,
         cols=cols,
         sep=sep,
@@ -110,4 +108,4 @@ def random_big_file(
     )
 
 
-setup_hook(defconfig={CONFIG_KEY: DEFAULT_FILENAME})
+KrozApp.setup_hook(defconfig={CONFIG_KEY: DEFAULT_FILENAME})

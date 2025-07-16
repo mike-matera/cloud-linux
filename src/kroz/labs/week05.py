@@ -3,6 +3,7 @@ Manage files without permissions.
 """
 
 import kroz
+from kroz.flow import FlowContext
 from kroz.questions.week05 import Islands
 
 WELCOME = """
@@ -20,7 +21,8 @@ app = kroz.KrozApp("Sort the Islands")
 @app.main
 def main():
     app.show(WELCOME, classes="welcome")
-    Islands().show()
+    with FlowContext(checkpoint=True) as flow:
+        flow.run(Islands())
 
     return app.confirmation()
 

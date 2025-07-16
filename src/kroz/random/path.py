@@ -2,16 +2,16 @@
 Tools for building randomized paths and checkers.
 """
 
-from collections.abc import Generator
 import itertools
-import subprocess
 import pathlib
-from dataclasses import dataclass, field
 import shutil
+import subprocess
 import textwrap
-from kroz import get_appconfig
-from kroz.validation import IsPermission
+from collections.abc import Generator
+from dataclasses import dataclass, field
 
+from kroz import KrozApp
+from kroz.validation import IsPermission
 
 CONTENT_LIMIT: int = 1024 * 32
 
@@ -96,11 +96,11 @@ class CheckPath:
         self.basepath = pathlib.Path(self.basepath)
         if not self.basepath.is_absolute():
             self.basepath = (
-                pathlib.Path(get_appconfig("default_path")) / self.basepath
+                pathlib.Path(KrozApp.appconfig("default_path")) / self.basepath
             )
         self.basepath = pathlib.Path(self.basepath).resolve()
         try:
-            self.basepath.relative_to(get_appconfig("default_path"))
+            self.basepath.relative_to(KrozApp.appconfig("default_path"))
         except ValueError:
             raise ValueError(
                 "The basepath of a CheckPath must be relative to the application's default_path."
@@ -380,10 +380,10 @@ class CheckPath:
 
     def markdown(self, *, detail: bool = True, depth: int = 0):
         """
-        A markdown representation of the expected path that's similar to the 
+        A markdown representation of the expected path that's similar to the
         output of the `tree` command.
         """
-        paths = { self.basepath / file.path: file for file in self.files}
+        paths = {self.basepath / file.path: file for file in self.files}
         tree = {str(self.basepath): {"check": None, "files": {}}}
         if self.basepath in paths:
             tree[str(self.basepath)]["check"] = paths[self.basepath]
@@ -398,7 +398,9 @@ class CheckPath:
                     root["files"][part]["check"] = paths[pathparts]
                 root = root["files"][part]
 
-        def pretty(root: dict, *, depth: int = 0, maxdepth: int = 0, preamble="") -> str:
+        def pretty(
+            root: dict, *, depth: int = 0, maxdepth: int = 0, preamble=""
+        ) -> str:
             if maxdepth and depth >= maxdepth:
                 return ""
             rval = ""
@@ -407,19 +409,19 @@ class CheckPath:
                 if detail and val["check"] is not None:
                     details = []
                     if val["check"].owner is not None:
-                        details.append(f"owner={val["check"].owner}")
+                        details.append(f"owner={val['check'].owner}")
                     if val["check"].group is not None:
-                        details.append(f"group={val["check"].group}")
+                        details.append(f"group={val['check'].group}")
                     if val["check"].perms is not None:
                         permtype = "-"
                         if isinstance(val["check"], CheckDir):
                             permtype = "d"
                         elif isinstance(val["check"], CheckLink):
                             permtype = "l"
-                        perms = f"{permtype}{IsPermission.to_string(val["check"].perms)}"
+                        perms = f"{permtype}{IsPermission.to_string(val['check'].perms)}"
                         details.append(perms)
                     if details:
-                        details = f"[{" ".join(details)}] "
+                        details = f"[{' '.join(details)}] "
                     else:
                         details = ""
 
@@ -433,11 +435,18 @@ class CheckPath:
                 if depth == 0:
                     stub = ""
                     new_preamble = ""
-                    key = str(self.basepath).replace(str(pathlib.Path.home()), "~")
+                    key = str(self.basepath).replace(
+                        str(pathlib.Path.home()), "~"
+                    )
 
                 rval += f"{preamble}{stub}{details}{key}\n"
-                rval += pretty(val["files"], depth=depth+1, maxdepth=maxdepth, preamble=new_preamble)
+                rval += pretty(
+                    val["files"],
+                    depth=depth + 1,
+                    maxdepth=maxdepth,
+                    preamble=new_preamble,
+                )
 
             return rval
-        
+
         return f"```\n{pretty(root=tree, maxdepth=depth)}\n```"

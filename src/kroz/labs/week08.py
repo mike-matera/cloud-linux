@@ -1,5 +1,6 @@
 from kroz import KrozApp
-from kroz.flows.question import (
+from kroz.flow import FlowContext
+from kroz.flow.question import (
     MultipleChoiceQuestion,
 )
 from kroz.questions.week08 import (
@@ -25,10 +26,12 @@ class Test(MultipleChoiceQuestion):
 @app.main
 def main():
     app.show(WELCOME, classes="welcome")
-    RandomRando(points=10, checkpoint="1").show()
-    RandomDeleteMe(points=10, checkpoint="2").show()
-    RandomRandoTick(points=10, checkpoint="3").show()
-    DeepMessage(points=10, checkpoint="4").show()
+
+    with FlowContext(points=10) as flow:
+        flow.run(RandomRando(points=10, checkpoint="1"))
+        flow.run(RandomDeleteMe(points=10, checkpoint="2"))
+        flow.run(RandomRandoTick(points=10, checkpoint="3"))
+        flow.run(DeepMessage(points=10, checkpoint="4"))
 
     return app.confirmation()
 

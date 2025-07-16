@@ -9,13 +9,13 @@ import pathlib
 import uuid
 from collections.abc import Callable
 from enum import Enum
-from typing import Any, Literal
+from typing import Any
 
 from textual.app import App
 from textual.containers import Vertical
 from textual.message import Message
 from textual.reactive import Reactive
-from textual.screen import ModalScreen, Screen
+from textual.screen import ModalScreen
 from textual.widgets import (
     Footer,
     Label,
@@ -39,7 +39,7 @@ _default_config = {
 }
 
 
-class progress:
+class ProgressContext:
     """
     Context manager API for long running tasks that wish to show visual
     progress to the user.
@@ -64,11 +64,10 @@ class progress:
         self._title = title
 
     def __enter__(self):
-        self._worker = get_current_worker()
-        self._app = self._worker.node
+        self._app = KrozApp.running()
         self._app.post_message(
-            progress.ProgressMessage(
-                state=progress.ProgressMessage.State.START,
+            ProgressContext.ProgressMessage(
+                state=ProgressContext.ProgressMessage.State.START,
                 message=self._title,
             )
         )
@@ -76,13 +75,15 @@ class progress:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._app.post_message(
-            progress.ProgressMessage(progress.ProgressMessage.State.STOP)
+            ProgressContext.ProgressMessage(
+                ProgressContext.ProgressMessage.State.STOP
+            )
         )
 
     def update(self, percent=None, message=None):
         self._app.post_message(
-            progress.ProgressMessage(
-                state=progress.ProgressMessage.State.UPDATE,
+            ProgressContext.ProgressMessage(
+                state=ProgressContext.ProgressMessage.State.UPDATE,
                 percent=percent,
                 message=message,
             )
@@ -210,7 +211,6 @@ class KrozApp(App[str]):
             self._user_config["config_dir"] = config_dir
         if state_file:
             self._user_config["state_file"] = pathlib.Path(state_file)
-        self._showing = None
         self._progress_screen: ProgressScreen | None = None
         self._state = None
 
@@ -284,19 +284,21 @@ class KrozApp(App[str]):
         elif msg._to:
             self.score = msg._to
 
-    def on_progress_progress_message(self, msg: progress.ProgressMessage):
-        if msg.state == progress.ProgressMessage.State.START:
+    def on_progress_progress_message(
+        self, msg: ProgressContext.ProgressMessage
+    ):
+        if msg.state == ProgressContext.ProgressMessage.State.START:
             self._progress_screen = ProgressScreen(msg.message)
             self.push_screen(self._progress_screen)
         elif (
             self._progress_screen
-            and msg.state == progress.ProgressMessage.State.STOP
+            and msg.state == ProgressContext.ProgressMessage.State.STOP
         ):
             self._progress_screen.dismiss()
             self._progress_screen = None
         elif (
             self._progress_screen
-            and msg.state == progress.ProgressMessage.State.UPDATE
+            and msg.state == ProgressContext.ProgressMessage.State.UPDATE
         ):
             if msg.percent:
                 self._progress_screen._progress.total = 100
@@ -312,40 +314,12 @@ class KrozApp(App[str]):
     def post_message(self, message: Message) -> bool:
         # Kill canceled workers that send a progress message.
         if (
-            isinstance(message, progress.ProgressMessage)
+            isinstance(message, ProgressContext.ProgressMessage)
             and get_current_worker().is_cancelled
         ):
             raise KrozApp.CancelledWorkerException()
 
         return super().post_message(message)
-
-    def show(
-        self, screen: str | Screen, classes: str = "", title: str | None = None
-    ) -> Any:
-        """Show a screen."""
-
-        worker = get_current_worker()
-        if worker.is_cancelled:
-            raise KrozApp.CancelledWorkerException()
-        result = self.call_from_thread(self._show, screen, classes, title)
-        if worker.is_cancelled:
-            raise KrozApp.CancelledWorkerException()
-        return result
-
-    async def _show(
-        self, screen: str | Screen, classes: str, title: str
-    ) -> None:
-        if isinstance(screen, str):
-            self._showing = KrozScreen(screen, classes=classes, title=title)
-        elif isinstance(screen, Screen):
-            self._showing = screen
-        else:
-            raise ValueError("This must be a screen.")
-
-        try:
-            return await self.push_screen_wait(self._showing)
-        finally:
-            self._showing = None
 
     def set_score(self, points: int):
         self.post_message(ScoreMessage(to=points))
@@ -376,33 +350,47 @@ class KrozApp(App[str]):
             {"score": self.score}
         )
 
+    @staticmethod
+    def show(
+        screen: str | KrozScreen, classes: str = "", title: str | None = None
+    ) -> Any:
+        """Show a screen."""
 
-def get_app() -> KrozApp:
-    app: KrozApp = get_current_worker().node  # type: ignore
-    assert isinstance(app, KrozApp)
-    return app
+        if isinstance(screen, str):
+            screen = KrozScreen(screen, classes=classes, title=title)
+        elif isinstance(screen, KrozScreen):
+            screen = screen
+        else:
+            raise ValueError("This must be a screen.")
 
+        app = KrozApp.running()
+        worker = get_current_worker()
+        if worker.is_cancelled:
+            raise KrozApp.CancelledWorkerException()
+        result = app.call_from_thread(app.push_screen_wait, screen)
+        if worker.is_cancelled:
+            raise KrozApp.CancelledWorkerException()
+        return result
 
-def get_appconfig(key: str) -> Any:
-    return get_app().config[key]
+    @staticmethod
+    def running() -> "KrozApp":
+        app: KrozApp = get_current_worker().node  # type: ignore
+        assert isinstance(app, KrozApp)
+        return app
 
+    @staticmethod
+    def appconfig(key: str) -> Any:
+        return KrozApp.running().config[key]
 
-def setup_hook(
-    *, hook: Callable[[], None] | None = None, defconfig={}
-) -> None:
-    global _setuphooks, _default_config
-    if hook is not None:
-        _setuphooks.append(hook)
-    _default_config.update(defconfig)
+    @staticmethod
+    def setup_hook(
+        *, hook: Callable[[], None] | None = None, defconfig={}
+    ) -> None:
+        global _setuphooks, _default_config
+        if hook is not None:
+            _setuphooks.append(hook)
+        _default_config.update(defconfig)
 
-
-def notify(
-    message,
-    *,
-    title: str = "",
-    severity: Literal["information"]
-    | Literal["warning"]
-    | Literal["error"] = "information",
-    timeout: float | None = None,
-):
-    get_app().notify(message, title=title, severity=severity, timeout=timeout)
+    @staticmethod
+    def progress():
+        return ProgressContext()
