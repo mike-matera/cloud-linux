@@ -38,29 +38,11 @@ class KrozFlowABC(ABC):
     def show(self) -> Result: ...
 
     def __init__(self, **kwargs):
-        self._name: str | None = None
         for key in kwargs:
             if hasattr(self, key):
                 setattr(self, key, kwargs[key])
             else:
                 raise RuntimeError(f"Invalid keyword argument: {key}")
-
-    @property
-    def name(self) -> str:
-        """
-        This is the identifier used to checkpoint this question. It should be
-        unique inside of a lab to ensure checkpoints work correctly. If not
-        specified it will be the name of the class.
-        """
-        if self._name:
-            return self._name
-        else:
-            return f"{self.__module__}.{self.__class__.__name__}"
-
-    @name.setter
-    def name(self, value):
-        """Set the name so subclasses and instances can override the name."""
-        self._name = value
 
 
 class FlowContext:
@@ -84,26 +66,24 @@ class FlowContext:
     def run(flow: KrozFlowABC) -> KrozFlowABC.Result:
         """Run the flow. Call's derived class's run()."""
         app = KrozApp.running()
-        # Apply Groups
+
+        # Apply flow overrides.
         groups: list[dict] = app.state.get("_in_group", None)
         if groups is not None:
             assert isinstance(groups, list)
             for group in reversed(groups):
                 assert isinstance(group, dict)
                 for key, value in group.items():
-                    if key == "name":
-                        seq_no = app.state.get("_sequence_no", 0, store=True)
-                        flow.name = f"{value}{seq_no}"
-                        app.state["_sequence_no"] = seq_no + 1
-                    else:
-                        try:
-                            setattr(flow, key, value)
-                        except AttributeError:
-                            pass  # Classes can ignore overrides with properties
+                    try:
+                        setattr(flow, key, value)
+                    except AttributeError:
+                        pass  # Classes can ignore overrides with properties
 
         # Search checkpoints.
-        if "checkpoints" not in app.state:
-            app.state["checkpoints"] = {}
+        seq_no = app.state.get("_sequence", 0, store=True)
+        app.state["_sequence"] = seq_no + 1
+        checkpoints = app.state.get("checkpoints", {}, store=True)
+        check_key = f"{flow.__class__.__name__}{seq_no}"
 
         if flow.debug or app._debug:
             flow.debug = True
@@ -118,13 +98,12 @@ class FlowContext:
         )
         if (
             flow.checkpoint
-            and flow.name in app.state["checkpoints"]
-            and app.state["checkpoints"][flow.name]["result"]
-            == "QuestionResult.CORRECT"
+            and check_key in checkpoints
+            and checkpoints[check_key]["result"] == "QuestionResult.CORRECT"
         ):
             app.score += flow.points
             return KrozFlowABC.Result(
-                message=app.state["checkpoints"][flow.name]["message"],
+                message=checkpoints[check_key]["message"],
                 result=KrozFlowABC.Result.QuestionResult.CORRECT,
             )
         try:
@@ -142,7 +121,7 @@ class FlowContext:
                 app.score += flow.points
         finally:
             if flow.checkpoint:
-                app.state["checkpoints"][flow.name] = {
+                checkpoints[check_key] = {
                     "message": checkpoint_result.message,
                     "result": str(checkpoint_result.result),
                 }
