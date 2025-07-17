@@ -15,7 +15,7 @@ from pathlib import Path
 from textual.validation import Integer
 
 import kroz.ascii
-from kroz.app import get_appconfig
+from kroz.app import KrozApp
 from kroz.flow.question import (
     MultipleChoiceQuestion,
     Question,
@@ -101,7 +101,7 @@ class FlagFile(Question):
             self._secret = random_real_path().random_file().resolve()
         else:
             self._secret = Path(path)
-        self._flag = Path(get_appconfig("default_path")) / "flag"
+        self._flag = KrozApp.appconfig("default_path") / "flag"
 
     @property
     def validators(self):

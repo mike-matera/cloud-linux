@@ -11,7 +11,7 @@ from typing import Callable
 from textual.validation import Regex
 
 import kroz.random as random
-from kroz.app import get_appconfig
+from kroz.app import KrozApp
 from kroz.flow.question import (
     MultipleChoiceQuestion,
     Question,
@@ -297,11 +297,11 @@ class MakeLink(Question):
         self._path = Path(name)
         if not self._path.is_absolute():
             self._path = (
-                Path(get_appconfig("default_path")) / self._path
+                (KrozApp.appconfig("default_path")) / self._path
             ).absolute()
         else:
             try:
-                self._path.relative_to(Path(get_appconfig("default_path")))
+                self._path.relative_to(KrozApp.appconfig("default_path"))
             except ValueError:
                 raise RuntimeError(
                     "The path of a link must be relative to the app's default_path"

@@ -1,7 +1,6 @@
 import pathlib
 
 from kroz import KrozApp
-from kroz.app import get_appconfig
 from kroz.flow.question import (
     Question,
 )
@@ -89,7 +88,7 @@ class DeepMessage(Question):
 
     def setup(self):
         self._answer = random_words().choice()
-        path = pathlib.Path(get_appconfig("default_path")) / pathlib.Path(
+        path = KrozApp.appconfig("default_path") / pathlib.Path(
             "Files/deep/there's/a/light/over/at/the/Frankenstein/place/there's/a/li/ii/ii/ii/ii/ii/ii/ight/burning/in/the/fire/place"
         )
         file = path / ".secret"

@@ -42,18 +42,20 @@ def main():
         for i, q in enumerate(questions):
             flow.run(q)
 
-    with FlowContext(checkpoint=True, points=3) as flow:
+    with FlowContext(checkpoint=True, name="week04") as flow:
         flow.run(
             PathAttrs(
-                path_type=PathAttrs.PathType.DIR, type=PathAttrs.AttrType.INODE
+                path_type=PathAttrs.PathType.DIR,
+                type=PathAttrs.AttrType.INODE,
+                points=2,
             )
         )
-        flow.run(WordInBigfile(find=(1, 1)))
-        flow.run(FileType())
-        flow.run(RelativePaths())
-        flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH))
-        flow.run(LinkInfo(type=LinkInfo.Info.REL_OR_ABS))
-        flow.run(MakeLink(name="my_link"))
+        flow.run(WordInBigfile(find=(1, 1), points=3))
+        flow.run(FileType(points=3))
+        flow.run(RelativePaths(points=3))
+        flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH, points=3))
+        flow.run(LinkInfo(type=LinkInfo.Info.REL_OR_ABS, points=3))
+        flow.run(MakeLink(name="my_link", points=3))
 
     return app.confirmation()
 

@@ -22,7 +22,7 @@ app = kroz.KrozApp("Sort the Islands")
 def main():
     app.show(WELCOME, classes="welcome")
     with FlowContext(checkpoint=True) as flow:
-        flow.run(Islands())
+        flow.run(Islands(points=20))
 
     return app.confirmation()
 

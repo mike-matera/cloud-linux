@@ -31,7 +31,7 @@ def main():
         title="Welcome!",
     )
 
-    with FlowContext(checkpoint=True, name="week3") as flow:
+    with FlowContext(checkpoint=True) as flow:
         for q in questions:
             flow.run(q)
 
