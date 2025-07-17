@@ -22,6 +22,7 @@ def get_app(**kwargs):
     return app
 
 
+@pytest.mark.asyncio
 async def test_app_default_config():
     """Test the default configuration"""
     app = get_app()
@@ -40,6 +41,7 @@ async def test_app_default_config():
         assert app.config["state_file"] is None
 
 
+@pytest.mark.asyncio
 async def test_app_debug_config():
     """Test the debug configuration"""
     app = get_app(debug=True)
@@ -52,6 +54,7 @@ async def test_app_debug_config():
         assert app.config["state_file"] is None
 
 
+@pytest.mark.asyncio
 async def test_app_config_items():
     """Test the configuration overrides"""
     app = get_app(default_path="/tmp")

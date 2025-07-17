@@ -119,9 +119,10 @@ class FreeMemory(Question):
             work and try again.*
             """
 
-    def get_key(self, key):
+    @staticmethod
+    def get_key(key):
         """Get a value based on the column key header"""
-        data = self.shell("free").split("\n")
+        data = Question.shell("free").split("\n")
         cols = data[0].split()
         mem = data[1].split()
         assert key in cols, """Invalid key for free"""
@@ -148,9 +149,12 @@ class NewYearFuture(Question):
         failure_description="""Enter the full name of a day (e.g. "Sunday")""",
     )
 
-    def __init__(self, **kwargs):
+    def __init__(self, *, year: int = None, **kwargs):
         super().__init__(**kwargs)
-        self._year = random.randint(2040, 2150)
+        if year is not None:
+            self._year = year
+        else:
+            self._year = random.randint(2040, 2150)
         self._solution = NewYearFuture.DAYS[
             datetime.date(self._year, 1, 1).isoweekday() - 1
         ]

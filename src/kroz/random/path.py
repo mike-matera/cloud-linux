@@ -181,13 +181,16 @@ class CheckPath:
             elif isinstance(file, CheckFile):
                 with open(realpath, "w") as fh:
                     fh.write(file.contents)
-                    fh.write("\n")
+                    # Ensure file ends with \n
+                    if file.contents[-1] != "\n":
+                        fh.write("\n")
             elif isinstance(file, CheckDir):
-                realpath.mkdir()
+                realpath.mkdir(exist_ok=True)
             else:
                 raise RuntimeError(f"What is this: {file}")
 
-            if file.perms is not None:
+            if file.perms is not None and not realpath.is_symlink():
+                ## BUG: Path.chmod() follows symlinks.
                 realpath.chmod(file.perms)
             if file.group is not None:
                 subprocess.run(
@@ -252,11 +255,13 @@ class CheckPath:
                 elif isinstance(my_file, CheckLink) and isinstance(
                     other_file, CheckLink
                 ):
-                    if my_file.path.readlink() != other_file.path.readlink():
+                    if (self.basepath / my_file.path).readlink() != (
+                        other.basepath / other_file.path
+                    ).readlink():
                         yield (
                             p.path,
                             "Wrong link target.",
-                            f"{my_file.path.readlink()} != {other_file.path.readlink()}",
+                            f"{(self.basepath / my_file.path).readlink()} != {(other.basepath / other_file.path).readlink()}",
                         )
                 else:
                     yield (
@@ -310,6 +315,31 @@ class CheckPath:
         return CheckPath(
             self.basepath, files=list(filter(function, self.files))
         )
+
+    def find(self, path: str | pathlib.Path) -> CheckItem:
+        """Find a CheckItem by its name"""
+        for item in self.files:
+            if item.path == pathlib.Path(path):
+                return item
+        raise FileNotFoundError()
+
+    def find_file(self, path: str | pathlib.Path) -> CheckFile:
+        """Find a file by its name"""
+        f = self.find(path)
+        assert isinstance(f, CheckFile), """Path was not a file."""
+        return f
+
+    def find_dir(self, path: str | pathlib.Path) -> CheckDir:
+        """Find a file by its name"""
+        f = self.find(path)
+        assert isinstance(f, CheckDir), """Path was not a directory."""
+        return f
+
+    def find_link(self, path: str | pathlib.Path) -> CheckLink:
+        """Find a file by its name"""
+        f = self.find(path)
+        assert isinstance(f, CheckLink), """Path was not a file."""
+        return f
 
     def short_report(self, verbose=0):
         for error in self.check():

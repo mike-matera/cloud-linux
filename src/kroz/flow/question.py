@@ -80,7 +80,8 @@ class Question(KrozFlowABC):
         answered. Use it to cleanup after the attempt if necessary.
         """
 
-    def shell(self, command):
+    @staticmethod
+    def shell(command):
         """
         A helper to run a command in the shell, returning the contents of stdout
         and raising an exception if the command exits with an error status.
@@ -97,6 +98,7 @@ class Question(KrozFlowABC):
         """Ask the question."""
 
         app = KrozApp.running()
+        answer = None
         try:
             self.setup()
             tries_left = self.tries
@@ -125,7 +127,7 @@ class Question(KrozFlowABC):
                 )
                 if answer is None:
                     return KrozFlowABC.Result(
-                        message="",
+                        message=None,
                         result=KrozFlowABC.Result.QuestionResult.SKIPPED,
                     )
 
@@ -173,7 +175,7 @@ class Question(KrozFlowABC):
             self.cleanup()
 
         return KrozFlowABC.Result(
-            message=None,
+            message=answer,
             result=KrozFlowABC.Result.QuestionResult.INCORRECT,
         )
 
