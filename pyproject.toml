@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "canvasapi>=3.3.0",
     "flask>=3.1.0",
+    "psutil>=7.0.0",
     "pynacl>=1.5.0",
     "pyte>=0.8.2",
     "quart>=0.20.0",
@@ -33,6 +34,6 @@ docstring-code-format = true
 dev = [
     "pytest>=8.4.1",
     "pytest-asyncio>=1.1.0",
-    "pytest-textual-snapshot>=1.1.0",
+    "pytest-mock>=3.14.1",
     "ruff>=0.9.10",
 ]

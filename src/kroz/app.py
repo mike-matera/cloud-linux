@@ -218,46 +218,47 @@ class KrozApp(App[str]):
         yield ScoreHeader()
         yield Footer()
 
-    def _run_user_app(self) -> str:
+    def _setup_user_app(self):
         global _setuphooks, _default_config
-        try:
-            self._config = _default_config.copy()
-            self._config.update(self._user_config)
+        self._config = _default_config.copy()
+        self._config.update(self._user_config)
 
-            # Debugging overrides.
-            if self._debug:
-                self._config["secret"] = None
-                self._config["config_dir"] = pathlib.Path(os.getcwd())
-                self._config["default_path"] = pathlib.Path(os.getcwd())
+        # Debugging overrides.
+        if self._debug:
+            self._config["secret"] = None
+            self._config["config_dir"] = pathlib.Path(os.getcwd())
+            self._config["default_path"] = pathlib.Path(os.getcwd())
 
-            if self._config["secret"] is None:
-                self._config["secret"] = str(uuid.getnode())
-            if self._config["config_dir"] is None:
-                self._config["config_dir"] = pathlib.Path.home() / ".kroz"
-            self._config["config_dir"] = pathlib.Path(
-                self._config["config_dir"]
-            )
-            if not self._config["config_dir"].exists():
-                self._config["config_dir"].mkdir(parents=True)
-            else:
-                if not self._config["config_dir"].is_dir():
-                    raise RuntimeError(
-                        f"The home configuration must be a directory: {self._config['home']}"
-                    )
-            if self._config["state_file"] is not None:
-                assert isinstance(self._config["state_file"], pathlib.Path)
-                assert not self._config["state_file"].is_absolute()
-                self._state = JsonBoxFile(
-                    self._config["secret"],
-                    (
-                        self._config["config_dir"] / self._config["state_file"]
-                    ).with_suffix(".krs"),
+        if self._config["secret"] is None:
+            self._config["secret"] = str(uuid.getnode())
+        if self._config["config_dir"] is None:
+            self._config["config_dir"] = pathlib.Path.home() / ".kroz"
+        self._config["config_dir"] = pathlib.Path(self._config["config_dir"])
+        if not self._config["config_dir"].exists():
+            self._config["config_dir"].mkdir(parents=True)
+        else:
+            if not self._config["config_dir"].is_dir():
+                raise RuntimeError(
+                    f"The home configuration must be a directory: {self._config['home']}"
                 )
-            else:
-                self._state = JsonBoxFile(self._config["secret"], None)
+        if self._config["state_file"] is not None:
+            assert isinstance(self._config["state_file"], pathlib.Path)
+            assert not self._config["state_file"].is_absolute()
+            self._state = JsonBoxFile(
+                self._config["secret"],
+                (
+                    self._config["config_dir"] / self._config["state_file"]
+                ).with_suffix(".krs"),
+            )
+        else:
+            self._state = JsonBoxFile(self._config["secret"], None)
 
-            for hook in _setuphooks:
-                hook()
+        for hook in _setuphooks:
+            hook()
+
+    def _run_user_app(self) -> str:
+        try:
+            self._setup_user_app()
             return self._main_func()
         except KrozApp.CancelledWorkerException:
             # Don't propagate
