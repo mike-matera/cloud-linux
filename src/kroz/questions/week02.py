@@ -149,7 +149,7 @@ class NewYearFuture(Question):
         failure_description="""Enter the full name of a day (e.g. "Sunday")""",
     )
 
-    def __init__(self, *, year: int = None, **kwargs):
+    def __init__(self, *, year: int | None = None, **kwargs):
         super().__init__(**kwargs)
         if year is not None:
             self._year = year

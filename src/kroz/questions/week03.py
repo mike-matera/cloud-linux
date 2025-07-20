@@ -300,7 +300,6 @@ class RelativePaths(Question):
 
         * From: `{self._from}`
         * To: `{self._to}`
-
         """
 
     def check(self, answer):
