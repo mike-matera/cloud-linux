@@ -48,19 +48,25 @@ class KrozFlowABC(ABC):
 class FlowContext:
     """Context manager that groups flows."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, flowname: str = "unnamed", **kwargs):
         self.kwargs = kwargs
-        self.groups: list[dict] = KrozApp.running().state.get(
-            "_in_group", [], store=True
-        )
-        assert isinstance(self.groups, list)
+        self.flowname = flowname
+        self.serial = 0
 
     def __enter__(self):
-        self.groups.append(self.kwargs)
+        app = KrozApp.running()
+        groups: list[dict] = app.state.get("_in_group", [], store=True)
+        self.serial = app.state.get("_sequence", 0, store=True)
+        app.state["_sequence"] = 0
+        assert isinstance(groups, list)
+        groups.append(self.__dict__)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.groups.pop()
+        app = KrozApp.running()
+        groups: list[dict] = app.state["_in_group"]
+        groups.pop()
+        app.state["_sequence"] = self.serial
 
     @staticmethod
     def run(flow: KrozFlowABC) -> KrozFlowABC.Result:
@@ -68,22 +74,29 @@ class FlowContext:
         app = KrozApp.running()
 
         # Apply flow overrides.
-        groups: list[dict] = app.state.get("_in_group", None)
-        if groups is not None:
-            assert isinstance(groups, list)
-            for group in reversed(groups):
-                assert isinstance(group, dict)
-                for key, value in group.items():
-                    try:
-                        setattr(flow, key, value)
-                    except AttributeError:
-                        pass  # Classes can ignore overrides with properties
+        groups: list[dict] = KrozApp.running().state.get("_in_group", [])
+        overrides = {}
+        for group in reversed(groups):
+            assert isinstance(group, dict)
+            overrides.update(group["kwargs"])
+
+        for key, value in overrides.items():
+            try:
+                setattr(flow, key, value)
+            except AttributeError:
+                pass  # Classes can ignore overrides with properties
 
         # Search checkpoints.
         seq_no = app.state.get("_sequence", 0, store=True)
+        if len(groups) != 0:
+            check_key = "-".join(
+                [g["flowname"] for g in groups] + [str(seq_no)]
+            )
+        else:
+            check_key = f"nogroup-{seq_no}"
+
         app.state["_sequence"] = seq_no + 1
         checkpoints = app.state.get("checkpoints", {}, store=True)
-        check_key = f"{flow.__class__.__name__}{seq_no}"
 
         if flow.debug or app._debug:
             flow.debug = True

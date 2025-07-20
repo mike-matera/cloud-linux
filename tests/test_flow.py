@@ -95,16 +95,20 @@ def test_flow_checkpoint_success(kroz_app):
         def check(self, answer: str) -> None:
             return
 
-    result1 = FlowContext.run(qq())
+    q = qq()
+    result1 = FlowContext.run(q)
+    checkpoint = "nogroup-0"
     assert "checkpoints" in kroz_app.state
     assert 1 == len(kroz_app.state["checkpoints"])
-    assert "qq0" in kroz_app.state["checkpoints"]
-    assert "message" in kroz_app.state["checkpoints"]["qq0"]
-    assert "show-return" == kroz_app.state["checkpoints"]["qq0"]["message"]
-    assert "result" in kroz_app.state["checkpoints"]["qq0"]
+    assert checkpoint in kroz_app.state["checkpoints"]
+    assert "message" in kroz_app.state["checkpoints"][checkpoint]
+    assert (
+        "show-return" == kroz_app.state["checkpoints"][checkpoint]["message"]
+    )
+    assert "result" in kroz_app.state["checkpoints"][checkpoint]
     assert (
         "QuestionResult.CORRECT"
-        == kroz_app.state["checkpoints"]["qq0"]["result"]
+        == kroz_app.state["checkpoints"][checkpoint]["result"]
     )
     assert kroz_app.show.call_count == 2
     assert "_sequence" in kroz_app.state
@@ -116,7 +120,8 @@ def test_flow_checkpoint_success(kroz_app):
     kroz_app.show.reset_mock()
     kroz_app.score = 0
 
-    result2 = FlowContext.run(qq())
+    q2 = qq()
+    result2 = FlowContext.run(q2)
     assert result1 == result2
     assert kroz_app.show.call_count == 0
     assert kroz_app.score == 10
@@ -133,20 +138,25 @@ def test_checkpoint_failure(kroz_app):
         def check(self, answer: str) -> None:
             raise ValueError("")
 
-    result1 = FlowContext.run(qq())
+    q = qq()
+    result1 = FlowContext.run(q)
+    checkpoint = "nogroup-0"
     assert "checkpoints" in kroz_app.state
     assert 1 == len(kroz_app.state["checkpoints"])
-    assert "qq0" in kroz_app.state["checkpoints"]
-    assert "message" in kroz_app.state["checkpoints"]["qq0"]
-    assert "show-return" == kroz_app.state["checkpoints"]["qq0"]["message"]
-    assert "result" in kroz_app.state["checkpoints"]["qq0"]
+    assert checkpoint in kroz_app.state["checkpoints"]
+    assert "message" in kroz_app.state["checkpoints"][checkpoint]
+    assert (
+        "show-return" == kroz_app.state["checkpoints"][checkpoint]["message"]
+    )
+    assert "result" in kroz_app.state["checkpoints"][checkpoint]
     assert (
         "QuestionResult.INCORRECT"
-        == kroz_app.state["checkpoints"]["qq0"]["result"]
+        == kroz_app.state["checkpoints"][checkpoint]["result"]
     )
     assert kroz_app.show.call_count == 2
     assert "_sequence" in kroz_app.state
     assert 1 == kroz_app.state["_sequence"]
+    assert kroz_app.score == 0
 
     # Reset the sequence, show and score
     kroz_app.state["_sequence"] = 0
@@ -171,20 +181,23 @@ def test_checkpoint_skip(mocker, kroz_app):
         def check(self, answer: str) -> None:
             raise ValueError("")
 
-    result1 = FlowContext.run(qq())
+    q = qq()
+    result1 = FlowContext.run(q)
+    checkpoint = "nogroup-0"
     assert "checkpoints" in kroz_app.state
     assert 1 == len(kroz_app.state["checkpoints"])
-    assert "qq0" in kroz_app.state["checkpoints"]
-    assert "message" in kroz_app.state["checkpoints"]["qq0"]
-    assert kroz_app.state["checkpoints"]["qq0"]["message"] is None
-    assert "result" in kroz_app.state["checkpoints"]["qq0"]
+    assert checkpoint in kroz_app.state["checkpoints"]
+    assert "message" in kroz_app.state["checkpoints"][checkpoint]
+    assert None is kroz_app.state["checkpoints"][checkpoint]["message"]
+    assert "result" in kroz_app.state["checkpoints"][checkpoint]
     assert (
         "QuestionResult.SKIPPED"
-        == kroz_app.state["checkpoints"]["qq0"]["result"]
+        == kroz_app.state["checkpoints"][checkpoint]["result"]
     )
     assert kroz_app.show.call_count == 1
     assert "_sequence" in kroz_app.state
     assert 1 == kroz_app.state["_sequence"]
+    assert kroz_app.score == 0
 
     # Reset the sequence, show and score
     kroz_app.state["_sequence"] = 0
@@ -195,3 +208,80 @@ def test_checkpoint_skip(mocker, kroz_app):
     assert result1 == result2
     assert kroz_app.show.call_count == 1  # The question was re-shown
     assert kroz_app.score == 0
+
+
+def test_flow_checkpoint_multi(kroz_app):
+    class qq(Question):
+        points = 10
+        checkpoint = True
+
+        def check(self, answer: str) -> None:
+            return
+
+    with FlowContext(flowname="test") as flow:
+        flow.run(qq())
+        flow.run(qq())
+        flow.run(qq())
+        flow.run(qq())
+        flow.run(qq())
+
+    assert 5 == len(kroz_app.state["checkpoints"])
+    for i in range(5):
+        assert f"test-{i}" in kroz_app.state["checkpoints"]
+
+
+def test_flow_checkpoint_nested(kroz_app):
+    class qq(Question):
+        points = 10
+        checkpoint = True
+
+        def check(self, answer: str) -> None:
+            return
+
+    with FlowContext(flowname="test1") as flow:
+        flow.run(qq())
+        assert "test1-0" in kroz_app.state["checkpoints"]
+        flow.run(qq())
+        assert "test1-1" in kroz_app.state["checkpoints"]
+        with FlowContext(flowname="test2") as flow:
+            flow.run(qq())
+            assert "test1-test2-0" in kroz_app.state["checkpoints"]
+            flow.run(qq())
+            assert "test1-test2-1" in kroz_app.state["checkpoints"]
+        flow.run(qq())
+        assert "test1-2" in kroz_app.state["checkpoints"]
+
+    assert 5 == len(kroz_app.state["checkpoints"])
+
+
+def test_flow_checkpoint_noname(kroz_app):
+    class qq(Question):
+        points = 10
+        checkpoint = True
+
+        def check(self, answer: str) -> None:
+            return
+
+    FlowContext.run(qq(checkpoint=True))
+    assert "nogroup-0" in kroz_app.state["checkpoints"]
+
+    with FlowContext() as flow:
+        FlowContext.run(qq(checkpoint=True))
+        assert "unnamed-0" in kroz_app.state["checkpoints"]
+        flow.run(qq())
+        assert "unnamed-1" in kroz_app.state["checkpoints"]
+        flow.run(qq())
+        assert "unnamed-2" in kroz_app.state["checkpoints"]
+        with FlowContext() as flow:
+            FlowContext.run(qq(checkpoint=True))
+            assert "unnamed-unnamed-0" in kroz_app.state["checkpoints"]
+            flow.run(qq())
+            assert "unnamed-unnamed-1" in kroz_app.state["checkpoints"]
+            flow.run(qq())
+            assert "unnamed-unnamed-2" in kroz_app.state["checkpoints"]
+        flow.run(qq())
+        assert "unnamed-3" in kroz_app.state["checkpoints"]
+
+    FlowContext.run(qq(checkpoint=True))
+    assert "nogroup-1" in kroz_app.state["checkpoints"]
+    assert 9 == len(kroz_app.state["checkpoints"])
