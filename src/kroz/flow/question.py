@@ -2,20 +2,19 @@
 The protocol and implementation of a question in KROZ.
 """
 
-import hashlib
 import random
 import re
 import subprocess
 import textwrap
 from abc import abstractmethod
-from typing import Iterable
+from typing import Iterable, Sequence
 
 import textual
 import textual.validation
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import HorizontalGroup, VerticalGroup
-from textual.validation import Validator
+from textual.validation import Integer, Validator
 from textual.widgets import (
     Input,
     Label,
@@ -41,6 +40,9 @@ class Question(KrozFlowABC):
 
     # Number of tries
     tries: int | property = 0
+
+    # Correct response feedback
+    congrats: str | property | None = "# Congratulations"
 
     @abstractmethod
     def check(self, answer: str) -> None:
@@ -158,13 +160,14 @@ class Question(KrozFlowABC):
                         tries_left -= 1
                     else:
                         app.update_score(self.points)
-                        app.show(
-                            KrozScreen(
-                                "# Congratulations" if not result else result,
-                                title="Success",
-                                classes="congrats",
+                        if self.congrats is not None:
+                            app.show(
+                                KrozScreen(
+                                    self.congrats,
+                                    title="Success",
+                                    classes="congrats",
+                                )
                             )
-                        )
                         return KrozFlowABC.Result(
                             message=answer,
                             result=KrozFlowABC.Result.QuestionResult.CORRECT,
@@ -193,7 +196,6 @@ class MultipleChoiceQuestion(Question):
         self._solution = choices[0]
         self._choices = list(choices)
         self._help = help
-        self.name = hashlib.sha1(text.encode("utf-8")).hexdigest()
 
     @property
     def validators(self) -> list[textual.validation.Validator]:
@@ -232,7 +234,6 @@ class TrueOrFalseQuestion(Question):
         self._text = text
         self._solution = solution
         self._help = help
-        self.name = hashlib.sha1(text.encode("utf-8")).hexdigest()
 
     validators = [
         textual.validation.Regex(
@@ -266,7 +267,6 @@ class ShortAnswerQuestion(Question):
         self._text = text
         self._solution = solution
         self._help = help
-        self.name = hashlib.sha1(text.encode("utf-8")).hexdigest()
 
     @property
     def text(self):
@@ -335,3 +335,29 @@ class QuestionScreen(KrozScreen):
                 )
             )
         input.clear()
+
+
+class Menu(Question):
+    """A menu of options to choose from."""
+
+    congrats = None
+    placeholder = "Enter your choice..."
+    can_skip = False
+
+    def __init__(self, message: str, items: Sequence[str]):
+        self._text = message
+        self._items = items
+
+    @property
+    def text(self) -> str:
+        text = textwrap.dedent(self._text) + "\n"
+        for i, item in enumerate(self._items, start=1):
+            text += f"  {i}. {item.strip()}\n"
+        return text
+
+    @property
+    def validators(self):
+        return Integer(minimum=1, maximum=len(self._items))
+
+    def check(self, answer):
+        return
