@@ -8,6 +8,7 @@ import getpass
 import hashlib
 import json
 import pathlib
+import pickle
 import platform
 import sys
 import uuid
@@ -18,7 +19,7 @@ import nacl.exceptions
 import nacl.secret
 
 
-class JsonBoxFile:
+class EncryptedStateFile:
     """
     A simple way to have encrypted persistence.
     """
@@ -53,7 +54,7 @@ class JsonBoxFile:
             with open(self._path, "w") as fh:
                 fh.write(
                     self._box.encrypt(
-                        json.dumps(to_store).encode("utf-8"),
+                        pickle.dumps(to_store),
                         encoder=nacl.encoding.URLSafeBase64Encoder,
                     ).decode("utf-8")
                 )
@@ -63,7 +64,7 @@ class JsonBoxFile:
         if self._path is not None:
             try:
                 with open(self._path, "rb") as fh:
-                    self._data: dict[str, Any] = json.loads(
+                    self._data: dict[str, Any] = pickle.loads(
                         self._box.decrypt(
                             fh.read(),
                             encoder=nacl.encoding.URLSafeBase64Encoder,
@@ -73,11 +74,15 @@ class JsonBoxFile:
             except (nacl.exceptions.CryptoError, OSError, AssertionError):
                 self._data = {}
 
-    def __getitem__(self, key: Any) -> Any:
+    def __getitem__(self, key: str) -> Any:
         return self._data[key]
 
-    def __setitem__(self, key: Any, value: Any):
+    def __setitem__(self, key: str, value: Any):
         self._data[key] = value
+        self.store()
+
+    def __delitem__(self, key: str):
+        del self._data[key]
         self.store()
 
     def __contains__(self, key):
@@ -91,6 +96,7 @@ class JsonBoxFile:
         else:
             if store:
                 self._data[key] = default
+                self.store()
             return default
 
 
@@ -194,4 +200,4 @@ def main(args):
                     except Exception:
                         pass
     else:
-        print(JsonBoxFile(key=args.key, filename=args.file)._data)
+        print(EncryptedStateFile(key=args.key, filename=args.file)._data)

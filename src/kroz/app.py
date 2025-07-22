@@ -25,7 +25,7 @@ from textual.widgets import (
 from textual.worker import Worker, get_current_worker
 
 from kroz.screen import KrozScreen
-from kroz.secrets import ConfirmationCode, JsonBoxFile
+from kroz.secrets import ConfirmationCode, EncryptedStateFile
 from kroz.widget.score_header import ScoreHeader
 
 _setuphooks = []
@@ -244,14 +244,14 @@ class KrozApp(App[str]):
         if self._config["state_file"] is not None:
             assert isinstance(self._config["state_file"], pathlib.Path)
             assert not self._config["state_file"].is_absolute()
-            self._state = JsonBoxFile(
+            self._state = EncryptedStateFile(
                 self._config["secret"],
                 (
                     self._config["config_dir"] / self._config["state_file"]
                 ).with_suffix(".krs"),
             )
         else:
-            self._state = JsonBoxFile(self._config["secret"], None)
+            self._state = EncryptedStateFile(self._config["secret"], None)
 
         for hook in _setuphooks:
             hook()
@@ -345,10 +345,12 @@ class KrozApp(App[str]):
             raise RuntimeError("State has not been initialized.")
         return self._state
 
-    def confirmation(self):
+    @staticmethod
+    def confirmation():
         """Get the base64 encoded confirmation code."""
-        return ConfirmationCode(key=self.config["secret"]).confirmation(
-            {"score": self.score}
+        app = KrozApp.running()
+        return ConfirmationCode(key=app.config["secret"]).confirmation(
+            {"score": app.score}
         )
 
     @staticmethod
