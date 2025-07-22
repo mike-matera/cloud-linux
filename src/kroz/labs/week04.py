@@ -38,11 +38,11 @@ def main():
         title="Welcome!",
     )
 
-    with FlowContext(checkpoint=True, points=0) as flow:
+    with FlowContext("questions", progress=True, points=0) as flow:
         for i, q in enumerate(questions):
             flow.run(q)
 
-    with FlowContext(checkpoint=True, name="week04") as flow:
+    with FlowContext("challenges", progress=True, name="week04") as flow:
         flow.run(
             PathAttrs(
                 path_type=PathAttrs.PathType.DIR,
@@ -56,8 +56,6 @@ def main():
         flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH, points=3))
         flow.run(LinkInfo(type=LinkInfo.Info.REL_OR_ABS, points=3))
         flow.run(MakeLink(name="my_link", points=3))
-
-    return app.confirmation()
 
 
 if __name__ == "__main__":

@@ -27,13 +27,11 @@ class Test(MultipleChoiceQuestion):
 def main():
     app.show(WELCOME, classes="welcome")
 
-    with FlowContext(points=10) as flow:
-        flow.run(RandomRando(points=10, checkpoint="1"))
-        flow.run(RandomDeleteMe(points=10, checkpoint="2"))
-        flow.run(RandomRandoTick(points=10, checkpoint="3"))
-        flow.run(DeepMessage(points=10, checkpoint="4"))
-
-    return app.confirmation()
+    with FlowContext("challenges", progress=True, points=5) as flow:
+        flow.run(RandomRando())
+        flow.run(RandomDeleteMe())
+        flow.run(RandomRandoTick())
+        flow.run(DeepMessage())
 
 
 if __name__ == "__main__":

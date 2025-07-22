@@ -19,7 +19,7 @@ app = KrozApp("Anatomy of a Command", state_file="anatomy")
 
 
 @app.main
-def main() -> str:
+def main() -> None:
     app.show(
         textwrap.dedent("""
         # The Anatomy of a Command 
@@ -37,7 +37,7 @@ def main() -> str:
         title="Welcome!",
     )
 
-    with FlowContext(checkpoint=True) as flow:
+    with FlowContext("questions", progress=True) as flow:
         for q in questions:
             flow.run(q)
 
@@ -54,7 +54,7 @@ def main() -> str:
         classes="welcome",
     )
 
-    with FlowContext(points=5, checkpoint=True) as flow:
+    with FlowContext("challenges", points=5, progress=True) as flow:
         flow.run(FreeMemory(key="total"))
         flow.run(WhatsUname(key=WhatsUname.Keys.KERNEL_VERSION))
         flow.run(OsRelease(key="NAME"))
@@ -72,8 +72,6 @@ def main() -> str:
         classes="welcome",
         title="Bye!",
     )
-
-    return app.confirmation()
 
 
 if __name__ == "__main__":

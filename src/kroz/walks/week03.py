@@ -42,8 +42,6 @@ def main():
             with FlowContext("nav-poems"):
                 surf_poems()
 
-    return "Bye!"
-
 
 def surf_poems():
     """Use relative and absolute paths in your Poems directory."""

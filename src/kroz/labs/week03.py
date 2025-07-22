@@ -31,7 +31,7 @@ def main():
         title="Welcome!",
     )
 
-    with FlowContext(checkpoint=True) as flow:
+    with FlowContext("questions", progress=True) as flow:
         for q in questions:
             flow.run(q)
 
@@ -53,8 +53,6 @@ def main():
         classes="welcome",
         title="Bye!",
     )
-
-    return app.confirmation()
 
 
 if __name__ == "__main__":

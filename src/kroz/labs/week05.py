@@ -21,10 +21,8 @@ app = kroz.KrozApp("Sort the Islands")
 @app.main
 def main():
     app.show(WELCOME, classes="welcome")
-    with FlowContext(checkpoint=True) as flow:
+    with FlowContext("challenges", progress=True) as flow:
         flow.run(Islands(points=20))
-
-    return app.confirmation()
 
 
 if __name__ == "__main__":

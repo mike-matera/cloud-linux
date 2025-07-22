@@ -20,7 +20,7 @@ app = kroz.KrozApp("The I/O Lab")
 @app.main
 def main():
     app.show(WELCOME, classes="welcome")
-    with FlowContext(checkpoint=True, name="lab07_") as flow:
+    with FlowContext("challenges", progress=True, name="lab07_") as flow:
         flow.run(WordInBigfile(find=[None, 1]))
         flow.run(CountOranges())
         flow.run(UniqueWords())
@@ -28,8 +28,6 @@ def main():
         flow.run(WordInBigfile(from_bottom=True, find=[None, 1]))
         flow.run(WordInBigfile())
         flow.run(WordInBigfile(from_right=True))
-
-    return app.confirmation()
 
 
 if __name__ == "__main__":
