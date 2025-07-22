@@ -71,7 +71,12 @@ class EncryptedStateFile:
                         )
                     )
                     assert isinstance(self._data, dict)
-            except (nacl.exceptions.CryptoError, OSError, AssertionError):
+            except (
+                nacl.exceptions.CryptoError,
+                OSError,
+                AssertionError,
+                pickle.UnpicklingError,
+            ):
                 self._data = {}
 
     def __getitem__(self, key: str) -> Any:
