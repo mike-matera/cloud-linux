@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from kroz.secrets import ConfirmationCode, JsonBoxFile
+from kroz.secrets import ConfirmationCode, EncryptedStateFile
 
 
 def test_cfm_encoding():
@@ -43,7 +43,7 @@ def test_cfm_contents():
 
 def test_secret_box():
     """Unit tests for the box file."""
-    b = JsonBoxFile(key="test", filename=None)
+    b = EncryptedStateFile(key="test", filename=None)
     b["foo"] = "bar"
     b["bar"] = [1, 2, 3, 4]
     b["bak"] = {1: 2, 3: 4}
@@ -72,7 +72,7 @@ def test_secret_box_load_store():
     """Unit tests for the box file."""
     with tempfile.TemporaryDirectory() as d:
         boxfile = Path(d) / "secret"
-        b = JsonBoxFile(key="test", filename=boxfile)
+        b = EncryptedStateFile(key="test", filename=boxfile)
         b["foo"] = "bar"
         b["bar"] = [1, 2, 3, 4]
         b["bak"] = {1: 2, 3: 4}
@@ -80,7 +80,7 @@ def test_secret_box_load_store():
         b["_volatile"] = "me"
 
         # Store is automatically called
-        b = JsonBoxFile(key="test", filename=boxfile)
+        b = EncryptedStateFile(key="test", filename=boxfile)
         assert "user" in b
         assert "host" in b
         assert "cmd" in b
@@ -90,8 +90,7 @@ def test_secret_box_load_store():
         assert "bar" in b
         assert b["bar"] == [1, 2, 3, 4]
         assert "bak" in b
-        # JSON keys are always strings... what should I do about this?
-        assert b["bak"] == {"1": 2, "3": 4}
+        assert b["bak"] == {1: 2, 3: 4}
         assert "grr" in b
         assert b["grr"]
 
@@ -109,11 +108,11 @@ def test_wrong_cfm_key():
 def test_wrong_box_key():
     with tempfile.TemporaryDirectory() as d:
         boxfile = Path(d) / "secret"
-        c = JsonBoxFile(key="k1", filename=boxfile)
+        c = EncryptedStateFile(key="k1", filename=boxfile)
         c.store()
-        d = JsonBoxFile(key="k1", filename=boxfile)
+        d = EncryptedStateFile(key="k1", filename=boxfile)
         assert "user" in d
 
         # Bad key gives an empty dictionary
-        d = JsonBoxFile(key="k2", filename=boxfile)
+        d = EncryptedStateFile(key="k2", filename=boxfile)
         assert "user" not in d

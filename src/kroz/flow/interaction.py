@@ -16,6 +16,7 @@ from textual.widgets import Markdown
 
 from kroz import KrozApp
 from kroz.flow import KrozFlowABC
+from kroz.flow.base import FlowResult
 from kroz.screen import KrozScreen
 
 
@@ -70,19 +71,14 @@ class InteractionABC(KrozFlowABC):
         This runs in the application's event loop.
         """
 
-    def show(self) -> KrozFlowABC.Result:
+    def show(self) -> FlowResult:
         app = KrozApp.running()
         screen = InteractionScreen(self)
-        result = app.show(screen=screen)
-        if result is not None:
-            return KrozFlowABC.Result(
-                message=result,
-                result=KrozFlowABC.Result.QuestionResult.CORRECT,
-            )
+        self.answer = app.show(screen=screen)
+        if self.answer is not None:
+            return FlowResult.CORRECT
         else:
-            return KrozFlowABC.Result(
-                message=None, result=KrozFlowABC.Result.QuestionResult.SKIPPED
-            )
+            return FlowResult.SKIPPED
 
 
 class Interaction(InteractionABC):
@@ -140,7 +136,7 @@ class InteractionScreen(KrozScreen):
         try:
             if self._inter.on_command(event.cmd):
                 KrozApp.running().notify("Congratulations!", timeout=5)
-                self.dismiss(event.cmd)
+                self.dismiss(str(event.cmd))
             else:
                 md.border_title = f"❌ {event.cmd}"
                 self.classes = "feedback"

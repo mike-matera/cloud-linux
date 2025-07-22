@@ -21,7 +21,7 @@ from textual.widgets import (
 )
 
 from kroz import KrozApp
-from kroz.flow.base import KrozFlowABC
+from kroz.flow.base import FlowResult, KrozFlowABC
 from kroz.screen import KrozScreen
 
 
@@ -96,11 +96,10 @@ class Question(KrozFlowABC):
             encoding="utf-8",
         ).stdout
 
-    def show(self) -> KrozFlowABC.Result:
+    def show(self) -> FlowResult:
         """Ask the question."""
 
         app = KrozApp.running()
-        answer = None
         try:
             self.setup()
             tries_left = self.tries
@@ -119,7 +118,7 @@ class Question(KrozFlowABC):
                         title="Last Try",
                         severity="error",
                     )
-                answer = app.show(
+                self.answer = app.show(
                     QuestionScreen(
                         text=self.text,
                         placeholder=self.placeholder,
@@ -127,32 +126,29 @@ class Question(KrozFlowABC):
                         can_skip=self.can_skip,
                     )
                 )
-                if answer is None:
-                    return KrozFlowABC.Result(
-                        message=None,
-                        result=KrozFlowABC.Result.QuestionResult.SKIPPED,
-                    )
+                if self.answer is None:
+                    return FlowResult.SKIPPED
 
                 try:
-                    result = self.check(answer)
+                    check_result = self.check(self.answer)
                 except AssertionError as e:
-                    result = e
+                    check_result = e
                 except Exception as e:
-                    result = e
+                    check_result = e
                     if self.debug:
                         raise e
 
                 try:
-                    if isinstance(result, Exception):
-                        if isinstance(result, AssertionError):
+                    if isinstance(check_result, Exception):
+                        if isinstance(check_result, AssertionError):
                             border_title = "Incorrect Answer"
                         else:
                             border_title = (
-                                f"Error: {result.__class__.__name__}"
+                                f"Error: {check_result.__class__.__name__}"
                             )
                         app.show(
                             KrozScreen(
-                                str(result),
+                                str(check_result),
                                 title=border_title,
                                 classes="feedback",
                             )
@@ -168,19 +164,13 @@ class Question(KrozFlowABC):
                                     classes="congrats",
                                 )
                             )
-                        return KrozFlowABC.Result(
-                            message=answer,
-                            result=KrozFlowABC.Result.QuestionResult.CORRECT,
-                        )
+                        return FlowResult.CORRECT
                 finally:
                     self.cleanup_attempt()
         finally:
             self.cleanup()
 
-        return KrozFlowABC.Result(
-            message=answer,
-            result=KrozFlowABC.Result.QuestionResult.INCORRECT,
-        )
+        return FlowResult.INCORRECT
 
 
 class MultipleChoiceQuestion(Question):

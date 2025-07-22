@@ -2,11 +2,19 @@
 Base Class for a KROZ flow
 """
 
+import textwrap
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 from kroz import KrozApp
+
+
+class FlowResult(Enum):
+    CORRECT = "CORRECT"
+    INCORRECT = "INCORRECT"
+    SKIPPED = "SKIPPED"
+    INCOMPLETE = "INCOMPLETE"
 
 
 class KrozFlowABC(ABC):
@@ -14,28 +22,21 @@ class KrozFlowABC(ABC):
     Abstract base of KROZ flows. Provides grouping and checkpointing services.
     """
 
-    @dataclass
-    class Result:
-        """Result of a question."""
-
-        class QuestionResult(Enum):
-            CORRECT = 1
-            INCORRECT = 2
-            SKIPPED = 3
-
-        message: str | None
-        result: QuestionResult
-
     # The displayed text of the question. Interpreted as Markdown
     text: str | property = ""
     points: int | property = 0
-    checkpoint: bool | property = False
+    progress: bool | property = False
     can_skip: bool | property = True
+
+    # Runtime data
+    checkpoint: str | None = None
+    answer: str | None = None
+    result: FlowResult = FlowResult.INCOMPLETE
 
     debug: bool = False
 
     @abstractmethod
-    def show(self) -> Result: ...
+    def show(self) -> FlowResult: ...
 
     def __init__(self, **kwargs):
         for key in kwargs:
@@ -44,100 +45,185 @@ class KrozFlowABC(ABC):
             else:
                 raise RuntimeError(f"Invalid keyword argument: {key}")
 
+    def __getstate__(self) -> object:
+        return {
+            "text": self.text,
+            "points": self.points,
+            "progress": self.progress,
+            "can_skip": self.can_skip,
+            "checkpoint": self.checkpoint,
+            "answer": self.answer,
+            "result": self.result,
+            "debug": self.debug,
+        }
 
-class FlowContext:
-    """Context manager that groups flows."""
+    def __setstate__(self, state):
+        self.text = state["text"]
+        self.points = state["points"]
+        self.progress = state["progress"]
+        self.can_skip = state["can_skip"]
+        self.checkpoint = state["checkpoint"]
+        self.answer = state["answer"]
+        self.result = state["result"]
+        self.debug = state["debug"]
 
-    def __init__(self, flowname: str = "unnamed", **kwargs):
-        self.kwargs = kwargs
-        self.flowname = flowname
-        self.serial = 0
+    def __repr__(self):
+        return f"""{self.__class__.__name__}("{textwrap.shorten(self.text, 40)}", points={self.points}, can_skip={self.can_skip}, answer="{self.answer}", result={self.result}, debug={self.debug})"""
 
-    def __enter__(self):
-        app = KrozApp.running()
-        groups: list[dict] = app.state.get("_in_group", [], store=True)
-        self.serial = app.state.get("_sequence", 0, store=True)
-        app.state["_sequence"] = 0
-        assert isinstance(groups, list)
-        groups.append(self.__dict__)
-        return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        app = KrozApp.running()
-        groups: list[dict] = app.state["_in_group"]
-        groups.pop()
-        app.state["_sequence"] = self.serial
+@dataclass
+class FlowStackFrame:
+    flowname: str
+    overrides: dict
+    checkpoint_index: int = 0
+    flows: list[KrozFlowABC] = field(default_factory=list)
 
-    @staticmethod
-    def run(flow: KrozFlowABC) -> KrozFlowABC.Result:
-        """Run the flow. Call's derived class's run()."""
-        app = KrozApp.running()
+
+class FlowStack:
+    """The current FlowContext state."""
+
+    def __init__(self):
+        """The flow stack is always derived from the application state."""
+        self.app = KrozApp.running()
+        self.stack: list[FlowStackFrame] = self.app.state.get(
+            "_flow",
+            [FlowStackFrame(flowname="root", overrides={})],
+            store=True,
+        )
+        self.checkpoints: dict[str, KrozFlowABC] = self.app.state.get(
+            "checkpoints", {}, store=True
+        )
+
+    def checkpoint_key(self) -> str:
+        top = self.stack[-1]
+        return "-".join(
+            [g.flowname for g in self.stack] + [str(top.checkpoint_index)]
+        )
+
+    def flow_key(self, flowname: str) -> str:
+        return "-".join([g.flowname for g in self.stack] + [flowname])
+
+    def push(self, ctx: FlowStackFrame) -> None:
+        self.stack.append(ctx)
+
+    def pop(self) -> FlowStackFrame:
+        return self.stack.pop()
+
+    def apply_overrides(self, flow: KrozFlowABC) -> None:
+        """Apply flow overrides from the current stack."""
+
+        over = {}
+        for group in reversed(self.stack):
+            over.update(group.overrides)
 
         # Apply flow overrides.
-        groups: list[dict] = KrozApp.running().state.get("_in_group", [])
-        overrides = {}
-        for group in reversed(groups):
-            assert isinstance(group, dict)
-            overrides.update(group["kwargs"])
-
-        for key, value in overrides.items():
+        for key, value in over.items():
             try:
                 setattr(flow, key, value)
             except AttributeError:
                 pass  # Classes can ignore overrides with properties
 
-        # Search checkpoints.
-        seq_no = app.state.get("_sequence", 0, store=True)
-        if len(groups) != 0:
-            check_key = "-".join(
-                [g["flowname"] for g in groups] + [str(seq_no)]
-            )
+    def from_checkpoint(self, flow: KrozFlowABC) -> KrozFlowABC:
+        """Return a flow that was restored from the current checkpoint."""
+        if flow.progress:
+            return self.checkpoints.get(self.checkpoint_key(), flow)
         else:
-            check_key = f"nogroup-{seq_no}"
+            return flow
 
-        app.state["_sequence"] = seq_no + 1
-        checkpoints = app.state.get("checkpoints", {}, store=True)
+    def record(self, flow: KrozFlowABC) -> None:
+        top = self.stack[-1]
+        flow.checkpoint = self.checkpoint_key()
+        top.flows.append(flow)
+        if flow.progress:
+            self.checkpoints[flow.checkpoint] = flow
+            self.stack[-1].checkpoint_index += 1
+            self.app.state.store()
+
+
+class FlowContext:
+    """Context manager that groups flows."""
+
+    def __init__(self, flowname: str, **kwargs):
+        self.frame = FlowStackFrame(flowname=flowname, overrides=kwargs)
+        self.stack = FlowStack()
+        self.flowresults: dict[str, FlowResult] = KrozApp.running().state.get(
+            "flowresults", {}, store=True
+        )
+        self.flowkey = self.stack.flow_key(flowname)
+
+    def __enter__(self):
+        self.stack.push(self.frame)
+        self.flowresults[self.flowkey] = FlowResult.INCOMPLETE
+        KrozApp.running().state.store()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        top = self.stack.pop()
+        if exc_type is not None or any(
+            (x.result == FlowResult.SKIPPED for x in top.flows)
+        ):
+            self.flowresults[self.flowkey] = FlowResult.SKIPPED
+        elif all((x.result == FlowResult.CORRECT for x in top.flows)):
+            self.flowresults[self.flowkey] = FlowResult.CORRECT
+        else:
+            self.flowresults[self.flowkey] = FlowResult.INCORRECT
+        KrozApp.running().state.store()
+
+    @staticmethod
+    def is_complete(flowname: str):
+        """Check if the flow has been previously completed"""
+        stack = FlowStack()
+        flowkey = stack.flow_key(flowname)
+        flowresults: dict[str, FlowResult] = KrozApp.running().state.get(
+            "flowresults", {}, store=True
+        )
+        return (
+            flowresults.get(flowkey, FlowResult.INCOMPLETE)
+            == FlowResult.CORRECT
+        )
+
+    @staticmethod
+    def flow_status(flowname: str):
+        stack = FlowStack()
+        flowkey = stack.flow_key(flowname)
+        flowresults: dict[str, FlowResult] = KrozApp.running().state.get(
+            "flowresults", {}, store=True
+        )
+        return flowresults.get(flowkey, FlowResult.INCOMPLETE)
+
+    @staticmethod
+    def status_icon(flowname: str):
+        status = FlowContext.flow_status(flowname)
+        if status == FlowResult.INCOMPLETE:
+            return "⭕"  # Not started
+        elif status == FlowResult.CORRECT:
+            return "✅️"  # Complete
+        elif status == FlowResult.SKIPPED:
+            return "🕒"  # Not finished
+        elif status == FlowResult.INCORRECT:
+            return "❌"  # Incorrect answers.
+
+    @staticmethod
+    def run(flow: KrozFlowABC) -> KrozFlowABC:
+        """Run the flow. Call's derived class's run()."""
+        stack = FlowStack()
+        app = stack.app
+
+        stack.apply_overrides(flow)
 
         if flow.debug or app._debug:
             flow.debug = True
-            if isinstance(flow.__class__.can_skip, property):
-                # Defeat the property for debugging....
-                flow.__class__.can_skip = True
-            else:
+            if not isinstance(flow.__class__.can_skip, property):
                 flow.can_skip = True
 
-        checkpoint_result = KrozFlowABC.Result(
-            message=None, result=KrozFlowABC.Result.QuestionResult.INCORRECT
-        )
-        if (
-            flow.checkpoint
-            and check_key in checkpoints
-            and checkpoints[check_key]["result"] == "QuestionResult.CORRECT"
+        flow = stack.from_checkpoint(flow)
+        if flow.result != FlowResult.CORRECT:
+            flow.result = flow.show()
+
+        if flow.result == FlowResult.CORRECT or (
+            flow.debug and flow.result == FlowResult.SKIPPED
         ):
             app.score += flow.points
-            return KrozFlowABC.Result(
-                message=checkpoints[check_key]["message"],
-                result=KrozFlowABC.Result.QuestionResult.CORRECT,
-            )
-        try:
-            checkpoint_result = flow.show()
-            if (
-                checkpoint_result.result
-                == KrozFlowABC.Result.QuestionResult.CORRECT
-            ):
-                app.score += flow.points
-            elif (
-                flow.debug
-                and checkpoint_result.result
-                == KrozFlowABC.Result.QuestionResult.SKIPPED
-            ):
-                app.score += flow.points
-        finally:
-            if flow.checkpoint:
-                checkpoints[check_key] = {
-                    "message": checkpoint_result.message,
-                    "result": str(checkpoint_result.result),
-                }
-                app.state.store()
 
-        return checkpoint_result
+        stack.record(flow)
+        return flow

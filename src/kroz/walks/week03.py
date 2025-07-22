@@ -3,7 +3,7 @@ Walk through for week 3: The File System
 """
 
 import kroz
-from kroz.flow.base import FlowContext
+from kroz.flow.base import FlowContext, FlowResult
 from kroz.flow.interaction import Interaction
 from kroz.flow.question import Menu
 
@@ -13,6 +13,12 @@ app = kroz.KrozApp("The File System", state_file="testflow")
 @app.main
 def main():
     while True:
+        app.score = 0
+        if FlowContext.flow_status("nav-ls") == FlowResult.CORRECT:
+            app.score += 10
+        if FlowContext.flow_status("nav-poems") == FlowResult.CORRECT:
+            app.score += 10
+
         choice = FlowContext.run(
             Menu(
                 message="""
@@ -23,17 +29,17 @@ def main():
                 **Choose a journey by entering a number and pressing `Enter`**
     """,
                 items=[
-                    "Explore your home directory with `ls`.",
-                    "Take a trip through the Poems directory.",
+                    f"{FlowContext.status_icon('nav-ls')} Explore your home directory with `ls`.",
+                    f"{FlowContext.status_icon('nav-poems')} Take a trip through the Poems directory.",
                 ],
             )
         )
 
-        if choice.message and int(choice.message) == 1:
-            with FlowContext("nav-ls", checkpoint=True, points=1):
+        if choice.answer and int(choice.answer) == 1:
+            with FlowContext("nav-ls"):
                 navigation_ls()
-        elif choice.message and int(choice.message) == 2:
-            with FlowContext("nav-ls", checkpoint=True, points=1):
+        elif choice.answer and int(choice.answer) == 2:
+            with FlowContext("nav-poems"):
                 surf_poems()
 
     return "Bye!"

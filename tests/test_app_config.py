@@ -7,7 +7,7 @@ from textual.worker import WorkerFailed
 
 from kroz.app import KrozApp, _default_config
 from kroz.screen import KrozScreen
-from kroz.secrets import JsonBoxFile
+from kroz.secrets import EncryptedStateFile
 
 
 def get_app(**kwargs):
@@ -87,7 +87,7 @@ async def test_app_config_items():
         async with app.run_test() as pilot:
             await pilot.pause()
             assert isinstance(app.config["state_file"], pathlib.Path)
-            assert isinstance(app.state, JsonBoxFile)
+            assert isinstance(app.state, EncryptedStateFile)
             assert app.state._path == state_file
 
     with tempfile.TemporaryDirectory() as d:
