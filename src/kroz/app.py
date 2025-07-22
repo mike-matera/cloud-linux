@@ -6,6 +6,7 @@ This module is a UI for Linux labs.
 
 import os
 import pathlib
+import textwrap
 import uuid
 from collections.abc import Callable
 from enum import Enum
@@ -197,7 +198,7 @@ class KrozApp(App[str]):
         super().__init__()
         self.title = title
         self._debug = debug
-        self._main_func: Callable[[], str] = lambda: ""
+        self._main_func: Callable[[], None] = lambda: None
         self._main_worker: Worker | None = None
         self._config = {}
         self._user_config = user_config
@@ -256,15 +257,14 @@ class KrozApp(App[str]):
         for hook in _setuphooks:
             hook()
 
-    def _run_user_app(self) -> str:
+    def _run_user_app(self) -> None:
         try:
             self._setup_user_app()
-            return self._main_func()
+            self._main_func()
         except KrozApp.CancelledWorkerException:
-            # Don't propagate
-            return ""
+            pass
 
-    def main(self, func: Callable[[], str]):
+    def main(self, func: Callable[[], None]):
         """Decorator for the main() function."""
         self._main_func = func
         return func
@@ -277,7 +277,18 @@ class KrozApp(App[str]):
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
         if event.worker.name == "main" and event.worker.is_finished:
-            self.exit(result=event.worker.result, return_code=0)
+            exit_message = textwrap.dedent(f"""
+                Thank you for playing! 
+                                        
+                Your confirmation code is: {self._confirmation()}
+                """)
+            self.exit(result=exit_message, return_code=0)
+
+    def _confirmation(self):
+        """Get the base64 encoded confirmation code."""
+        return ConfirmationCode(key=self.config["secret"]).confirmation(
+            {"score": self.score}
+        )
 
     def on_score_message(self, msg: ScoreMessage):
         if msg._update:
@@ -344,14 +355,6 @@ class KrozApp(App[str]):
         if self._state is None:
             raise RuntimeError("State has not been initialized.")
         return self._state
-
-    @staticmethod
-    def confirmation():
-        """Get the base64 encoded confirmation code."""
-        app = KrozApp.running()
-        return ConfirmationCode(key=app.config["secret"]).confirmation(
-            {"score": app.score}
-        )
 
     @staticmethod
     def show(
