@@ -4,6 +4,7 @@ The Kroz Application Player
 This module is a UI for Linux labs.
 """
 
+import asyncio
 import os
 import pathlib
 import textwrap
@@ -12,17 +13,12 @@ from collections.abc import Callable
 from enum import Enum
 from typing import Any
 
-from textual.app import App
-from textual.containers import Vertical
+from textual.app import App, ComposeResult
+from textual.containers import Container, Vertical
 from textual.message import Message
 from textual.reactive import Reactive
-from textual.screen import ModalScreen
-from textual.widgets import (
-    Footer,
-    Label,
-    ProgressBar,
-    RichLog,
-)
+from textual.screen import ModalScreen, Screen
+from textual.widgets import Footer, Label, ProgressBar, RichLog, Static
 from textual.worker import Worker, get_current_worker
 
 from kroz.screen import KrozScreen
@@ -356,6 +352,58 @@ class KrozApp(App[str]):
             raise RuntimeError("State has not been initialized.")
         return self._state
 
+    async def _show(self, screen: KrozScreen, animate: bool = True) -> Any:
+        class Blanker(Screen):
+            CSS = """
+            Blanker {
+                layout: vertical;
+                overflow-y: auto;
+                background: $background 0%;
+                &:ansi {
+                    background: transparent;                   
+                }
+                align-vertical: bottom;
+            }
+
+            Container {
+                height: 100%;
+                width: 100%;
+                background: $foreground 5%;
+            }
+
+            Static {
+                color: $accent;
+            }
+            """
+
+            def __init__(self, size):
+                super().__init__()
+                self._outer_size = size
+
+            def compose(self) -> ComposeResult:
+                self._cont = Container()
+                with self._cont:
+                    yield Static("▔" * self._outer_size.width)
+
+        fut = asyncio.get_running_loop().create_future()
+
+        def check_screen(result) -> None:
+            fut.set_result(result)
+
+        self.push_screen(screen=screen, callback=check_screen)
+        if animate:
+            bl = Blanker(self.size)
+            await self.push_screen(bl)
+            bl._cont.styles.animate(
+                "height",
+                value=0,
+                duration=self.size.height / 60,
+                easing="linear",
+                on_complete=bl.dismiss,
+            )
+
+        return await fut
+
     @staticmethod
     def show(
         screen: str | KrozScreen, classes: str = "", title: str | None = None
@@ -373,7 +421,7 @@ class KrozApp(App[str]):
         worker = get_current_worker()
         if worker.is_cancelled:
             raise KrozApp.CancelledWorkerException()
-        result = app.call_from_thread(app.push_screen_wait, screen)
+        result = app.call_from_thread(app._show, screen)
         if worker.is_cancelled:
             raise KrozApp.CancelledWorkerException()
         return result
