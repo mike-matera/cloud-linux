@@ -157,6 +157,9 @@ class InteractionScreen(KrozScreen):
             self.classes = "feedback"
 
     async def _run_server(self):
+        sockpath = Path.home().absolute() / ".kroz"
+        if not sockpath.exists():
+            sockpath.mkdir()
         await self._server.run_task(
             host=f"unix://{Path.home().absolute()}/.kroz/command.sock"
         )
