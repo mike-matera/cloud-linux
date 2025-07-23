@@ -69,8 +69,7 @@ def ask(args) -> int:
     app = KrozApp(module, debug=True)
 
     def _main():
-        modns[question](**kwargs).ask()
-        return ""
+        modns[question](**kwargs).show()
 
     app.main(_main)
     print(app.run())
