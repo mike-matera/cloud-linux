@@ -45,28 +45,6 @@ class KrozFlowABC(ABC):
             else:
                 raise RuntimeError(f"Invalid keyword argument: {key}")
 
-    def __getstate__(self) -> object:
-        return {
-            "text": self.text,
-            "points": self.points,
-            "progress": self.progress,
-            "can_skip": self.can_skip,
-            "checkpoint": self.checkpoint,
-            "answer": self.answer,
-            "result": self.result,
-            "debug": self.debug,
-        }
-
-    def __setstate__(self, state):
-        self.text = state["text"]
-        self.points = state["points"]
-        self.progress = state["progress"]
-        self.can_skip = state["can_skip"]
-        self.checkpoint = state["checkpoint"]
-        self.answer = state["answer"]
-        self.result = state["result"]
-        self.debug = state["debug"]
-
     def __repr__(self):
         return f"""{self.__class__.__name__}("{textwrap.shorten(self.text, 40)}", points={self.points}, can_skip={self.can_skip}, answer="{self.answer}", result={self.result}, debug={self.debug})"""
 
