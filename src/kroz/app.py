@@ -22,7 +22,12 @@ from textual.widgets import Footer, Label, ProgressBar, RichLog, Static
 from textual.worker import Worker, get_current_worker
 
 from kroz.screen import KrozScreen
-from kroz.secrets import ConfirmationCode, EncryptedStateFile
+from kroz.secrets import (
+    ConfirmationCode,
+    EncryptedStateFile,
+    embedded_key,
+    has_embedded_key,
+)
 from kroz.widget.score_header import ScoreHeader
 
 _setuphooks = []
@@ -227,7 +232,11 @@ class KrozApp(App[str]):
             self._config["default_path"] = pathlib.Path(os.getcwd())
 
         if self._config["secret"] is None:
-            self._config["secret"] = str(uuid.getnode())
+            # Check for repo secret
+            if has_embedded_key():
+                self._config["secret"] = embedded_key()
+            else:
+                self._config["secret"] = str(uuid.getnode())
         if self._config["config_dir"] is None:
             self._config["config_dir"] = pathlib.Path.home() / ".kroz"
         self._config["config_dir"] = pathlib.Path(self._config["config_dir"])

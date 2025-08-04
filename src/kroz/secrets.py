@@ -6,6 +6,7 @@ import base64
 import datetime
 import getpass
 import hashlib
+import importlib.resources
 import json
 import pathlib
 import pickle
@@ -17,6 +18,14 @@ from typing import Any
 import nacl.encoding
 import nacl.exceptions
 import nacl.secret
+
+
+def has_embedded_key():
+    return importlib.resources.is_resource("kroz", "key.txt")
+
+
+def embedded_key():
+    return importlib.resources.read_text("kroz", "key.txt").strip()
 
 
 class EncryptedStateFile:
@@ -159,7 +168,6 @@ def cli(subparsers):
         "--key",
         type=str,
         required=False,
-        default=str(uuid.getnode()),
         help="The key used for operations.",
     )
     secrets_parser.add_argument(
@@ -173,7 +181,16 @@ def main(args):
     Decode confirmation numbers from stdin.
     """
 
-    vault = ConfirmationCode(key=args.key)
+    if args.key is not None:
+        print("Using command line key.")
+        vault = ConfirmationCode(key=args.key)
+    else:
+        if has_embedded_key():
+            print("Using embedded key.")
+            vault = ConfirmationCode(key=embedded_key())
+        else:
+            print("Using machine key.")
+            vault = ConfirmationCode(key=str(uuid.getnode()))
 
     Bold = "\x1b[1m"
     Reset = "\x1b[0m"
