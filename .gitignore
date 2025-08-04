@@ -39,3 +39,6 @@ venv-linux
 .vscode
 venv/
 *.krs
+
+dist/
+build/

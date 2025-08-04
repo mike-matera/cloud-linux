@@ -233,7 +233,7 @@ wheels = [
 
 [[package]]
 name = "cloud-linux"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "canvasapi" },
@@ -243,15 +243,16 @@ dependencies = [
     { name = "pyte" },
     { name = "quart" },
     { name = "textual" },
-    { name = "textual-dev" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "pex" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-mock" },
     { name = "ruff" },
+    { name = "textual-dev" },
 ]
 
 [package.metadata]
@@ -263,15 +264,16 @@ requires-dist = [
     { name = "pyte", specifier = ">=0.8.2" },
     { name = "quart", specifier = ">=0.20.0" },
     { name = "textual", specifier = ">=2.1.2" },
-    { name = "textual-dev", specifier = ">=1.7.0" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "pex", specifier = ">=2.50.1" },
     { name = "pytest", specifier = ">=8.4.1" },
     { name = "pytest-asyncio", specifier = ">=1.1.0" },
     { name = "pytest-mock", specifier = ">=3.14.1" },
     { name = "ruff", specifier = ">=0.9.10" },
+    { name = "textual-dev", specifier = ">=1.7.0" },
 ]
 
 [[package]]
@@ -643,6 +645,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a1/d4/1fc4078c65507b51b96ca8f8c3ba19e6a61c8253c72794544580a7b6c24d/packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f", size = 165727 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484", size = 66469 },
+]
+
+[[package]]
+name = "pex"
+version = "2.50.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/54/6c/ebc8c3af0b6e6c4cfed80f543db5f9f6360fc8d7ff6450b58335e18bc76f/pex-2.50.1.tar.gz", hash = "sha256:15bff4374526e178373c2ac90c18a54fa4e3d2506ff045ffa90812773aec4043", size = 5007700 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/55/ef/561d14fe2c075f55d47cfa58afa8f5179a820cebb936095734864ee8eebf/pex-2.50.1-py2.py3-none-any.whl", hash = "sha256:dbe8ce8af0458326de06df502dccce7ccfc921615aebac23302e053f62ebbdae", size = 3841643 },
 ]
 
 [[package]]

@@ -84,7 +84,7 @@ def config(args) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        prog="KROZ CLI",
+        prog="kroz",
         description="Command line tools for the KROZ player.",
         epilog="Nothing happens here.",
     )
@@ -125,6 +125,35 @@ def main() -> int:
 
     args = parser.parse_args()
     return args.func(args)
+
+
+def safe_run(module: str) -> int:
+    """Run a script or a module (student mode)"""
+    # Run an app after importing a module
+    mod, app = module.split(":")
+    modns = runpy.run_module(mod)
+    modns[app]._debug = False
+    print(modns[app].run())
+    return 0
+
+
+def cis90() -> int:
+    parser = argparse.ArgumentParser(
+        prog="cis90",
+        description="Get your work done in Mike's cis-90 class.",
+        epilog="No one ever leaves the island.",
+    )
+
+    parser.add_argument(
+        "assignment", help="The name of the assignment you wish to run."
+    )
+    args = parser.parse_args()
+
+    if args.assignment == "week2":
+        return safe_run("kroz.labs.week02:app")
+    else:
+        print(f"Assignment not found: {args.assignment}")
+    return 0
 
 
 if __name__ == "__main__":

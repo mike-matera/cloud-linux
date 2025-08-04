@@ -1,6 +1,6 @@
 [project]
 name = "cloud-linux"
-version = "0.1.0"
+version = "0.2.0"
 description = "My CIS-90 infrastructure."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -12,15 +12,15 @@ dependencies = [
     "pyte>=0.8.2",
     "quart>=0.20.0",
     "textual>=2.1.2",
-    "textual-dev>=1.7.0",
 ]
 
 [build-system]
-requires = ["flit_core >=3.11,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
 [project.scripts]
 kroz = "kroz.__main__:main"
+cis90 = "kroz.__main__:cis90"
 
 [tool.ruff]
 line-length = 79
@@ -32,8 +32,10 @@ docstring-code-format = true
 
 [dependency-groups]
 dev = [
+    "pex>=2.50.1",
     "pytest>=8.4.1",
     "pytest-asyncio>=1.1.0",
     "pytest-mock>=3.14.1",
     "ruff>=0.9.10",
+    "textual-dev>=1.7.0",
 ]
