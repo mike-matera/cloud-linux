@@ -1,5 +1,12 @@
 """
-Week 5 Questions
+# Lesson 5. Files and Directories
+
+- Make and remove directories
+- Copy and move files
+
+Reading:
+
+- Chapter 4
 """
 
 import textwrap

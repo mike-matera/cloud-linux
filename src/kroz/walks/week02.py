@@ -10,7 +10,7 @@ app = kroz.KrozApp("Anatomy of a Command")
 
 
 @app.main
-def main():
+def main() -> None:
     app.show("# Welcome here is some text about stuff.")
     with FlowContext(points=0, checkpoint=False) as flow:
         flow.run(
@@ -126,8 +126,6 @@ def main():
                 lambda cmd: cmd.command == "free" and cmd.result != 0,
             )
         )
-
-    return "Congratulations, your journey is complete!"
 
 
 if __name__ == "__main__":

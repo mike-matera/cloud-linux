@@ -1,3 +1,15 @@
+"""
+# Lesson 8. Like a Boss
+
+- Wildcards
+- Quotes
+- Tab Completion
+
+Reading:
+
+- Chapters 7 and 8
+"""
+
 import pathlib
 
 from kroz import KrozApp

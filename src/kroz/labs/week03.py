@@ -6,7 +6,12 @@ from pathlib import Path
 
 from kroz import KrozApp
 from kroz.flow import FlowContext
-from kroz.questions.week03 import FlagFile, PathAttrs, RelativePaths, questions
+from kroz.questions.lesson03 import (
+    FlagFile,
+    PathAttrs,
+    RelativePaths,
+    questions,
+)
 
 app = KrozApp("The Filesystem", state_file="fs")
 

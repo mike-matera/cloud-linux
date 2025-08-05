@@ -4,7 +4,7 @@ Manage files without permissions.
 
 import kroz
 from kroz.flow import FlowContext
-from kroz.questions.week05 import Islands
+from kroz.questions.lesson05 import Islands
 
 WELCOME = """
 # Sort the Islands

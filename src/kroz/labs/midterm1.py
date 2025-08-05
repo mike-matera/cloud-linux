@@ -7,13 +7,13 @@ import textwrap
 from kroz import KrozApp
 from kroz.ascii import tux
 from kroz.flow import FlowContext
-from kroz.questions.week02 import (
+from kroz.questions.lesson02 import (
     FreeMemory,
     NewYearFuture,
     OsRelease,
 )
-from kroz.questions.week03 import PathAttrs, RelativePaths
-from kroz.questions.week04 import FileType, LinkInfo, MakeLink, WordInBigfile
+from kroz.questions.lesson03 import PathAttrs, RelativePaths
+from kroz.questions.lesson04 import FileType, LinkInfo, MakeLink, WordInBigfile
 
 app = KrozApp("Midterm 1", state_file="mt1")
 

@@ -4,8 +4,8 @@ Some lab called iolab or whatever.
 
 import kroz
 from kroz.flow import FlowContext
-from kroz.questions.week04 import WordInBigfile
-from kroz.questions.week07 import CountOranges, SortedWords, UniqueWords
+from kroz.questions.lesson04 import WordInBigfile
+from kroz.questions.lesson07 import CountOranges, SortedWords, UniqueWords
 
 WELCOME = """
 # I/O Lab 

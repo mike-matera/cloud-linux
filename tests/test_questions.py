@@ -9,7 +9,7 @@ import psutil
 import pytest
 
 from kroz.app import KrozApp
-from kroz.questions.week02 import (
+from kroz.questions.lesson02 import (
     FreeMemory,
     NewYearFuture,
     OsRelease,

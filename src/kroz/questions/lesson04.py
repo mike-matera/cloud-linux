@@ -1,5 +1,14 @@
 """
-Questions for Week 4 covering Chapter 3
+# Lesson 4. Managing Files
+
+- Understand file types
+- View file contents
+- Make links
+
+Reading:
+
+- Chapter 3
+
 """
 
 import os

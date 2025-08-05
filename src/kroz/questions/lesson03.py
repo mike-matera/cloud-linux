@@ -1,8 +1,13 @@
 """
-Questions for the third week of class.
+# Lesson 3. The File System
 
-Chapter 2 of the book.
+- Navigate the filesystem
+- Use relative and absolute paths
+- List files
 
+Reading:
+
+- Chapter 2
 """
 
 import grp

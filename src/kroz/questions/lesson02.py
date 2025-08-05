@@ -1,8 +1,13 @@
 """
-Questions for the second week of class.
+# Lesson 2: The Command Line
 
-Chapter 1 of the book.
+- Describe the anatomy of a command
+- Use the keyboard to navigate the command line
+- The terminal and the shell
 
+Reading:
+
+- Chapter 1
 """
 
 import datetime

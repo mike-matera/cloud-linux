@@ -1,5 +1,12 @@
 """
-Questions about Processes
+# Lesson 10. Processes
+
+- Run a process in the background
+- Send signals
+
+Reading:
+
+- Chapter 10
 """
 
 import multiprocessing

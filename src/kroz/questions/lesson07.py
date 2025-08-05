@@ -1,4 +1,14 @@
-"""Questions for Week 7"""
+"""
+# Lesson 7. Input/Output Processing
+
+- Use redirects
+- Build command pipelines
+
+Reading:
+
+- Chapter 6
+
+"""
 
 import textual.validation
 

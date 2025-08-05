@@ -1,5 +1,13 @@
 """
-Week 9 Questions
+# Lesson 9. File Permissions
+
+- Understand users and groups
+- Control access to files
+- Change your password
+
+Reading:
+
+- Chapter 9
 """
 
 import grp
@@ -8,7 +16,7 @@ from pathlib import Path
 
 from kroz.random.path import CheckDir, CheckFile, CheckPath
 
-from .week05 import Islands
+from .lesson05 import Islands
 
 
 class Islands2(Islands):

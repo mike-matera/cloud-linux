@@ -3,7 +3,7 @@ from kroz.flow import FlowContext
 from kroz.flow.question import (
     MultipleChoiceQuestion,
 )
-from kroz.questions.week08 import (
+from kroz.questions.lesson08 import (
     DeepMessage,
     RandomDeleteMe,
     RandomRando,

@@ -4,8 +4,8 @@ Lab for week 04
 
 from kroz import KrozApp
 from kroz.flow import FlowContext
-from kroz.questions.week03 import PathAttrs, RelativePaths
-from kroz.questions.week04 import (
+from kroz.questions.lesson03 import PathAttrs, RelativePaths
+from kroz.questions.lesson04 import (
     FileType,
     LinkInfo,
     MakeLink,

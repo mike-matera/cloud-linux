@@ -1,5 +1,11 @@
 """
-Questions for using the editor.
+# Lesson 12. Love Your Text Editor
+
+- Edit a file with vi, emacs and nano
+
+Reading:
+
+- Chapter 12
 """
 
 import os

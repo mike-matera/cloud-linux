@@ -1,6 +1,6 @@
 from kroz import KrozApp
 from kroz.flow import FlowContext
-from kroz.questions.week10 import (
+from kroz.questions.lesson10 import (
     ChildFind,
     ThisGrandparent,
     ThisParent,
