@@ -54,8 +54,6 @@ class InteractionABC(KrozFlowABC):
     Base class for a KROZ interaction.
     """
 
-    filter: Callable[[CommandLineCommand], bool] = lambda x: False
-
     @abstractmethod
     def on_command(self, command: CommandLineCommand) -> bool:
         """

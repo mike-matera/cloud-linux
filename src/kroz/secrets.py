@@ -183,14 +183,14 @@ def main(args):
 
     if args.key is not None:
         print("Using command line key.")
-        vault = ConfirmationCode(key=args.key)
+        key = args.key
     else:
         if has_embedded_key():
             print("Using embedded key.")
-            vault = ConfirmationCode(key=embedded_key())
+            key = embedded_key()
         else:
             print("Using machine key.")
-            vault = ConfirmationCode(key=str(uuid.getnode()))
+            key = str(uuid.getnode())
 
     Bold = "\x1b[1m"
     Reset = "\x1b[0m"
@@ -201,6 +201,7 @@ def main(args):
     B_Black = "\x1b[40m"
 
     if args.file is None:
+        vault = ConfirmationCode(key=key)
         while True:
             line = None
             got = ""
@@ -222,4 +223,4 @@ def main(args):
                     except Exception:
                         pass
     else:
-        print(EncryptedStateFile(key=args.key, filename=args.file)._data)
+        print(EncryptedStateFile(key=key, filename=args.file)._data)

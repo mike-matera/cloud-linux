@@ -3,10 +3,12 @@ KROZ CLI
 """
 
 import argparse
+import importlib
 import runpy
 from importlib.resources import files
 
 from kroz.app import KrozApp
+from kroz.labs import lab
 from kroz.secrets import cli as secrets_cli
 
 
@@ -35,6 +37,18 @@ def run(args) -> int:
     modns[app]._debug = args.debug
     print(modns[app].run())
     return 0
+
+
+def lesson_run(module: str, debug: bool) -> int:
+    """Run a lesson module"""
+    mod = importlib.import_module(module)
+    lab.lab(mod, debug=debug)
+    return 0
+
+
+def lesson(args) -> int:
+    """Run a lesson module from the command line."""
+    return lesson_run(args.module, args.debug)
 
 
 def ask(args) -> int:
@@ -123,18 +137,15 @@ def main() -> int:
     )
     configparser.set_defaults(func=config)
 
+    lessonparser = subparsers.add_parser("lesson", help="Run a lesson module.")
+    lessonparser.add_argument(
+        "-d", "--debug", action="store_true", help="Run in debugging mode."
+    )
+    lessonparser.add_argument("module", help="The module to execute.")
+    lessonparser.set_defaults(func=lesson)
+
     args = parser.parse_args()
     return args.func(args)
-
-
-def safe_run(module: str) -> int:
-    """Run a script or a module (student mode)"""
-    # Run an app after importing a module
-    mod, app = module.split(":")
-    modns = runpy.run_module(mod)
-    modns[app]._debug = False
-    print(modns[app].run())
-    return 0
 
 
 def cis90() -> int:
@@ -150,7 +161,9 @@ def cis90() -> int:
     args = parser.parse_args()
 
     if args.assignment == "week2":
-        return safe_run("kroz.labs.week02:app")
+        import kroz.questions.lesson02 as do_lab
+
+        lab.lab(do_lab)
     else:
         print(f"Assignment not found: {args.assignment}")
     return 0

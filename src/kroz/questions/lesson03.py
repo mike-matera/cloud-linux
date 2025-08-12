@@ -21,6 +21,7 @@ from textual.validation import Integer
 
 import kroz.ascii
 from kroz.app import KrozApp
+from kroz.flow.interaction import Interaction
 from kroz.flow.question import (
     MultipleChoiceQuestion,
     Question,
@@ -28,6 +29,7 @@ from kroz.flow.question import (
     TrueOrFalseQuestion,
 )
 from kroz.random.real_path import random_real_path
+from kroz.screen import KrozScreen
 from kroz.validation import (
     AbsolutePath,
     ExistingPath,
@@ -38,55 +40,6 @@ from kroz.validation import (
     PathIsFile,
     RelativePath,
 )
-
-questions = [
-    TrueOrFalseQuestion(
-        "UNIX, like Windows uses a *hierarchical directory structure*.", True
-    ),
-    TrueOrFalseQuestion(
-        "A directory is sometimes called a folder on other operating systems.",
-        True,
-    ),
-    MultipleChoiceQuestion(
-        "Which of the following is an **relative** path?",
-        "Poems",
-        "/home/student",
-        "~/Poems/Neruda",
-        "/dev/null",
-        help="""
-            Relative paths are paths that start at the current working 
-            directory. Relative paths do not begin with a slash (**/**).
-            """,
-    ),
-    MultipleChoiceQuestion(
-        "Which of the following is an **absolute** path?",
-        "Both ~/Poems/Neruda and /home/student",
-        "/home/student",
-        "~/Poems/Neruda",
-        "Poems",
-        help="""
-            Absolute paths are paths that begin with the **root** directory. The
-            root directory is represented by a slash (**/**). So absolute paths 
-            always begin with a **/**. There's one exception, the **~** is a 
-            shortcut for the absolute path of your home directory. 
-            """,
-    ),
-    TrueOrFalseQuestion(
-        "In UNIX a file that begins with a period (**.**) is called a *hidden* file.",
-        True,
-    ),
-    ShortAnswerQuestion(
-        "What is the command that shows you the **path** of the current working directory?",
-        "pwd",
-    ),
-    ShortAnswerQuestion(
-        "What is the command that changes current working directory?", "cd"
-    ),
-    ShortAnswerQuestion(
-        "What is the command that shows the **contents** of the current working directory?",
-        "ls",
-    ),
-]
 
 
 class FlagFile(Question):
@@ -102,11 +55,8 @@ class FlagFile(Question):
     ):
         super().__init__(**kwargs)
         self._type = type
-        if path is None:
-            self._secret = random_real_path().random_file().resolve()
-        else:
-            self._secret = Path(path)
-        self._flag = KrozApp.appconfig("default_path") / "flag"
+        self._secret = path
+        self._flag = None
 
     @property
     def validators(self):
@@ -134,14 +84,22 @@ class FlagFile(Question):
         )
 
     def setup(self):
+        self._flag = KrozApp.appconfig("default_path") / "flag"
+        if self._secret is None:
+            self._secret = random_real_path().random_file().resolve()
+        else:
+            self._secret = Path(self._secret)
+
         with open(self._flag, "w") as fh:
             fh.write(self.flag())
 
     def cleanup(self):
-        self._flag.unlink(missing_ok=True)
+        if self._flag is not None:
+            self._flag.unlink(missing_ok=True)
 
     @property
     def text(self):
+        assert isinstance(self._flag, Path)
         q = f"""
         # Find the Flag
 
@@ -160,6 +118,7 @@ class FlagFile(Question):
         return q
 
     def check(self, answer):
+        assert isinstance(self._secret, Path)
         assert Path(answer) != self._flag, """
             # That's the Flag Itself!
 
@@ -212,17 +171,7 @@ class PathAttrs(Question):
         super().__init__(**kwargs)
         self._type = type
         self._path_type = path_type
-        if path is None:
-            if self._path_type == PathAttrs.PathType.FILE:
-                self._path = random_real_path().random_file()
-            elif self._path_type == PathAttrs.PathType.DIR:
-                self._path = random_real_path().random_dir()
-            elif self._path_type == PathAttrs.PathType.LINK:
-                self._path = random_real_path().random_link()
-            else:
-                raise ValueError("Bat path type.")
-        else:
-            self._path = Path(path)
+        self._path = path
 
     @property
     def placeholder(self):
@@ -239,11 +188,25 @@ class PathAttrs(Question):
 
         """
 
+    def setup(self):
+        if self._path is None:
+            if self._path_type == PathAttrs.PathType.FILE:
+                self._path = random_real_path().random_file()
+            elif self._path_type == PathAttrs.PathType.DIR:
+                self._path = random_real_path().random_dir()
+            elif self._path_type == PathAttrs.PathType.LINK:
+                self._path = random_real_path().random_link()
+            else:
+                raise ValueError("Bat path type.")
+        else:
+            self._path = Path(self._path)
+
     @property
     def validators(self):
         return self._type.value[2]
 
     def check(self, answer):
+        assert isinstance(self._path, Path)
         if self._type == PathAttrs.AttrType.SIZE:
             assert int(answer) == self._path.stat().st_size, (
                 """That's not correct."""
@@ -285,14 +248,8 @@ class RelativePaths(Question):
         **kwargs,
     ):
         super().__init__(**kwargs)
-        if from_path is None:
-            self._from = random_real_path().random_dir().resolve()
-        else:
-            self._from = Path(from_path)
-        if to_path is None:
-            self._to = random_real_path().random_dir().resolve()
-        else:
-            self._to = Path(to_path)
+        self._from = from_path
+        self._to = to_path
 
     validators = [RelativePath()]
 
@@ -307,7 +264,19 @@ class RelativePaths(Question):
         * To: `{self._to}`
         """
 
+    def setup(self):
+        if self._from is None:
+            self._from = random_real_path().random_dir().resolve()
+        else:
+            self._from = Path(self._from)
+        if self._to is None:
+            self._to = random_real_path().random_dir().resolve()
+        else:
+            self._to = Path(self._to)
+
     def check(self, answer):
+        assert isinstance(self._from, Path)
+        assert isinstance(self._to, Path)
         answer = Path(answer)
         calculated = (self._from / answer).resolve()
 
@@ -327,3 +296,285 @@ class RelativePaths(Question):
 
         feedback += f"\nThe end of the journey is **{loc.resolve()}** but should have been **{self._to}**\n"
         assert calculated == self._to, feedback
+
+
+title = "The File System"
+
+state = "filesystem"
+
+welcome = KrozScreen(
+    textwrap.dedent("""
+# The File System 
+
+This lab tests your understanding of how to navigate the file 
+system. It covers the topics in class and in Chapter 2 of the book. 
+You should be familiar with these commands: 
+
+1. `cd`
+2. `pwd`
+3. `ls` 
+"""),
+    classes="welcome",
+    title="Welcome!",
+)
+
+walks: dict[str, list[Interaction]] = {
+    "Navigate the file system": [
+        Interaction(
+            """ 
+# There's No Place Like Home
+
+Your *home directory* is the place where you keep your personal files. It's also
+the initial *working directory* of the shell when you log in over `ssh`. On opus
+your home directory has files that are used as examples in the class, Including
+the `Poems` directory. 
+
+The `cd` command navigates your shell through the file system. Running `cd` with
+no arguments navigates to your home directory. Start off by navigating to your 
+home directory:
+
+```console
+$ cd 
+```
+
+**Before you go further you should be in your home directory.** 
+""",
+            lambda cmd: cmd.command == "cd" and cmd.args == [],
+        ),
+        Interaction(
+            """ 
+Now that you're in your home directory, let's issue some commands that are
+useful when you're exploring the filesystem, starting with the `pwd` command
+(short for Print Working Directory). The `pwd` command shows you where you
+are. Like a GPS.
+
+
+```console
+$ pwd
+```
+""",
+            lambda cmd: cmd.command == "pwd" and cmd.args == [],
+        ),
+        Interaction(
+            """ 
+Directories have *contents*, other files and directories. The `ls` (short
+for List) command shows the contents of the current working directory.  Use
+the `ls` command to see the contents of your home directory:
+
+```console
+$ ls
+```
+
+What do you see there?
+""",
+            lambda cmd: cmd.command == "ls",
+        ),
+        Interaction(
+            """ 
+# Take a Longer Look
+
+The `ls` command has many switches that control its output. The `-l` or
+*long* flag changes the output to have each file or directory on its own
+line. This gives you a lot more information: 
+
+```console
+$ ls -l
+```
+""",
+            lambda cmd: cmd.command == "ls" and "-l" in cmd.args,
+        ),
+        Interaction(
+            """ 
+Files that begin with a `.` are called *hidden files*. They're not hidden
+for security purposes, they're just hidden so they don't clutter up the view
+when you run the `ls` command. Using the `-a` switch tells `ls` that you
+want to see hidden files. 
+
+```console
+$ ls -a
+```
+""",
+            lambda cmd: cmd.command == "ls" and "-a" in cmd.args,
+        ),
+        Interaction(
+            """ 
+Most commands let you combine switches when it makes sense. The `-l` and
+`-a` switches can both be active when you run `ls`. You could apply them
+both like this:
+
+```console
+$ ls -l -a 
+```
+
+However, commands that take switches often let you combine them into a
+single flag. Try running `ls` like this:
+
+```console
+$ ls -la 
+```
+""",
+            lambda cmd: cmd.command == "ls" and "-la" in cmd.args,
+        ),
+        Interaction(
+            """ 
+The `ls` command can also be given a file or directory as an argument. When no 
+argument is given `ls` shows you the current working directory. An argument 
+overrides that behavior to show you any directory you want:
+
+```console
+$ ls Poems
+```
+
+Running that command shows the the `Poems` directory. 
+""",
+            lambda cmd: cmd.command == "ls"
+            and ("Poems" in cmd.args or "Poems/" in cmd.args),
+        ),
+        Interaction(
+            """ 
+# A Tree!
+
+The `tree` command shows you a visual representation of a directory tree. 
+
+```console 
+$ tree Poems/
+Poems/
+├── Angelou
+│   ├── bird
+│   ├── diner
+│   ├── woman
+│   └── you
+├── ant
+...
+```
+""",
+            lambda cmd: cmd.command == "tree"
+            and any(("Poems" in arg for arg in cmd.args)),
+        ),
+    ],
+    """Look at the poems in your `Poems` directory.""": [
+        Interaction(
+            """
+Use the `cd` command to navigate into the `Poems` directory from your home
+directory.
+                    """,
+            lambda cmd: cmd.cwd == Path().home() / "Poems",
+        ),
+        Interaction(
+            """
+Now that you're in the `~/Poems` directory you can navigate into the `Angelou`
+directory:
+
+```console
+$ cd Angelou
+```
+                    """,
+            lambda cmd: cmd.cwd == Path().home() / "Poems" / "Angelou",
+        ),
+        Interaction(
+            """
+The `cat` command will show you the `bird` poem when you're in the `Angelou`
+directory:
+
+```console
+$ cat bird
+```
+                    """,
+            lambda cmd: cmd.command == "cat" and "bird" in cmd.args,
+        ),
+        Interaction(
+            """
+Go back to your `Poems` directory by calling `cd` the special path `..`:
+
+```console
+$ cd ..
+```
+""",
+            lambda cmd: cmd.command == "cd"
+            and (cmd.args == [".."] or cmd.args == ["../"]),
+        ),
+        Interaction(
+            """
+Go back to your `Home` directory by calling `cd` the special path `..`:
+
+```console
+$ cd ..
+```
+""",
+            lambda cmd: cmd.command == "cd"
+            and (cmd.args == [".."] or cmd.args == ["../"])
+            and cmd.cwd == Path().home(),
+        ),
+        Interaction(
+            """
+If you want to refer to the `bird` poem from another directory you have to tell
+the shell how to find it. You do this using a path. The path to `bird` from your
+home directory looks like this:
+
+```console
+$ cat Poems/Angelou/bird
+```
+                    """,
+            lambda cmd: cmd.command == "cat"
+            and "Poems/Angelou/bird" in cmd.args,
+        ),
+    ],
+}
+
+
+questions: list[Question] = [
+    TrueOrFalseQuestion(
+        "UNIX, like Windows uses a *hierarchical directory structure*.", True
+    ),
+    TrueOrFalseQuestion(
+        "A directory is sometimes called a folder on other operating systems.",
+        True,
+    ),
+    MultipleChoiceQuestion(
+        "Which of the following is an **relative** path?",
+        "Poems",
+        "/home/student",
+        "~/Poems/Neruda",
+        "/dev/null",
+        help="""
+            Relative paths are paths that start at the current working 
+            directory. Relative paths do not begin with a slash (**/**).
+            """,
+    ),
+    MultipleChoiceQuestion(
+        "Which of the following is an **absolute** path?",
+        "Both ~/Poems/Neruda and /home/student",
+        "/home/student",
+        "~/Poems/Neruda",
+        "Poems",
+        help="""
+            Absolute paths are paths that begin with the **root** directory. The
+            root directory is represented by a slash (**/**). So absolute paths 
+            always begin with a **/**. There's one exception, the **~** is a 
+            shortcut for the absolute path of your home directory. 
+            """,
+    ),
+    TrueOrFalseQuestion(
+        "In UNIX a file that begins with a period (**.**) is called a *hidden* file.",
+        True,
+    ),
+    ShortAnswerQuestion(
+        "What is the command that shows you the **path** of the current working directory?",
+        "pwd",
+    ),
+    ShortAnswerQuestion(
+        "What is the command that changes current working directory?", "cd"
+    ),
+    ShortAnswerQuestion(
+        "What is the command that shows the **contents** of the current working directory?",
+        "ls",
+    ),
+]
+
+lab: dict[str, list[Question]] = {
+    "Name the flag": [FlagFile(type=FlagFile.FlagType.NAME)],
+    "The flag directory": [FlagFile(type=FlagFile.FlagType.DIR)],
+    "Find a file size": [PathAttrs(type=PathAttrs.AttrType.SIZE)],
+    "Fine the inode": [PathAttrs(type=PathAttrs.AttrType.INODE)],
+    "Relative to home": [RelativePaths(from_path=Path.home())],
+}

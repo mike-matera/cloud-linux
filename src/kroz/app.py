@@ -182,8 +182,8 @@ class KrozApp(App[str]):
         ("ctrl+q", "app.cleanup_quit", "Quit"),
     ]
 
-    score: Reactive[int] = Reactive(0)
-    score_format: Reactive[str] = Reactive("Score: {score}")
+    score: Reactive[float] = Reactive(0)
+    score_format: Reactive[str] = Reactive("Score: {score:.2f}")
 
     def __init__(
         self,
@@ -338,10 +338,10 @@ class KrozApp(App[str]):
 
         return super().post_message(message)
 
-    def set_score(self, points: int):
+    def set_score(self, points: float):
         self.post_message(ScoreMessage(to=points))
 
-    def update_score(self, points: int):
+    def update_score(self, points: float):
         self.post_message(ScoreMessage(update=points))
 
     @property
@@ -400,7 +400,7 @@ class KrozApp(App[str]):
             fut.set_result(result)
 
         self.push_screen(screen=screen, callback=check_screen)
-        if animate:
+        if animate and not self._debug:
             bl = Blanker(self.size)
             await self.push_screen(bl)
             bl._cont.styles.animate(

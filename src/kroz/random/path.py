@@ -209,7 +209,9 @@ class CheckPath:
                 else:
                     item.unlink()
 
-    def check(self) -> Generator[tuple[pathlib.Path, str, str], None, None]:
+    def check(
+        self, extra_ok=False, missing_ok=False
+    ) -> Generator[tuple[pathlib.Path, str, str], None, None]:
         """Compare two paths"""
 
         other = CheckPath.from_path(self.basepath)
@@ -227,14 +229,15 @@ class CheckPath:
                     yield (
                         pathlib.Path("."),
                         "Missing",
-                        "The file/directory is missing or can't be read.",
+                        "The base path is missing or can't be read.",
                     )
                 else:
-                    yield (
-                        p.path,
-                        "Missing",
-                        "The file/directory is missing or can't be read.",
-                    )
+                    if not missing_ok:
+                        yield (
+                            p.path,
+                            "Missing",
+                            "The file/directory is missing or can't be read.",
+                        )
             else:
                 my_file = my_paths[p.path]
                 other_file = other_paths[p.path]
@@ -299,16 +302,17 @@ class CheckPath:
                         f"{my_file.perms:o} != {other_file.perms:o}",
                     )
 
-        for p in sorted(
-            other_path_set.difference(my_path_set),
-            key=lambda x: len(x.parts),
-        ):
-            if self.basepath / p != self.basepath:
-                yield (
-                    p,
-                    "Exists",
-                    "The file, directory link should be removed.",
-                )
+        if not extra_ok:
+            for p in sorted(
+                other_path_set.difference(my_path_set),
+                key=lambda x: len(x.parts),
+            ):
+                if self.basepath / p != self.basepath:
+                    yield (
+                        p,
+                        "Exists",
+                        "The file, directory link should be removed.",
+                    )
 
     def filter(self, function) -> "CheckPath":
         """Create a new CheckPath with files filtered by a function."""
@@ -341,8 +345,8 @@ class CheckPath:
         assert isinstance(f, CheckLink), """Path was not a file."""
         return f
 
-    def short_report(self, verbose=0):
-        for error in self.check():
+    def short_report(self, missing_ok=False, extra_ok=False, verbose=0):
+        for error in self.check(missing_ok=missing_ok, extra_ok=extra_ok):
             if verbose == 0:
                 raise AssertionError(f"There is a problem with: {error[0]}")
             elif verbose == 1:
@@ -360,8 +364,8 @@ class CheckPath:
                                     The reason is: {error[2]}
                                     """)
 
-    def full_report(self, verbose=0):
-        errors = list(self.check())
+    def full_report(self, missing_ok=False, extra_ok=False, verbose=0):
+        errors = list(self.check(missing_ok=missing_ok, extra_ok=extra_ok))
         if len(errors) == 0:
             return
 

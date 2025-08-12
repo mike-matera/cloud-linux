@@ -194,6 +194,9 @@ class FlowContext:
             if not isinstance(flow.__class__.can_skip, property):
                 flow.can_skip = True
 
+        # Reset the flow if it's run already
+        flow.result = FlowResult.INCOMPLETE
+
         flow = stack.from_checkpoint(flow)
         if flow.result != FlowResult.CORRECT:
             flow.result = flow.show()
