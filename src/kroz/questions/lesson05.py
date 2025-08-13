@@ -19,8 +19,6 @@ from kroz.flow.question import MultipleChoiceQuestion, Question
 from kroz.random.path import CheckDir, CheckFile, CheckPath
 from kroz.screen import KrozScreen
 
-questions: list[Question] = []
-
 
 class Islands(Question):
     """The islands with perms."""
