@@ -20,25 +20,29 @@ from kroz.flow.base import FlowResult
 from kroz.screen import KrozScreen
 
 
-class CommandLineCommand(str):
+class CommandLineCommand:
     """
     Helpers for UNIX commands
     """
 
-    def __new__(cls, *, cmd: str, cwd: str | Path, result: int):
-        return super().__new__(cls, cmd)
-
-    def __init__(self, *, cmd: str, cwd: str | Path, result: int):
+    def __init__(self, *, cmd: list[str], cwd: str | Path, result: int):
+        self._cmd = cmd
         self._cwd = Path(cwd)
         self._result = result
 
     @property
     def command(self) -> str:
-        return self.split()[0]
+        if len(self._cmd) == 1:
+            return self._cmd[0].split()[0]
+        else:
+            raise ValueError(".command access on a composite command.")
 
     @property
     def args(self) -> list[str]:
-        return self.split()[1:]
+        if len(self._cmd) == 1:
+            return self._cmd[0].split()[1:]
+        else:
+            raise ValueError(".args access on a composite command.")
 
     @property
     def cwd(self) -> Path:
@@ -48,6 +52,18 @@ class CommandLineCommand(str):
     def result(self) -> int:
         return self._result
 
+    def __getitem__(self, key):
+        return CommandLineCommand(
+            cmd=[self._cmd[key]], cwd=self.cwd, result=self._result
+        )
+
+    def __len__(self) -> int:
+        return len(self._cmd)
+
+    def __str__(self) -> str:
+        # BUG: I don't know how the commands were joined. Assuming pipe...
+        return " | ".join(self._cmd)
+
 
 class InteractionABC(KrozFlowABC):
     """
@@ -55,14 +71,15 @@ class InteractionABC(KrozFlowABC):
     """
 
     @abstractmethod
-    def on_command(self, command: CommandLineCommand) -> bool:
+    def on_command(self, command: CommandLineCommand) -> bool | None:
         """
         **Required.** Check the command entered by the user. This method should
         return `True` if the answer is correct and raise an exception or return
-        `False` if the answer is incorrect. `AssertionError`s will have their
-        messages interpreted as Markdown and be displayed as feedback to the
-        student. Other exceptions will be displayed as feedback with no stack
-        trace, unless debugging is enabled. When debugging is on
+        `False` if the answer is incorrect. Returning `None` will cause no
+        visual change and the interaction will continue. `AssertionError`s will
+        have their messages interpreted as Markdown and be displayed as feedback
+        to the student. Other exceptions will be displayed as feedback with no
+        stack trace, unless debugging is enabled. When debugging is on
         non-`AssertionError`s will crash the app and be displayed on the
         console.
 
@@ -80,18 +97,39 @@ class InteractionABC(KrozFlowABC):
 
 
 class Interaction(InteractionABC):
-    """A simple interaction."""
+    """An interaction with multiple stages."""
 
     def __init__(
-        self, text: str, filter: Callable[[CommandLineCommand], bool], **kwargs
+        self,
+        text: str,
+        filter: Callable[[CommandLineCommand], bool]
+        | list[Callable[[CommandLineCommand], bool]],
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.text = text
-        self.filter = filter
+        if isinstance(filter, list):
+            self.filter = filter
+        else:
+            self.filter = [filter]
+        self.stage = 0
         self.name = hashlib.sha1(text.encode("utf-8")).hexdigest()
 
-    def on_command(self, command: CommandLineCommand) -> bool:
-        return self.filter(command)
+    def on_command(self, command: CommandLineCommand) -> bool | None:
+        try:
+            if self.filter[self.stage](command):
+                self.stage += 1
+            else:
+                self.stage = 0
+                return False
+
+            if self.stage == len(self.filter):
+                return True
+            else:
+                return None
+        except Exception as e:
+            self.stage = 0
+            raise e
 
 
 class InteractionScreen(KrozScreen):
@@ -123,6 +161,7 @@ class InteractionScreen(KrozScreen):
         self._server.add_url_rule(
             "/", view_func=self._receive_command, methods=["POST"]
         )
+        self._commands: list[str] = []
 
     def on_mount(self):
         self.run_worker(self._run_server(), exclusive=True, exit_on_error=True)
@@ -132,12 +171,17 @@ class InteractionScreen(KrozScreen):
     ):
         md = self.query_one(Markdown)
         try:
-            if self._inter.on_command(event.cmd):
-                KrozApp.running().notify("Congratulations!", timeout=5)
-                self.dismiss(str(event.cmd))
+            result = self._inter.on_command(event.cmd)
+            if result is not None:
+                if result:
+                    KrozApp.running().notify("Congratulations!", timeout=5)
+                    self.dismiss(str(event.cmd))
+                else:
+                    md.border_title = f"❌ {event.cmd}"
+                    self.classes = "feedback"
             else:
-                md.border_title = f"❌ {event.cmd}"
-                self.classes = "feedback"
+                md.border_title = f"🔴 {event.cmd}"
+                self.classes = ""
         except AssertionError as e:
             md.border_title = f"❌ {event.cmd}"
             self.classes = "feedback"
@@ -166,21 +210,23 @@ class InteractionScreen(KrozScreen):
         try:
             if request.is_json:
                 req = json.loads(await request.data)
-                self.post_message(
-                    InteractionScreen.CommandLineEvent(
-                        CommandLineCommand(
-                            cmd=base64.b64decode(req["cmd"])
+                if "result" in req and "cwd" in req:
+                    if len(self._commands) > 0:
+                        newcommand = CommandLineCommand(
+                            cmd=self._commands,
+                            cwd=base64.b64decode(req["cwd"])
                             .decode("utf-8")
                             .strip(),
-                            cwd=Path(
-                                base64.b64decode(req["cwd"])
-                                .decode("utf-8")
-                                .strip()
-                            ),
                             result=req["result"],
                         )
+                        self.post_message(
+                            InteractionScreen.CommandLineEvent(cmd=newcommand)
+                        )
+                        self._commands = []
+                elif "cmd" in req:
+                    self._commands.append(
+                        base64.b64decode(req["cmd"]).decode("utf-8").strip()
                     )
-                )
         except Exception as e:
             self.log(f"ERROR: {e}")
         finally:
