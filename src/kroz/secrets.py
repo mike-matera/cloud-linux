@@ -21,11 +21,16 @@ import nacl.secret
 
 
 def has_embedded_key():
-    return importlib.resources.is_resource("kroz", "key.txt")
+    return importlib.resources.files("kroz").joinpath("key.txt").is_file()
 
 
 def embedded_key():
-    return importlib.resources.read_text("kroz", "key.txt").strip()
+    return (
+        importlib.resources.files("kroz")
+        .joinpath("key.txt")
+        .read_text(encoding="utf-8")
+        .strip()
+    )
 
 
 class EncryptedStateFile:
