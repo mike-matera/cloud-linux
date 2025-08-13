@@ -4,6 +4,9 @@ all: build
 build:
 	uv run pex -v --scie=eager -c cis90 -o dist/cis90.pex .  
 
+install:
+	cp dist/cis90.pex /usr/bin/cis90
+
 test:
 	uv run pytest --asyncio-mode auto 
 
