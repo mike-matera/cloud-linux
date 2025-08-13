@@ -160,8 +160,52 @@ def cis90() -> int:
     )
     args = parser.parse_args()
 
-    if args.assignment == "week2":
+    if args.assignment == "commands":
         import kroz.questions.lesson02 as do_lab
+
+        lab.lab(do_lab)
+    elif args.assignment == "filesystem":
+        import kroz.questions.lesson03 as do_lab
+
+        lab.lab(do_lab)
+    elif args.assignment == "files":
+        import kroz.questions.lesson04 as do_lab
+
+        lab.lab(do_lab)
+    elif args.assignment == "islands":
+        import kroz.questions.lesson05 as do_lab
+
+        lab.lab(do_lab)
+    elif args.assignment == "commands":
+        import kroz.questions.lesson06 as do_lab
+
+        lab.lab(do_lab)
+    elif args.assignment == "io":
+        import kroz.questions.lesson07 as do_lab
+
+        lab.lab(do_lab)
+    elif args.assignment == "boss":
+        import kroz.questions.lesson08 as do_lab
+
+        lab.lab(do_lab)
+    elif args.assignment == "perms":
+        import kroz.questions.lesson09 as do_lab
+
+        lab.lab(do_lab)
+    elif args.assignment == "processes":
+        import kroz.questions.lesson10 as do_lab
+
+        lab.lab(do_lab)
+    elif args.assignment == "environment":
+        import kroz.questions.lesson11 as do_lab
+
+        lab.lab(do_lab)
+    elif args.assignment == "editor":
+        import kroz.questions.lesson12 as do_lab
+
+        lab.lab(do_lab)
+    elif args.assignment == "scripts":
+        import kroz.questions.lesson13 as do_lab
 
         lab.lab(do_lab)
     else:
