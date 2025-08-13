@@ -24,7 +24,7 @@ def kroz_app(mocker, tmp_path):
     m = Mock(spec=[], return_value=app)
     mocker.patch("kroz.app.KrozApp.running", new=m)
 
-    def worker() -> str:
+    def worker() -> None:
         return fut.result()
 
     app.main(worker)

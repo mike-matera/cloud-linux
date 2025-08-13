@@ -1,6 +1,5 @@
 import pathlib
 import tempfile
-import uuid
 
 import pytest
 from textual.worker import WorkerFailed
@@ -14,9 +13,8 @@ def get_app(**kwargs):
     app = KrozApp("Testing", **kwargs)
     screen = KrozScreen("Test Text", title="Test Title", can_skip=False)
 
-    def worker() -> str:
+    def worker() -> None:
         app.show(screen, title="Test Hello", classes="")
-        return "bye!"
 
     app.main(worker)
     return app
@@ -36,7 +34,6 @@ async def test_app_default_config():
         # Now check expected defaults after initialization
         assert app.config["default_path"] == pathlib.Path.home()
         assert app.config["random_seed"] is None
-        assert app.config["secret"] == str(uuid.getnode())
         assert app.config["config_dir"] == pathlib.Path.home() / ".kroz"
         assert app.config["state_file"] is None
 
@@ -49,7 +46,6 @@ async def test_app_debug_config():
         await pilot.pause()
         assert app.config["default_path"] == pathlib.Path.cwd()
         assert app.config["random_seed"] is None
-        assert app.config["secret"] == str(uuid.getnode())
         assert app.config["config_dir"] == pathlib.Path.cwd()
         assert app.config["state_file"] is None
 

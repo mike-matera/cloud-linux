@@ -28,9 +28,8 @@ def kroz_app(mocker, tmp_path, kroz_screen):
     m = Mock(spec=[], return_value=app)
     mocker.patch("kroz.app.KrozApp.running", new=m)
 
-    def worker() -> str:
+    def worker() -> None:
         app.show(kroz_screen)
-        return "bye!"
 
     app.main(worker)
     yield app
