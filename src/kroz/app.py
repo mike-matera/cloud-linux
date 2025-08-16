@@ -51,7 +51,6 @@ class ProgressContext:
         """A message to indicate the progress of a slow running task."""
 
         class State(Enum):
-            START = 1
             UPDATE = 2
             STOP = 3
 
@@ -61,29 +60,26 @@ class ProgressContext:
             self.percent = percent
             self.message = message
 
-    def __init__(self, title=None):
+    def __init__(self, title=None, initial_progress: int = 0):
         super().__init__()
-        self._title = title
+        self._screen = ProgressScreen(
+            title=title, initial_progress=initial_progress
+        )
 
     def __enter__(self):
-        self._app = KrozApp.running()
-        self._app.post_message(
-            ProgressContext.ProgressMessage(
-                state=ProgressContext.ProgressMessage.State.START,
-                message=self._title,
-            )
-        )
+        app = KrozApp.running()
+        app.call_from_thread(app.push_screen, self._screen)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._app.post_message(
+        self._screen.post_message(
             ProgressContext.ProgressMessage(
                 ProgressContext.ProgressMessage.State.STOP
             )
         )
 
     def update(self, percent=None, message=None):
-        self._app.post_message(
+        self._screen.post_message(
             ProgressContext.ProgressMessage(
                 state=ProgressContext.ProgressMessage.State.UPDATE,
                 percent=percent,
@@ -137,7 +133,7 @@ class ProgressScreen(ModalScreen):
         ("ctrl+q", "app.cleanup_quit", "Quit"),
     ]
 
-    def __init__(self, title=None):
+    def __init__(self, title: str | None = None, initial_progress: int = 0):
         super().__init__()
         if title is None:
             self._title = "🤖 Please Wait..."
@@ -147,12 +143,41 @@ class ProgressScreen(ModalScreen):
         self._progress = ProgressBar(
             show_percentage=False, show_eta=False, id="progress"
         )
+        if initial_progress is not None:
+            self._progress.total = 100
+            self._progress.progress = initial_progress
 
     def compose(self):
         with Vertical(id="loading"):
             yield Label(self._title, id="loading_title")
             yield self._progress
             yield self._task_log
+
+    def on_progress_context_progress_message(
+        self, msg: ProgressContext.ProgressMessage
+    ):
+        self.log("MOGHER FUCK:", msg.state, msg.percent)
+        if msg.state == ProgressContext.ProgressMessage.State.STOP:
+            self.dismiss()
+        elif msg.state == ProgressContext.ProgressMessage.State.UPDATE:
+            if msg.percent:
+                self._progress.total = 100
+                self._progress.progress = msg.percent
+            else:
+                self._progress.total = None
+            if msg.message:
+                self._task_log.write(msg.message)
+        msg.stop()
+
+    def post_message(self, message: Message) -> bool:
+        # Kill canceled workers that send a progress message.
+        if (
+            isinstance(message, ProgressContext.ProgressMessage)
+            and get_current_worker().is_cancelled
+        ):
+            raise KrozApp.CancelledWorkerException()
+
+        return super().post_message(message)
 
 
 class ScoreMessage(Message):
@@ -259,8 +284,10 @@ class KrozApp(App[str]):
         else:
             self._state = EncryptedStateFile(self._config["secret"], None)
 
-        for hook in _setuphooks:
-            hook()
+        with KrozApp.progress(initial_progress=1) as p:
+            for i, hook in enumerate(_setuphooks):
+                p.update(percent=(i + 1 / len(_setuphooks)) * 100)
+                hook()
 
     def _run_user_app(self) -> None:
         try:
@@ -300,30 +327,6 @@ class KrozApp(App[str]):
             self.score += msg._update
         elif msg._to:
             self.score = msg._to
-
-    def on_progress_progress_message(
-        self, msg: ProgressContext.ProgressMessage
-    ):
-        if msg.state == ProgressContext.ProgressMessage.State.START:
-            self._progress_screen = ProgressScreen(msg.message)
-            self.push_screen(self._progress_screen)
-        elif (
-            self._progress_screen
-            and msg.state == ProgressContext.ProgressMessage.State.STOP
-        ):
-            self._progress_screen.dismiss()
-            self._progress_screen = None
-        elif (
-            self._progress_screen
-            and msg.state == ProgressContext.ProgressMessage.State.UPDATE
-        ):
-            if msg.percent:
-                self._progress_screen._progress.total = 100
-                self._progress_screen._progress.progress = msg.percent
-            else:
-                self._progress_screen._progress.total = None
-            if msg.message:
-                self._progress_screen._task_log.write(msg.message)
 
     async def action_cleanup_quit(self):
         self.workers.cancel_all()
@@ -392,20 +395,21 @@ class KrozApp(App[str]):
             def compose(self) -> ComposeResult:
                 self._cont = Container()
                 with self._cont:
-                    yield Static("▔" * self._outer_size.width)
+                    yield Static("█")
 
         fut = asyncio.get_running_loop().create_future()
 
         def check_screen(result) -> None:
             fut.set_result(result)
 
-        self.push_screen(screen=screen, callback=check_screen)
+        main_wait = self.push_screen(screen=screen, callback=check_screen)
         if animate and not self._debug:
             bl = Blanker(self.size)
             await self.push_screen(bl)
+            await main_wait
             bl._cont.styles.animate(
                 "height",
-                value=0,
+                value=0.0,
                 duration=self.size.height / 60,
                 easing="linear",
                 on_complete=bl.dismiss,
@@ -455,5 +459,5 @@ class KrozApp(App[str]):
         _default_config.update(defconfig)
 
     @staticmethod
-    def progress():
-        return ProgressContext()
+    def progress(title: str | None = None, initial_progress: int = 0):
+        return ProgressContext(title=title, initial_progress=initial_progress)
