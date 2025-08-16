@@ -44,16 +44,23 @@ class RandomBigFile:
         """Create the file."""
         words = random_words()
 
-        self._words = [words.choices(self._cols) for _ in range(self._rows)]
+        with KrozApp.progress() as progress:
+            progress.update(message="Generating random words...")
 
-        if self._path is not None:
-            with open(self._path, "w") as fh:
-                for line in self.lines():
-                    fh.write(line)
-            KrozApp.running().notify(
-                f"{self._path} has been updated!",
-                title="File Updated",
-            )
+            self._words = [words.choices(self._cols) for _ in range(self._rows)]
+
+            if self._path is not None:
+                progress.update(message="Writing bigfile...")
+                with open(self._path, "w") as fh:
+                    for i, line in enumerate(self.lines()):
+                        if (i % 1000) == 0:
+                            progress.update(percent=(i/self._rows)*100)
+                        fh.write(line)
+
+                KrozApp.running().notify(
+                    f"{self._path} has been updated!",
+                    title="File Updated",
+                )
 
     def cleanup(self):
         """Remove the file."""
