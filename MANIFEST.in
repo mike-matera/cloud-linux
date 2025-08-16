@@ -1,0 +1,4 @@
+include src/kroz/app.tcss
+include src/kroz/key.txt
+include src/kroz/ascii/*.txt
+include src/kroz/bash/setup.sh

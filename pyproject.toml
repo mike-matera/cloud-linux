@@ -10,6 +10,7 @@ dependencies = [
     "psutil>=7.0.0",
     "pynacl>=1.5.0",
     "pyte>=0.8.2",
+    "pyyaml>=6.0.2",
     "quart>=0.20.0",
     "textual>=2.1.2",
 ]
@@ -21,6 +22,9 @@ build-backend = "setuptools.build_meta"
 [project.scripts]
 kroz = "kroz.__main__:main"
 cis90 = "kroz.__main__:cis90"
+
+[tool.setuptools.package-data]
+mypkg = ["*.txt", "*.tcss"]
 
 [tool.ruff]
 line-length = 79
