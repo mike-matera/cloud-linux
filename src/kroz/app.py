@@ -10,7 +10,6 @@ import pathlib
 import textwrap
 import uuid
 from collections.abc import Callable
-from enum import Enum
 from typing import Any
 
 from textual.app import App, ComposeResult
@@ -50,13 +49,8 @@ class ProgressContext:
     class ProgressMessage(Message):
         """A message to indicate the progress of a slow running task."""
 
-        class State(Enum):
-            UPDATE = 2
-            STOP = 3
-
-        def __init__(self, state, *, percent=None, message=None):
+        def __init__(self, *, percent=None, message=None):
             super().__init__()
-            self.state = state
             self.percent = percent
             self.message = message
 
@@ -72,16 +66,12 @@ class ProgressContext:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._screen.post_message(
-            ProgressContext.ProgressMessage(
-                ProgressContext.ProgressMessage.State.STOP
-            )
-        )
+        app = KrozApp.running()
+        app.call_from_thread(app.pop_screen)
 
     def update(self, percent=None, message=None):
         self._screen.post_message(
             ProgressContext.ProgressMessage(
-                state=ProgressContext.ProgressMessage.State.UPDATE,
                 percent=percent,
                 message=message,
             )
@@ -156,17 +146,13 @@ class ProgressScreen(ModalScreen):
     def on_progress_context_progress_message(
         self, msg: ProgressContext.ProgressMessage
     ):
-        self.log("MOGHER FUCK:", msg.state, msg.percent)
-        if msg.state == ProgressContext.ProgressMessage.State.STOP:
-            self.dismiss()
-        elif msg.state == ProgressContext.ProgressMessage.State.UPDATE:
-            if msg.percent:
-                self._progress.total = 100
-                self._progress.progress = msg.percent
-            else:
-                self._progress.total = None
-            if msg.message:
-                self._task_log.write(msg.message)
+        if msg.percent:
+            self._progress.total = 100
+            self._progress.progress = msg.percent
+        else:
+            self._progress.total = None
+        if msg.message:
+            self._task_log.write(msg.message)
         msg.stop()
 
     def post_message(self, message: Message) -> bool:
