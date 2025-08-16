@@ -2,7 +2,7 @@
 all: build
 
 build:
-	uv run pex -v --scie=eager -c cis90 -o dist/cis90.pex .  
+	uv run pex -v  -c cis90 -o dist/cis90.pex .  # --scie=eager
 
 install:
 	cp dist/cis90.pex /usr/bin/cis90
@@ -22,4 +22,4 @@ clean:
 # 	# Remove all generated users 
 # 	for user in $(shell grep cis90 /etc/group | cut -d: -f4 | tr , ' '); do sudo deluser --remove-home $$user; done
 
-.PHONY: test build
+.PHONY: test build install
