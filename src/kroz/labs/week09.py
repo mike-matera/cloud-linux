@@ -2,7 +2,7 @@
 Manage files with permissions.
 """
 
-import kroz
+from kroz.app import KrozApp
 from kroz.flow import FlowContext
 from kroz.questions.lesson09 import Islands2
 
@@ -15,7 +15,7 @@ this lab you will need to understand the `chmod` and `chgrp` commands.
 Good luck!
 """
 
-app = kroz.KrozApp("Sort the Islands")
+app = KrozApp("Sort the Islands")
 
 
 @app.main

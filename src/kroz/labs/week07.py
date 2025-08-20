@@ -2,7 +2,7 @@
 Some lab called iolab or whatever.
 """
 
-import kroz
+from kroz.app import KrozApp
 from kroz.flow import FlowContext
 from kroz.questions.lesson04 import WordInBigfile
 from kroz.questions.lesson07 import CountOranges, SortedWords, UniqueWords
@@ -14,7 +14,7 @@ Foo!
 """
 
 
-app = kroz.KrozApp("The I/O Lab")
+app = KrozApp("The I/O Lab")
 
 
 @app.main

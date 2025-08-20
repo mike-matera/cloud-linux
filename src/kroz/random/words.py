@@ -5,7 +5,7 @@ Helper for streams of random words.
 from os import PathLike
 
 import kroz.random as random
-from kroz import KrozApp
+from kroz.app import KrozApp
 
 
 class RandomWord:

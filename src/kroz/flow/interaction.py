@@ -14,7 +14,7 @@ from quart import Quart, request
 from textual.message import Message
 from textual.widgets import Markdown
 
-from kroz import KrozApp
+from kroz.app import KrozApp
 from kroz.flow import KrozFlowABC
 from kroz.flow.base import FlowResult
 from kroz.screen import KrozScreen

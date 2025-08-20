@@ -18,7 +18,7 @@ import kroz.random as random
 
 import random as sys_random
 
-from kroz import KrozApp
+from kroz.app import KrozApp
 
 _inst = sys_random.Random()
 seed = _inst.seed

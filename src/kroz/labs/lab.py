@@ -2,7 +2,7 @@
 Generic flow of an interactive lab.
 """
 
-from kroz import KrozApp
+from kroz.app import KrozApp
 from kroz.flow import FlowContext
 from kroz.flow.base import FlowResult, KrozFlowABC
 from kroz.flow.question import Menu

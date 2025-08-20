@@ -1,4 +1,4 @@
-from kroz import KrozApp
+from kroz.app import KrozApp
 from kroz.flow import FlowContext
 from kroz.flow.question import (
     MultipleChoiceQuestion,

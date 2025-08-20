@@ -5,15 +5,15 @@ KROZ CLI
 import argparse
 import importlib
 import runpy
+import sys
+import uuid
 from importlib.resources import files
-
-from kroz.app import KrozApp
-from kroz.labs import lab
-from kroz.secrets import cli as secrets_cli
 
 
 def run(args) -> int:
     """Run a script or a module"""
+    from kroz.app import KrozApp
+
     module: str = args.module
     if module.endswith(".py"):
         # Run an app in a Python file.
@@ -41,6 +41,8 @@ def run(args) -> int:
 
 def lesson_run(module: str, debug: bool) -> int:
     """Run a lesson module"""
+    from kroz.labs import lab
+
     mod = importlib.import_module(module)
     lab.lab(mod, debug=debug)
     return 0
@@ -58,6 +60,8 @@ def ask(args) -> int:
     form "arg=value" for strings or "arg:=value" to use Python's `eval` function
     on value.
     """
+    from kroz.app import KrozApp
+
     module: str = args.module
     assert ":" in module, """Module must be in the format module:class"""
 
@@ -96,6 +100,62 @@ def config(args) -> int:
     return 0
 
 
+def secrets_main(args):
+    """
+    Decode confirmation numbers from stdin.
+    """
+    from kroz.secrets import (
+        ConfirmationCode,
+        EncryptedStateFile,
+        embedded_key,
+        has_embedded_key,
+    )
+
+    if args.key is not None:
+        print("Using command line key.")
+        key = args.key
+    else:
+        if has_embedded_key():
+            print("Using embedded key.")
+            key = embedded_key()
+        else:
+            print("Using machine key.")
+            key = str(uuid.getnode())
+
+    Bold = "\x1b[1m"
+    Reset = "\x1b[0m"
+    F_LightGreen = "\x1b[92m"
+    F_LightRed = "\x1b[91m"
+    F_Default = "\x1b[39m"
+    B_Default = "\x1b[49m"
+    B_Black = "\x1b[40m"
+
+    if args.file is None:
+        vault = ConfirmationCode(key=key)
+        while True:
+            line = None
+            got = ""
+            while line != ".":
+                line = input("> ")
+                got += line.strip()
+            got = got.replace("\n", "")
+            got = got.replace(" ", "")
+            got = got.replace("\t", "")
+            for i in range(len(got)):
+                for j in range(i + 1, len(got)):
+                    try:
+                        data = vault.validate(got[i : j + 1])
+                        print("\n")
+                        print(Bold, F_LightGreen, B_Black, sep="", end="")
+                        print(data)
+                        print(B_Default, F_Default, Reset, sep="", end="")
+                        print("\n")
+                    except Exception:
+                        pass
+    else:
+        print(EncryptedStateFile(key=key, filename=args.file)._data)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         prog="kroz",
@@ -110,7 +170,20 @@ def main() -> int:
         required=True,
     )
 
-    secrets_cli(subparsers)
+    secrets_parser = subparsers.add_parser(
+        "secrets", help="Decode secrets from STDIN."
+    )
+    secrets_parser.add_argument(
+        "-k",
+        "--key",
+        type=str,
+        required=False,
+        help="The key used for operations.",
+    )
+    secrets_parser.add_argument(
+        "-f", "--file", type=str, help="The encrypted file to read."
+    )
+    secrets_parser.set_defaults(func=secrets_main)
 
     runparser = subparsers.add_parser("run", help="Run a module or class.")
     runparser.add_argument(
@@ -158,7 +231,17 @@ def cis90() -> int:
     parser.add_argument(
         "assignment", help="The name of the assignment you wish to run."
     )
+
     args = parser.parse_args()
+
+    if args.assignment == "config":
+        config(None)
+        return 0
+
+    print("Loading. Please wait...")
+    sys.stdout.flush()
+
+    from kroz.labs import lab
 
     if args.assignment == "commands":
         import kroz.questions.lesson02 as do_lab
@@ -208,6 +291,7 @@ def cis90() -> int:
         import kroz.questions.lesson13 as do_lab
 
         lab.lab(do_lab)
+
     else:
         print(f"Assignment not found: {args.assignment}")
     return 0

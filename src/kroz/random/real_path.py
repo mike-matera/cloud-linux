@@ -8,7 +8,7 @@ from collections.abc import Callable, Generator, Hashable
 from typing import Iterable
 
 import kroz.random as random
-from kroz import KrozApp
+from kroz.app import KrozApp
 
 SearchTree = namedtuple("SearchTree", ["root", "glob"])
 CONFIG_KEY = "random_path_search"

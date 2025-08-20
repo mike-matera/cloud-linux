@@ -4,7 +4,7 @@ Lab for week 2.
 
 import textwrap
 
-from kroz import KrozApp
+from kroz.app import KrozApp
 from kroz.ascii import tux
 from kroz.flow import FlowContext
 from kroz.questions.lesson02 import (

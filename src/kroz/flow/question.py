@@ -20,7 +20,7 @@ from textual.widgets import (
     Label,
 )
 
-from kroz import KrozApp
+from kroz.app import KrozApp
 from kroz.flow.base import FlowResult, KrozFlowABC
 from kroz.screen import KrozScreen
 

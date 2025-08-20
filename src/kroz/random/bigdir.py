@@ -5,7 +5,7 @@ Make a directory of random files.
 import pathlib
 from os import PathLike
 
-from kroz import KrozApp
+from kroz.app import KrozApp
 
 from .bigfile import RandomBigFile
 from .path import CheckFile, CheckPath

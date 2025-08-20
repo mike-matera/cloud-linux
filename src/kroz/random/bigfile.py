@@ -6,7 +6,7 @@ import pathlib
 from collections.abc import Generator
 from os import PathLike
 
-from kroz import KrozApp
+from kroz.app import KrozApp
 
 from .words import random_words
 
@@ -47,14 +47,16 @@ class RandomBigFile:
         with KrozApp.progress() as progress:
             progress.update(message="Generating random words...")
 
-            self._words = [words.choices(self._cols) for _ in range(self._rows)]
+            self._words = [
+                words.choices(self._cols) for _ in range(self._rows)
+            ]
 
             if self._path is not None:
                 progress.update(message="Writing bigfile...")
                 with open(self._path, "w") as fh:
                     for i, line in enumerate(self.lines()):
                         if (i % 1000) == 0:
-                            progress.update(percent=(i/self._rows)*100)
+                            progress.update(percent=(i / self._rows) * 100)
                         fh.write(line)
 
                 KrozApp.running().notify(

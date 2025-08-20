@@ -2,7 +2,7 @@
 Scavenger hunt.
 """
 
-from kroz import KrozApp
+from kroz.app import KrozApp
 from kroz.flow import FlowContext
 from kroz.questions.lesson02 import (
     FreeMemory,

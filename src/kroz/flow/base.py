@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 
-from kroz import KrozApp
+from kroz.app import KrozApp
 
 
 class FlowResult(Enum):

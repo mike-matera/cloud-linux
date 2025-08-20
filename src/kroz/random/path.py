@@ -10,7 +10,7 @@ import textwrap
 from collections.abc import Generator
 from dataclasses import dataclass, field
 
-from kroz import KrozApp
+from kroz.app import KrozApp
 from kroz.validation import IsPermission
 
 CONTENT_LIMIT: int = 1024 * 32

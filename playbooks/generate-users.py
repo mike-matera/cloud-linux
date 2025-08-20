@@ -2,28 +2,68 @@
 Generate UNIX users from a Canvas roster
 """
 
-import pathlib 
-import logging 
-import yaml 
-import os
-import argparse
-import re
-import crypt
-import hashlib 
-import yaml 
+import subprocess
+import tempfile
+import textwrap
+import zipfile
+from pathlib import Path
 
-from cloud_linux.canvas import Canvas 
+import yaml
 
-canvas = Canvas() 
+from cloud_linux.canvas import Canvas
 
-for course in ['cis-90']:
-    users = [ {
-            'name': cu.user.pw_name,
-            'comment': cu.user.comment, 
-            'groups': ['users', course],
-            'uid': cu.user.uid,
-            'sid': cu.user.sis_user_id,
-        } for cu in canvas.course_users(course) 
-    ]
+canvas = Canvas()
 
-print(yaml.dump({'users': users}))
+users = [
+    {
+        "name": cu.user.pw_name,
+        "comment": cu.user.comment,
+        "groups": ["users", "cis-90"],
+        "uid": cu.user.uid,
+        "sid": cu.user.sis_user_id,
+    }
+    for cu in canvas.course_users("cis-90")
+]
+
+userdir = Path("./users")
+if not userdir.exists():
+    userdir.mkdir()
+
+for user in users:
+    sshzip = userdir / f"{user['name']}_ssh.zip"
+    if not sshzip.exists():
+        # Generate credentials
+        with tempfile.TemporaryDirectory() as td:
+            subprocess.run(
+                f"ssh-keygen -t ed25519 -f id_opus_ed25519 -N '' -C {user['name']}@opus",
+                cwd=td,
+                shell=True,
+                check=True,
+            )
+            with open(Path(td) / "config", "w") as fh:
+                fh.write(
+                    textwrap.dedent(f"""
+                    Host opus.cis.cabrillo.edu
+                        HostName opus.cis.cabrillo.edu
+                        User {user["name"]}
+                        IdentityFile ~/.ssh/id_opus_ed25519
+                    """)
+                )
+            zipname = userdir / f"{user['name']}_ssh.zip"
+            with zipfile.ZipFile(zipname, "w") as zipf:
+                for file in [
+                    "id_opus_ed25519",
+                    "id_opus_ed25519.pub",
+                    "config",
+                ]:
+                    zipf.write(Path(td) / file, arcname=file)
+
+    # Read credentials from the zip file.
+    with zipfile.ZipFile(sshzip, "r") as zipf:
+        with zipf.open("id_opus_ed25519.pub") as fh:
+            user["pub_key"] = fh.read().decode("utf-8").strip()
+        with zipf.open("id_opus_ed25519") as fh:
+            user["priv_key"] = fh.read().decode("utf-8").strip()
+
+with open(userdir / "ansible-user-data.yaml", "w") as fh:
+    fh.write(yaml.dump({"users": users}))

@@ -6,19 +6,6 @@
       group_by:
         key: os_{{ ansible_facts['distribution'] }}
 
-- hosts: os_Ubuntu 
-  name: Update package cache on Ubuntu
-  become: true
-  tasks:
-    - lineinfile:
-        state: absent
-        path: /etc/apt/apt.conf.d/proxy99.conf
-        create: yes
-        regexp: '^Acquire::http::Proxy'
-        line: Acquire::http::Proxy "http://rack0.maas:8000/";
-    - ansible.builtin.apt:
-        update_cache: yes
-
 - hosts: all
   become: true
   name: Install packages.
@@ -28,10 +15,111 @@
           "{{ packages }}"
         state: latest
 
+- hosts: all 
+  name: Install MOTD
+  become: yes
+  roles:
+    - role: motd
+      motdname: "{{inventory_hostname_short}}"
+      dest: /usr/local/bin/scavenge 
+
+- hosts: opus.cis.cabrillo.edu 
+  name: Install Zork  
+  become: true
+  tags:
+    - zork
+  roles:
+    - zork 
+
+- hosts: opus.cis.cabrillo.edu 
+  name: Install stuff for the final project. 
+  become: true 
+  tags:
+    - depot
+  tasks:
+    - name: Create the depot directory 
+      ansible.builtin.unarchive:
+        src: files/depot.tar.xz
+        dest: /home/cis90
+    - name: Install allscripts
+      ansible.builtin.copy:
+        src: files/allscripts
+        dest: /usr/local/bin/allscripts
+        mode: '755'
+        owner: root
+        group: root 
+        
+- hosts: opus.cis.cabrillo.edu 
+  name: Create student skeleton directory 
+  become: true
+  tasks:
+    - name: Untar the skeleton 
+      ansible.builtin.unarchive:
+        src: files/cis90-skel.tar
+        dest: /etc/skel
+    - name: Add KROZ watcher setup. 
+      ansible.builtin.blockinfile:
+        path: /etc/skel/.bashrc
+        append_newline: true
+        prepend_newline: true
+        block: |
+          # Setup cis-90 application config.
+          export PEX_VENV=1
+          eval "$(cis90 config)"
+
 - hosts: all
-  become: false
-  name: Install Python packages.
-  tasks: 
-    - ansible.builtin.pip:
-        name: 
-          - git+https://github.com/mike-matera/PyScramble.git
+  name: Add users and groups
+  tags:
+    - users
+  become: true
+  tasks:
+    - include_vars: ./users/ansible-user-data.yaml
+
+    - name: Add the cis90 group.
+      group:
+        name: cis90
+        state: present
+
+    - name: Add user groups.
+      group:
+        gid: "{{ item.uid }}"
+        name: "{{ item.name }}"
+      loop: "{{ users | flatten(levels=1) }}"
+
+    - name: Add user accounts.
+      user:
+        uid: "{{ item.uid }}"
+        group: "{{ item.name }}"
+        name: "{{ item.name }}"
+        comment: "{{ item.comment }}"
+        home: "/home/cis90/{{ item.name }}"
+        groups: ['users', 'cis90']
+        shell: /bin/bash
+        append: yes
+      loop: "{{ users | flatten(levels=1) }}"
+
+    - name: Authorize the public key 
+      ansible.posix.authorized_key:
+        user: "{{ item.name }}"
+        key: "{{ item.pub_key }}"
+      loop: "{{ users | flatten(levels=1) }}"
+
+    - name: Install SSH private key
+      ansible.builtin.copy:
+        content: "{{ item.priv_key }}\n"
+        dest: "/home/cis90/{{ item.name }}/.ssh/id_ed25519"
+        owner: "{{ item.name }}"
+        group: "{{ item.name }}"
+        mode: '0600'
+      loop: "{{ users | flatten(levels=1) }}"
+
+    - name: Install SSH public key
+      ansible.builtin.copy:
+        content: "{{ item.pub_key }}\n"
+        dest: "/home/cis90/{{ item.name }}/.ssh/id_ed25519.pub"
+        owner: "{{ item.name }}"
+        group: "{{ item.name }}"
+        mode: '0600'
+      loop: "{{ users | flatten(levels=1) }}"
+
+

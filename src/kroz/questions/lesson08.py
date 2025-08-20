@@ -13,7 +13,7 @@ Reading:
 import pathlib
 from typing import Type
 
-from kroz import KrozApp
+from kroz.app import KrozApp
 from kroz.flow.base import KrozFlowABC
 from kroz.flow.interaction import Interaction
 from kroz.flow.question import (
