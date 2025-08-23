@@ -67,13 +67,14 @@ def lab(package, debug=False):
                     items=[i[1] for i in items],
                 )
             )
-            item = int(choice.answer) - 1  # pyright: ignore[reportArgumentType]
-            with FlowContext(items[item][0]) as flow:
-                for f in items[item][2]:
-                    if isinstance(f, KrozFlowABC):
-                        flow.run(f)
-                    elif issubclass(f, KrozFlowABC):
-                        flow.run(f())
+            if choice.answer is not None:
+                item = int(choice.answer) - 1
+                with FlowContext(items[item][0]) as flow:
+                    for f in items[item][2]:
+                        if isinstance(f, KrozFlowABC):
+                            flow.run(f)
+                        elif issubclass(f, KrozFlowABC):
+                            flow.run(f())
 
     app.main(main)
     return app.run()
