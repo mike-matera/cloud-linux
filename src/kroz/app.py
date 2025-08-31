@@ -300,7 +300,7 @@ class KrozApp(App[str]):
                                         
                 Your confirmation code is: {self._confirmation()}
                 """)
-            self.exit(result=exit_message, return_code=0)
+            self.exit(message=exit_message, return_code=0)
 
     def _confirmation(self):
         """Get the base64 encoded confirmation code."""
