@@ -21,6 +21,7 @@ from kroz.flow.interaction import Interaction
 from kroz.flow.question import (
     MultipleChoiceQuestion,
     Question,
+    ShortAnswerQuestion,
     TrueOrFalseQuestion,
 )
 from kroz.questions.lesson04 import WordInBigfile
@@ -498,20 +499,116 @@ $ head -n 20 artichoke | tail -n 1 | cut -d' ' -f1
             and "-f1" in cmd[2].args,
         ),
     ],
+    """Don't cross the streams.""": [
+        Interaction(
+            """
+In UNIX programs access the terminal using *streams*. In this walk you'll use 
+the redirect operators `>` and `>>` to redirect the output of a program to a 
+file. Start of by running the `find` command to see all the files on the system:
+
+```console
+$ find / 
+```
+""",
+            filter=lambda cmd: cmd.command == "find" and cmd.args == ["/"],
+        ),
+        Interaction(
+            """
+Now try saving the names of files you find into a file:
+
+```console
+$ find / > allfiles.txt
+```
+""",
+            filter=lambda cmd: cmd.command == "find"
+            and cmd.args == ["/", ">", "allfiles.txt"],
+        ),
+        Interaction(
+            """
+Notice how there's still a lot of output? That's because you don't have 
+permission to access all the files and directories on opus. Let's save the 
+errors separately: 
+
+```console
+$ find / > allfiles.txt 2> errors.txt
+```
+""",
+            filter=lambda cmd: cmd.command == "find"
+            and cmd.args == ["/", ">", "allfiles.txt", "2>", "errors.txt"],
+        ),
+        Interaction(
+            """
+If you don't care about errors you can *throw them away* while also keeping your
+screen clear. The special file `/dev/null` is used for this purpose:
+
+```console
+$ find / > allfiles.txt 2> /dev/null
+```
+""",
+            filter=lambda cmd: cmd.command == "find"
+            and cmd.args == ["/", ">", "allfiles.txt", "2>", "/dev/null"],
+        ),
+    ],
 }
 
 
 questions: list[Question] = [
-    MultipleChoiceQuestion(
-        "What command would you use to *rename* a file?",
-        "mv",
-        "cp",
-        "ln -s",
-        "rm",
+    TrueOrFalseQuestion(
+        "Every program on UNIX has one input *stream* and two output *streams*.",
+        True,
+    ),
+    ShortAnswerQuestion(
+        "What command finds a word or words in a file?",
+        "grep",
     ),
     TrueOrFalseQuestion(
-        "When there are three or more arguments to `cp` the last has to be a directory.",
+        "When using the `uniq` command in a pipeline it always comes after `sort`.",
         True,
+    ),
+    MultipleChoiceQuestion(
+        """
+You run this command:
+
+```console
+$ find . > one.txt 2> two.txt
+```
+
+Where does STDOUT go? 
+""",
+        "Into `one.txt`",
+        "To the screen",
+        "Into `two.txt`",
+        "STDOUT is discarded",
+    ),
+    MultipleChoiceQuestion(
+        """
+You run this command:
+
+```console
+$ find . > one.txt 2> two.txt
+```
+
+Where does STDERR go? 
+""",
+        "Into `two.txt`",
+        "Into `one.txt`",
+        "To the screen",
+        "STDERR is discarded",
+    ),
+    MultipleChoiceQuestion(
+        """
+You run this command:
+
+```console
+$ find . > one.txt 2>&1
+```
+
+Where does STDERR go? 
+""",
+        "Into `one.txt`",
+        "Into `two.txt`",
+        "To the screen",
+        "STDERR is discarded",
     ),
 ]
 

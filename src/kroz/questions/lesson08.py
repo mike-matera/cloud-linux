@@ -214,4 +214,9 @@ $ ls -l Shakespeare/sonnet1?
 
 questions: list[Question] = []
 
-lab: dict[str, list[Question]] = {}
+lab: dict[str, list[Question]] = {
+    "Delete the `m` files.": [RandomRando()],
+    "Delete files that contain `delete`.": [RandomDeleteMe()],
+    "A harder filename to delete.": [RandomRandoTick()],
+    "Find the deep meaning.": [DeepMessage()],
+}

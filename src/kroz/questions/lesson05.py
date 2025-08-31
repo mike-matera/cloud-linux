@@ -15,7 +15,11 @@ from typing import Type
 
 from kroz.flow.base import KrozFlowABC
 from kroz.flow.interaction import Interaction
-from kroz.flow.question import MultipleChoiceQuestion, Question
+from kroz.flow.question import (
+    MultipleChoiceQuestion,
+    Question,
+    TrueOrFalseQuestion,
+)
 from kroz.random.path import CheckDir, CheckFile, CheckPath
 from kroz.screen import KrozScreen
 
@@ -519,6 +523,39 @@ questions = [
         "cp",
         "ln -s",
         "rm",
+    ),
+    TrueOrFalseQuestion(
+        "Files deleted the `rm` command can be easily recovered?", False
+    ),
+    MultipleChoiceQuestion(
+        """
+        If you run this command:
+        
+        ```
+        $ rm f*
+        ```
+        
+        What files would be removed?
+        """,
+        "`foo`, `first` and `fun`",
+        "`files`, `after` and `diff`",
+        "`poem.f`, `trunk.f` and `tree.f`",
+        "`f*`",
+    ),
+    MultipleChoiceQuestion(
+        """Which of the files match the pattern `image.?pg`?""",
+        "image.jpg",
+        "movie.mpg",
+        "image.png",
+        "None of the other options.",
+    ),
+    TrueOrFalseQuestion(
+        "The target of a symbolic link must exist before the link is created.",
+        False,
+    ),
+    TrueOrFalseQuestion(
+        "The `rmdir` command can only remove empty directories.",
+        True,
     ),
 ]
 
