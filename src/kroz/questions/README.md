@@ -9,8 +9,8 @@ Complete pending a final proof read:
 * Lesson 3
 * Lesson 4
 * Lesson 5
-* Lesson 7
 * Lesson 6
+* Lesson 7
 
 Incomplete:
 
