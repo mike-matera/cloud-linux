@@ -10,6 +10,7 @@ Reading:
 - Chapters 7 and 8
 """
 
+import getpass
 import pathlib
 from typing import Type
 
@@ -210,13 +211,155 @@ $ ls -l Shakespeare/sonnet1?
             and cmd.args[-1] == "Shakespeare/sonnet1?",
         ),
     ],
+    """Command substitution""": [
+        Interaction(
+            """
+# Command Substitution 
+
+Command substitution takes the output of a command and puts it on the command
+line. It's similar to a pipe, but a pipe connects streams. It can be a bit
+confusing at first. So let's try a few examples. 
+
+This command takes the output of `ls` and puts it on the command line for `echo`:
+
+```console
+$ echo $(ls)
+```
+
+Notice how echo shows the names of files in the current directory.
+""",
+            filter=lambda cmd: cmd.command == "echo" and cmd.args == ["$(ls)"],
+        ),
+        Interaction(
+            """
+Here's a more practical example. The `which` command shows you the location of 
+a command. Here's how to find the location of the `cp` command:
+
+```console
+$ which cp
+/usr/bin/cp
+```
+
+What if we wanted to know more information about `cp`? We could use `ls`:
+
+```console 
+$ ls -l /usr/bin/cp 
+-rwxr-xr-x 1 root root 141848 Apr  5  2024 /usr/bin/cp
+``` 
+
+But, we can do it in a single step with command substitution: 
+
+```console
+$ ls -l $(which cp)
+```
+
+***Run all three commands in this example.*** 
+""",
+            filter=[
+                lambda cmd: cmd.command == "which" and cmd.args == ["cp"],
+                lambda cmd: cmd.command == "ls"
+                and "-l" in cmd.args
+                and "/usr/bin/cp" in cmd.args,
+                lambda cmd: cmd.command == "ls"
+                and "-l" in cmd.args
+                and cmd.line.endswith("$(which cp)"),
+            ],
+        ),
+    ],
+    "Can I quote you on that?": [
+        Interaction(
+            """
+# Quotes and Quoting 
+
+Quotes change the way the shell interprets special characters. For example, 
+without quotes the shell treats all consecutive spaces as a single space:
+
+```console 
+$ echo This is a                test
+This is a test
+```
+
+Enter an `echo` and put lots of spaces in the argument.
+""",
+            filter=[lambda cmd: cmd.command == "echo"],
+        ),
+        Interaction(
+            """
+When the spaces are *inside* quotes they lose their special meaning:
+
+```console 
+$ echo "This is a                test"
+This is a                test
+```
+
+Put quotes around the arguments of your last command.
+""",
+            filter=[lambda cmd: cmd.command == "echo"],
+        ),
+        Interaction(
+            f"""
+Double quotes allow some of the shell's special characters to still work. For  
+example, the dollar sign `$` keeps its meaning:
+
+```console 
+$ echo "My name is $USER"
+My name is {getpass.getuser()}
+```
+""",
+            filter=[
+                lambda cmd: cmd.command == "echo"
+                and any(["$USER" in x for x in cmd.args])
+            ],
+        ),
+        Interaction(
+            """
+Single quotes are stronger. They don't let anything have a special meaning:
+
+```console 
+$ echo 'My name is $USER'
+My name is $USER
+```
+""",
+            filter=[
+                lambda cmd: cmd.command == "echo"
+                and any(["$USER'" in x for x in cmd.args])
+            ],
+        ),
+        Interaction(
+            """
+It's possible to quote *just one character* with the backslash `\\` character.
+Here's an example where the backslash only applies to the `$` character:
+
+```console 
+$ echo My name is \\$USER
+My name is $USER
+```
+""",
+            filter=[
+                lambda cmd: cmd.command == "echo"
+                and cmd.line.endswith("\\$USER")
+            ],
+        ),
+        Interaction(
+            """
+Here's a practical example that will help you later. The `\\` can take the 
+meaning away from the single quote. To see all the files that contain a `'` you
+can use the `*` like this:
+
+```console 
+$ ls *\\'*
+```
+""",
+            filter=[lambda cmd: cmd.command == "ls" and "*\\'*" in cmd.args],
+        ),
+    ],
 }
 
 questions: list[Question] = []
 
 lab: dict[str, list[Question]] = {
     "Delete the `m` files.": [RandomRando()],
-    "Delete files that contain `delete`.": [RandomDeleteMe()],
     "A harder filename to delete.": [RandomRandoTick()],
+    "Delete files that contain `delete`.": [RandomDeleteMe()],
     "Find the deep meaning.": [DeepMessage()],
 }

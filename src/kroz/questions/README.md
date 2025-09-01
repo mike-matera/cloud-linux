@@ -20,8 +20,8 @@ Incomplete:
 * Lesson 11 (all)
 * Lesson 12 (all)
 * Lesson 13 (all)
-* Midterm 1 
-* Midterm 2 
+* Midterm/Practice 1 
+* Midterm/Practice 2 
 * Final Project
 
 ## Requirement:
