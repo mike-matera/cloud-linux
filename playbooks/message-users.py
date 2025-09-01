@@ -41,7 +41,7 @@ assert isinstance(attachments_folder, canvasapi.folder.Folder), (
 
 def send_message(user, course_id, zip_file):
     """Send a key message to a user."""
-
+    print(f"Sending message to {user}...")
     ok, file = attachments_folder.upload(zip_file)
     assert ok, f"""Failed to upload file: {file}"""
 
