@@ -6,7 +6,7 @@ import pathlib
 from collections.abc import Generator
 from os import PathLike
 
-from kroz.app import KrozApp
+from kroz.app import KrozApp, ProgressContext
 
 from .words import random_words
 
@@ -42,27 +42,33 @@ class RandomBigFile:
 
     def setup(self):
         """Create the file."""
-        words = random_words()
 
-        with KrozApp.progress() as progress:
+        if self._rows * self._cols < 10000:
+            self._setup(None)
+        else:
+            with KrozApp.progress() as progress:
+                self._setup(progress)
+
+    def _setup(self, progress: ProgressContext | None):
+        words = random_words()
+        if progress is not None:
             progress.update(message="Generating random words...")
 
-            self._words = [
-                words.choices(self._cols) for _ in range(self._rows)
-            ]
+        self._words = [words.choices(self._cols) for _ in range(self._rows)]
 
-            if self._path is not None:
+        if self._path is not None:
+            if progress is not None:
                 progress.update(message="Writing bigfile...")
-                with open(self._path, "w") as fh:
-                    for i, line in enumerate(self.lines()):
-                        if (i % 1000) == 0:
-                            progress.update(percent=(i / self._rows) * 100)
-                        fh.write(line)
+            with open(self._path, "w") as fh:
+                for i, line in enumerate(self.lines()):
+                    if progress is not None and (i % 1000) == 0:
+                        progress.update(percent=(i / self._rows) * 100)
+                    fh.write(line)
 
-                KrozApp.running().notify(
-                    f"{self._path} has been updated!",
-                    title="File Updated",
-                )
+            KrozApp.running().notify(
+                f"{self._path} has been updated!",
+                title="File Updated",
+            )
 
     def cleanup(self):
         """Remove the file."""
