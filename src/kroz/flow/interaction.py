@@ -31,6 +31,13 @@ class CommandLineCommand:
         self._result = result
 
     @property
+    def line(self) -> str:
+        if len(self._cmd) == 1:
+            return self._cmd[0]
+        else:
+            raise ValueError(".line access on a composite command.")
+
+    @property
     def command(self) -> str:
         if len(self._cmd) == 1:
             return self._cmd[0].split()[0]
