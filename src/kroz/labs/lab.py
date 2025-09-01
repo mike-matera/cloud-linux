@@ -12,7 +12,7 @@ def lab(package, debug=False):
     app = KrozApp(package.title, state_file=package.state, debug=debug)
 
     def main() -> None:
-        app.show(package.welcome)
+        app.show(package.__doc__, title="Welcome!", classes="welcome")
 
         while True:
             app.score = 0
@@ -60,7 +60,7 @@ def lab(package, debug=False):
             choice = FlowContext.run(
                 Menu(
                     message="""
-                    # Welcome!
+                    # Choose Your Path
 
                     **Choose a journey by entering a number and pressing `Enter`**
         """,

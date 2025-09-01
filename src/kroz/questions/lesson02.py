@@ -1,6 +1,8 @@
 """
 # Lesson 2: The Command Line
 
+After this lesson you should be able to:
+
 - Describe the anatomy of a command
 - Use the keyboard to navigate the command line
 - The terminal and the shell
@@ -13,12 +15,10 @@ Reading:
 import datetime
 import random
 import re
-import textwrap
 from enum import Enum
 
 import textual.validation
 
-from kroz.ascii import tux
 from kroz.flow.interaction import Interaction
 from kroz.flow.question import (
     MultipleChoiceQuestion,
@@ -26,7 +26,10 @@ from kroz.flow.question import (
     ShortAnswerQuestion,
     TrueOrFalseQuestion,
 )
-from kroz.screen import KrozScreen
+
+title = "Anatomy of a Command"
+
+state = "anatomy"
 
 
 class FreeMemory(Question):
@@ -183,27 +186,6 @@ class OsRelease(Question):
             the exact information that I asked for. 
             """
 
-
-title = "Anatomy of a Command"
-
-state = "anatomy"
-
-welcome = KrozScreen(
-    textwrap.dedent("""
-        # The Anatomy of a Command 
-
-        {}
-
-        This lab tests your knowledge of the material from the second week of class and 
-        Chapter 1 of the book. You should familiarize yourself with the commands for the 
-        week before you get going.
-
-        This lab starts with some questions. Get them all correct to move on to the 
-        challenges that are worth points. 
-        """).format(tux(indent=4)),
-    classes="welcome",
-    title="Welcome!",
-)
 
 questions: list[Question] = [
     TrueOrFalseQuestion(

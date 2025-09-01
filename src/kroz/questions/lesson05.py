@@ -1,12 +1,22 @@
 """
 # Lesson 5. Files and Directories
 
+After this lesson you should be able to:
+
 - Make and remove directories
 - Copy and move files
 
 Reading:
 
 - Chapter 4
+
+Commands:
+
+1. `cp`
+1. `mv`
+1. `mkdir` and `rmdir`
+1. `rm`
+1. `ln -s`
 """
 
 import textwrap
@@ -21,7 +31,10 @@ from kroz.flow.question import (
     TrueOrFalseQuestion,
 )
 from kroz.random.path import CheckDir, CheckFile, CheckPath
-from kroz.screen import KrozScreen
+
+title = "Files and Directories"
+
+state = "fmgmt"
 
 
 class Islands(Question):
@@ -166,27 +179,6 @@ that you have those files in place.
             raise ValueError("Internal error.")
         check_files.full_report(extra_ok=True, verbose=2)
 
-
-title = "File Management"
-
-state = "fmgmt"
-
-welcome = KrozScreen(
-    """
-# File Management 
-
-This lesson covers how to create, copy, move and delete both files and directories.
-You will learn about the commands:
-
-1. `cp`
-2. `mv`
-3. `mkdir` and `rmdir`
-3. `rm`
-3. `ln -s`
-        """,
-    classes="welcome",
-    title="Welcome!",
-)
 
 walks: dict[str, list[KrozFlowABC | Type[KrozFlowABC]]] = {
     "Organize Movies": [

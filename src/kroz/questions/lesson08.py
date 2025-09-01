@@ -1,13 +1,16 @@
 """
-# Lesson 8. Like a Boss
+# Lesson 8: Like a Boss
 
-- Wildcards
-- Quotes
-- Tab Completion
+After this lesson you should be able to:
+
+- Use wildcards
+- Use quotes to change the meaning of a command
+- Go faster with tab completion
 
 Reading:
 
 - Chapters 7 and 8
+
 """
 
 import getpass
@@ -23,27 +26,10 @@ from kroz.flow.question import (
 )
 from kroz.random.bigdir import random_directory
 from kroz.random.words import random_words
-from kroz.screen import KrozScreen
 
 title = "Like a Boss!"
 
 state = "theboss"
-
-welcome = KrozScreen(
-    """
-# Like a Boss!
-
-In this lesson you'll learn some tricks to make your work faster and more efficient. 
-You'll learn how to: 
-
-1. Use the glob characters `*` and `?` 
-1. Use Tab completion 
-1. Use quotes and backslashes to change the meaning of characters 
-1. Use command substitution 
-        """,
-    classes="welcome",
-    title="Welcome!",
-)
 
 
 class RandomRando(Question):
@@ -377,6 +363,13 @@ questions: list[Question] = [
         "Ctrl-c",
         "Ctrl-d",
         "Alt-c",
+    ),
+    MultipleChoiceQuestion(
+        "What keys visit your command history?",
+        "Up and Down",
+        "PageUp and PageDown",
+        "Shift-Up and Shift-Down",
+        "Tab Tab",
     ),
 ]
 

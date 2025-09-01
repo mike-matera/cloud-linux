@@ -1,5 +1,7 @@
 """
-# Lesson 10. Processes
+# Lesson 10: Processes
+
+After this lesson you should be able to:
 
 - Run a process in the background
 - Send signals

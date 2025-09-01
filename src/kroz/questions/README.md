@@ -14,7 +14,7 @@ Complete pending a final proof read:
 
 Incomplete:
 
-* Lesson 8 (Walks, Questions)
+* Lesson 8 (Questions)
 * Lesson 9 (Walks, Questions, Integrate Islands2)
 * Lesson 10 (Walks, Questions, Integrate Processes)
 * Lesson 11 (all)

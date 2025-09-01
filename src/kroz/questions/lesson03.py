@@ -1,5 +1,7 @@
 """
-# Lesson 3. The File System
+# Lesson 3: The File System
+
+After this lesson you should be able to:
 
 - Navigate the filesystem
 - Use relative and absolute paths
@@ -8,6 +10,12 @@
 Reading:
 
 - Chapter 2
+
+Commands:
+
+1. `cd`
+1. `pwd`
+1. `ls`
 """
 
 import grp
@@ -29,7 +37,6 @@ from kroz.flow.question import (
     TrueOrFalseQuestion,
 )
 from kroz.random.real_path import random_real_path
-from kroz.screen import KrozScreen
 from kroz.validation import (
     AbsolutePath,
     ExistingPath,
@@ -40,6 +47,10 @@ from kroz.validation import (
     PathIsFile,
     RelativePath,
 )
+
+title = "The File System"
+
+state = "filesystem"
 
 
 class FlagFile(Question):
@@ -297,26 +308,6 @@ class RelativePaths(Question):
         feedback += f"\nThe end of the journey is **{loc.resolve()}** but should have been **{self._to}**\n"
         assert calculated == self._to, feedback
 
-
-title = "The File System"
-
-state = "filesystem"
-
-welcome = KrozScreen(
-    textwrap.dedent("""
-# The File System 
-
-This lab tests your understanding of how to navigate the file 
-system. It covers the topics in class and in Chapter 2 of the book. 
-You should be familiar with these commands: 
-
-1. `cd`
-2. `pwd`
-3. `ls` 
-"""),
-    classes="welcome",
-    title="Welcome!",
-)
 
 walks: dict[str, list[Interaction]] = {
     "Navigate the file system": [

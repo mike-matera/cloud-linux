@@ -1,5 +1,7 @@
 """
-# Lesson 9. File Permissions
+# Lesson 9: File Permissions
+
+After this lesson you should be able to:
 
 - Understand users and groups
 - Control access to files
@@ -8,6 +10,12 @@
 Reading:
 
 - Chapter 9
+
+Commands:
+
+1. `chmod`
+1. `chgrp`
+
 """
 
 import grp
@@ -17,6 +25,10 @@ from pathlib import Path
 from kroz.random.path import CheckDir, CheckFile, CheckPath
 
 from .lesson05 import Islands
+
+title = "Working with Permissions"
+
+state = "islands2"
 
 
 class Islands2(Islands):

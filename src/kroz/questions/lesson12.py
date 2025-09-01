@@ -1,5 +1,7 @@
 """
-# Lesson 12. Love Your Text Editor
+# Lesson 12: Love Your Text Editor
+
+After this lesson you should be able to:
 
 - Edit a file with vi, emacs and nano
 
@@ -79,7 +81,7 @@ Run the `home` command at the command line and see what it does.
 """
 
     def on_command(self, command: CommandLineCommand) -> bool:
-        return command.strip() == "home"
+        return command.line.strip() == "home"
 
 
 class FixSpelling(Question):

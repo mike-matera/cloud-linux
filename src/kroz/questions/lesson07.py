@@ -1,5 +1,7 @@
 """
-# Lesson 7. Input/Output Processing
+# Lesson 7: Input/Output Processing
+
+After this lesson you should be able to:
 
 - Use redirects
 - Build command pipelines
@@ -7,6 +9,18 @@
 Reading:
 
 - Chapter 6
+
+Commands:
+
+1. `cat`
+1. `sort`
+1. `uniq`
+1. `grep`
+1. `wc`
+1. `head`
+1. `tail`
+1. `tee`
+1. `cut`
 
 """
 
@@ -26,36 +40,10 @@ from kroz.flow.question import (
 )
 from kroz.questions.lesson04 import WordInBigfile
 from kroz.random.bigfile import random_big_file
-from kroz.screen import KrozScreen
 
 title = "Getting Help"
 
 state = "rtfm"
-
-welcome = KrozScreen(
-    """
-# Input/Output Processing
-
-This lesson will help you understand how commands are chained together into 
-*pipelines*. A pipeline is where the output of one command becomes the input to
-the next command. Pipelines enable you to make complex commands that do 
-interesting things with ease. 
-
-You will learn about the commands:
-
-1. `cat`
-1. `sort`
-1. `uniq`
-1. `grep`
-1. `wc`
-1. `head`
-1. `tail`
-1. `tee`
-1. `cut`
-        """,
-    classes="welcome",
-    title="Welcome!",
-)
 
 
 class CountOranges(Question):

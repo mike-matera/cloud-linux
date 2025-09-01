@@ -1,5 +1,7 @@
 """
-# Lesson 4. Managing Files
+# Lesson 4: Managing Files
+
+After this lesson you should be able to:
 
 - Understand file types
 - View file contents
@@ -9,6 +11,13 @@ Reading:
 
 - Chapter 3
 
+Commands:
+
+1. `ls`
+1. `file`
+1. `less`
+1. `cat`
+1. `ln -s`
 """
 
 import os
@@ -31,8 +40,11 @@ from kroz.flow.question import (
 from kroz.questions.lesson03 import RelativePaths
 from kroz.random.bigfile import random_big_file
 from kroz.random.real_path import random_real_path
-from kroz.screen import KrozScreen
 from kroz.validation import AbsolutePath, NotEmpty
+
+title = "Working with Files"
+
+state = "files"
 
 
 class WordInBigfile(Question):
@@ -330,29 +342,6 @@ class MakeLink(Question):
                     f"""The link `{self._path}` is not absolute."""
                 )
 
-
-title = "Working with Files"
-
-state = "files"
-
-welcome = KrozScreen(
-    """
-# Working with Files 
-
-Welcome! This lab gives you practice looking at the contents and metadata
-of files and directories. It covers the fourth week of class and chapter
-three of the book. Review these commands before starting the lab:
-
-1. `ls`
-2. `file`
-3. `less`
-3. `cat`
-3. `ln -s`
-
-        """,
-    classes="welcome",
-    title="Welcome!",
-)
 
 walks: dict[str, list[Interaction]] = {
     "Examine the types of files.": [

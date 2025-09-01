@@ -1,5 +1,7 @@
 """
-# Lesson 11. The Environment
+# Lesson 11: The Environment
+
+After this lesson you should be able to:
 
 - Read and set environment variables
 - Understand $PATH
