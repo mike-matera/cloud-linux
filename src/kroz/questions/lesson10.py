@@ -20,10 +20,15 @@ from random import shuffle
 import psutil
 from textual.validation import Integer
 
+from kroz.flow.base import KrozFlowABC
 from kroz.flow.question import (
     Question,
 )
 from kroz.random import randint
+
+title = "Working with Processes"
+
+state = "process"
 
 
 class ThisProcess(Question):
@@ -209,3 +214,10 @@ class ChildFind(Question):
             self._find(answer)
         elif self.type == ChildFind.ResourceType.NICE:
             self._find(answer)
+
+
+walks: dict[str, list[KrozFlowABC]] = {}
+
+questions: list[KrozFlowABC] = []
+
+lab: dict[str, list[KrozFlowABC]] = {}

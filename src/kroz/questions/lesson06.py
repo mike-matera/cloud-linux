@@ -18,12 +18,9 @@ Commands:
 1. `alias`
 """
 
-from typing import Type
-
 from kroz.flow.base import KrozFlowABC
 from kroz.flow.question import (
     MultipleChoiceQuestion,
-    Question,
     ShortAnswerQuestion,
     TrueOrFalseQuestion,
 )
@@ -32,10 +29,10 @@ title = "Getting Help"
 
 state = "rtfm"
 
-walks: dict[str, list[KrozFlowABC | Type[KrozFlowABC]]] = {}
+walks: dict[str, list[KrozFlowABC]] = {}
 
 
-questions: list[Question] = [
+questions: list[KrozFlowABC] = [
     MultipleChoiceQuestion(
         """According to the book what is the most brutal man page of them all?""",
         "bash",
@@ -110,7 +107,7 @@ Which is of the following is true of this command:
     ),
 ]
 
-lab: dict[str, list[Question]] = {
+lab: dict[str, list[KrozFlowABC]] = {
     "Enable X11 forwarding in SSH": [
         ShortAnswerQuestion(
             """What option in SSH enables X11 forwarding?""",

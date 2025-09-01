@@ -14,10 +14,15 @@ import os
 import pathlib
 
 from kroz.app import KrozApp
+from kroz.flow.base import KrozFlowABC
 from kroz.flow.interaction import CommandLineCommand, InteractionABC
 from kroz.flow.question import (
     Question,
 )
+
+title = "Love Your Editor"
+
+state = "editor"
 
 
 class MakeScript(Question):
@@ -164,3 +169,10 @@ delete `~/alice.txt` and restart the lab.**
                 assert not line.startswith(" "), (
                     """I see a line that isn't all the way to the left."""
                 )
+
+
+walks: dict[str, list[KrozFlowABC]] = {}
+
+questions: list[KrozFlowABC] = []
+
+lab: dict[str, list[KrozFlowABC]] = {}

@@ -19,6 +19,7 @@ from enum import Enum
 
 import textual.validation
 
+from kroz.flow.base import KrozFlowABC
 from kroz.flow.interaction import Interaction
 from kroz.flow.question import (
     MultipleChoiceQuestion,
@@ -187,84 +188,7 @@ class OsRelease(Question):
             """
 
 
-questions: list[Question] = [
-    TrueOrFalseQuestion(
-        "The terminal and the shell are the same thing.",
-        False,
-    ),
-    MultipleChoiceQuestion(
-        "A **terminal** is...",
-        "Both a program and a machine with a screen and a keyboard",
-        "A program",
-        "A machine with a screen and a keyboard",
-        "Responsible for running commands",
-    ),
-    MultipleChoiceQuestion(
-        """What keys access your command history?""",
-        "The up and down arrows",
-        "The Page Up and Page Down keys",
-        "The right and left arrows",
-        "The scroll wheel on the mouse",
-    ),
-    MultipleChoiceQuestion(
-        """When we talk about the command line we're really referring to...""",
-        "The shell",
-        "The terminal",
-        "Linux",
-        "Any operating system",
-    ),
-    MultipleChoiceQuestion(
-        """What is the name of your shell on Opus?""",
-        "bash",
-        "zsh",
-        "wish",
-        "fish",
-    ),
-    MultipleChoiceQuestion(
-        """What program connects your computer to Opus?""",
-        "ssh",
-        "bash",
-        "date",
-        "cal",
-    ),
-    ShortAnswerQuestion(
-        """What command shows you a calendar?""",
-        "cal",
-    ),
-    ShortAnswerQuestion(
-        """What command shows you information about the RAM memory on Opus?""",
-        "free",
-    ),
-    ShortAnswerQuestion(
-        """What command shows you information about the disks on Opus?""",
-        "df",
-    ),
-    ShortAnswerQuestion(
-        """What command exits the shell?""",
-        "exit",
-    ),
-    ShortAnswerQuestion(
-        """What command shows information about the system?""",
-        "uname",
-    ),
-    ShortAnswerQuestion(
-        """What command prints information about the version of Linux on Opus?""",
-        "cat /etc/os-release",
-    ),
-    TrueOrFalseQuestion(
-        """Commands give you help when you give them the `-h` or `--help` flag.""",
-        True,
-    ),
-]
-
-lab: dict[str, list[Question]] = {
-    "Free Memory": [FreeMemory(key="total")],
-    "Kernel Version": [WhatsUname(key=WhatsUname.Keys.KERNEL_VERSION)],
-    "OS Name": [OsRelease(key="NAME")],
-    "New Years Future": [NewYearFuture()],
-}
-
-walks: dict[str, list[Interaction]] = {
+walks: dict[str, list[KrozFlowABC]] = {
     "First Commands": [
         Interaction(
             """ 
@@ -365,4 +289,81 @@ walks: dict[str, list[Interaction]] = {
             lambda cmd: cmd.command == "free" and cmd.result != 0,
         ),
     ]
+}
+
+questions: list[KrozFlowABC] = [
+    TrueOrFalseQuestion(
+        "The terminal and the shell are the same thing.",
+        False,
+    ),
+    MultipleChoiceQuestion(
+        "A **terminal** is...",
+        "Both a program and a machine with a screen and a keyboard",
+        "A program",
+        "A machine with a screen and a keyboard",
+        "Responsible for running commands",
+    ),
+    MultipleChoiceQuestion(
+        """What keys access your command history?""",
+        "The up and down arrows",
+        "The Page Up and Page Down keys",
+        "The right and left arrows",
+        "The scroll wheel on the mouse",
+    ),
+    MultipleChoiceQuestion(
+        """When we talk about the command line we're really referring to...""",
+        "The shell",
+        "The terminal",
+        "Linux",
+        "Any operating system",
+    ),
+    MultipleChoiceQuestion(
+        """What is the name of your shell on Opus?""",
+        "bash",
+        "zsh",
+        "wish",
+        "fish",
+    ),
+    MultipleChoiceQuestion(
+        """What program connects your computer to Opus?""",
+        "ssh",
+        "bash",
+        "date",
+        "cal",
+    ),
+    ShortAnswerQuestion(
+        """What command shows you a calendar?""",
+        "cal",
+    ),
+    ShortAnswerQuestion(
+        """What command shows you information about the RAM memory on Opus?""",
+        "free",
+    ),
+    ShortAnswerQuestion(
+        """What command shows you information about the disks on Opus?""",
+        "df",
+    ),
+    ShortAnswerQuestion(
+        """What command exits the shell?""",
+        "exit",
+    ),
+    ShortAnswerQuestion(
+        """What command shows information about the system?""",
+        "uname",
+    ),
+    ShortAnswerQuestion(
+        """What command prints information about the version of Linux on Opus?""",
+        "cat /etc/os-release",
+    ),
+    TrueOrFalseQuestion(
+        """Commands give you help when you give them the `-h` or `--help` flag.""",
+        True,
+    ),
+]
+
+lab: dict[str, list[KrozFlowABC]] = {
+    "Free Memory": [FreeMemory(key="total")],
+    "Kernel Version": [WhatsUname(key=WhatsUname.Keys.KERNEL_VERSION)],
+    "OS Name": [OsRelease(key="NAME")],
+    "New Years Future": [NewYearFuture()],
 }

@@ -13,3 +13,15 @@ Reading:
 """
 
 # TODO:
+
+from kroz.flow.base import KrozFlowABC
+
+title = "Scripting and Startup"
+
+state = "script"
+
+walks: dict[str, list[KrozFlowABC]] = {}
+
+questions: list[KrozFlowABC] = []
+
+lab: dict[str, list[KrozFlowABC]] = {}

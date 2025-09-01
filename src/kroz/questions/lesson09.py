@@ -22,6 +22,7 @@ import grp
 import textwrap
 from pathlib import Path
 
+from kroz.flow.base import KrozFlowABC
 from kroz.random.path import CheckDir, CheckFile, CheckPath
 
 from .lesson05 import Islands
@@ -34,9 +35,7 @@ state = "islands2"
 class Islands2(Islands):
     """The islands with perms."""
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
+    def setup(self):
         try:
             grp.getgrnam("cis90")
             cis90_grp = "cis90"
@@ -89,3 +88,14 @@ class Islands2(Islands):
                                
         {}
         """).format(self.check_files.markdown(detail=True))
+
+
+walks: dict[str, list[KrozFlowABC]] = {}
+
+questions: list[KrozFlowABC] = []
+
+lab: dict[str, list[KrozFlowABC]] = {
+    "Sort the Islands -- Part 2": [
+        Islands2(),
+    ],
+}

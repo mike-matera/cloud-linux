@@ -29,6 +29,7 @@ from textual.validation import Integer
 
 import kroz.ascii
 from kroz.app import KrozApp
+from kroz.flow.base import KrozFlowABC
 from kroz.flow.interaction import Interaction
 from kroz.flow.question import (
     MultipleChoiceQuestion,
@@ -309,7 +310,7 @@ class RelativePaths(Question):
         assert calculated == self._to, feedback
 
 
-walks: dict[str, list[Interaction]] = {
+walks: dict[str, list[KrozFlowABC]] = {
     "Navigate the file system": [
         Interaction(
             """ 
@@ -513,7 +514,7 @@ $ cat Poems/Angelou/bird
 }
 
 
-questions: list[Question] = [
+questions: list[KrozFlowABC] = [
     TrueOrFalseQuestion(
         "UNIX, like Windows uses a *hierarchical directory structure*.", True
     ),
@@ -562,7 +563,7 @@ questions: list[Question] = [
     ),
 ]
 
-lab: dict[str, list[Question]] = {
+lab: dict[str, list[KrozFlowABC]] = {
     "Name the flag": [FlagFile(type=FlagFile.FlagType.NAME)],
     "The flag directory": [FlagFile(type=FlagFile.FlagType.DIR)],
     "Find a file size": [PathAttrs(type=PathAttrs.AttrType.SIZE)],

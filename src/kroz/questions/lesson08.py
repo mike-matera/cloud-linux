@@ -15,7 +15,6 @@ Reading:
 
 import getpass
 import pathlib
-from typing import Type
 
 from kroz.app import KrozApp
 from kroz.flow.base import KrozFlowABC
@@ -124,7 +123,7 @@ class DeepMessage(Question):
         assert answer.strip() == self._answer, """That's not correct!"""
 
 
-walks: dict[str, list[KrozFlowABC | Type[KrozFlowABC]]] = {
+walks: dict[str, list[KrozFlowABC]] = {
     """Go wildcard!""": [
         Interaction(
             """
@@ -342,7 +341,7 @@ $ ls *\\'*
     ],
 }
 
-questions: list[Question] = [
+questions: list[KrozFlowABC] = [
     MultipleChoiceQuestion(
         "What key sequence moves the cursor to the *beginning* of the line?",
         "Ctrl-a",
@@ -373,7 +372,7 @@ questions: list[Question] = [
     ),
 ]
 
-lab: dict[str, list[Question]] = {
+lab: dict[str, list[KrozFlowABC]] = {
     "Delete the `m` files.": [RandomRando()],
     "A harder filename to delete.": [RandomRandoTick()],
     "Delete files that contain `delete`.": [RandomDeleteMe()],

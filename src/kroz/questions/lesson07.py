@@ -25,7 +25,6 @@ Commands:
 """
 
 from pathlib import Path
-from typing import Type
 
 import textual.validation
 
@@ -165,7 +164,7 @@ class UniqueWords(Question):
             """
 
 
-walks: dict[str, list[KrozFlowABC | Type[KrozFlowABC]]] = {
+walks: dict[str, list[KrozFlowABC]] = {
     "Build a pipeline to find spelling errors": [
         Interaction(
             """
@@ -540,7 +539,7 @@ $ find / > allfiles.txt 2> /dev/null
 }
 
 
-questions: list[Question] = [
+questions: list[KrozFlowABC] = [
     TrueOrFalseQuestion(
         "Every program on UNIX has one input *stream* and two output *streams*.",
         True,
@@ -600,7 +599,7 @@ Where does STDERR go?
     ),
 ]
 
-lab: dict[str, list[Question]] = {
+lab: dict[str, list[KrozFlowABC]] = {
     "Find the word": [WordInBigfile(find=[None, 1])],
     "Count oranges": [CountOranges()],
     "Count unique words": [UniqueWords()],

@@ -30,6 +30,7 @@ from textual.validation import Regex
 
 import kroz.random as random
 from kroz.app import KrozApp
+from kroz.flow.base import KrozFlowABC
 from kroz.flow.interaction import Interaction
 from kroz.flow.question import (
     MultipleChoiceQuestion,
@@ -343,7 +344,7 @@ class MakeLink(Question):
                 )
 
 
-walks: dict[str, list[Interaction]] = {
+walks: dict[str, list[KrozFlowABC]] = {
     "Examine the types of files.": [
         Interaction(
             """
@@ -461,7 +462,7 @@ $ cat favorite
     ],
 }
 
-questions: list[Question] = [
+questions: list[KrozFlowABC] = [
     MultipleChoiceQuestion(
         "Which of these is a *hidden* file?",
         ".file",
@@ -513,7 +514,7 @@ questions: list[Question] = [
     ShortAnswerQuestion("What command creates *symbolic links*?", "ln -s"),
 ]
 
-lab: dict[str, list[Question]] = {
+lab: dict[str, list[KrozFlowABC]] = {
     "Find the first word": [WordInBigfile(find=(1, 1))],
     "What type of file?": [FileType()],
     "Relative paths": [RelativePaths()],

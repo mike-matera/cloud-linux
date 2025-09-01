@@ -21,7 +21,6 @@ Commands:
 
 import textwrap
 from pathlib import Path
-from typing import Type
 
 from kroz.flow.base import KrozFlowABC
 from kroz.flow.interaction import Interaction
@@ -180,7 +179,7 @@ that you have those files in place.
         check_files.full_report(extra_ok=True, verbose=2)
 
 
-walks: dict[str, list[KrozFlowABC | Type[KrozFlowABC]]] = {
+walks: dict[str, list[KrozFlowABC]] = {
     "Organize Movies": [
         Interaction(
             """
@@ -508,7 +507,7 @@ $ rm -r Classics
 }
 
 
-questions = [
+questions: list[KrozFlowABC] = [
     MultipleChoiceQuestion(
         "What command would you use to *rename* a file?",
         "mv",
@@ -551,7 +550,7 @@ questions = [
     ),
 ]
 
-lab = {
+lab: dict[str, list[KrozFlowABC]] = {
     "Sort the Islands!": [
         Islands(),
     ],

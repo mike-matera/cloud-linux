@@ -12,3 +12,15 @@ Reading:
 """
 
 # TODO
+
+from kroz.flow.base import KrozFlowABC
+
+title = "The Environment"
+
+state = "env"
+
+walks: dict[str, list[KrozFlowABC]] = {}
+
+questions: list[KrozFlowABC] = []
+
+lab: dict[str, list[KrozFlowABC]] = {}
