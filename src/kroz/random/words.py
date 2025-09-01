@@ -2,10 +2,15 @@
 Helper for streams of random words.
 """
 
+import re
 from os import PathLike
 
 import kroz.random as random
 from kroz.app import KrozApp
+
+BANNED_WORDS: list[str] = [
+    r".*nigg.*",
+]
 
 
 class RandomWord:
@@ -22,9 +27,14 @@ class RandomWord:
         Initialize the randomizer. This must be done before any other calls
         can be used.
         """
+        banned = [re.compile(x) for x in BANNED_WORDS]
 
         with open(dictionary) as fh:
-            self._words = [w.strip() for w in fh]
+            self._words = [
+                w.strip()
+                for w in fh
+                if not any([re.match(b, w) for b in banned])
+            ]
 
     def choice(self) -> str:
         """Return a single random word."""
