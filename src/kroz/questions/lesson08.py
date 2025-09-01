@@ -18,6 +18,7 @@ from kroz.app import KrozApp
 from kroz.flow.base import KrozFlowABC
 from kroz.flow.interaction import Interaction
 from kroz.flow.question import (
+    MultipleChoiceQuestion,
     Question,
 )
 from kroz.random.bigdir import random_directory
@@ -355,7 +356,29 @@ $ ls *\\'*
     ],
 }
 
-questions: list[Question] = []
+questions: list[Question] = [
+    MultipleChoiceQuestion(
+        "What key sequence moves the cursor to the *beginning* of the line?",
+        "Ctrl-a",
+        "Ctrl-c",
+        "Ctrl-d",
+        "Alt-a",
+    ),
+    MultipleChoiceQuestion(
+        "What key sequence moves the cursor to the *end* of the line?",
+        "Ctrl-e",
+        "Ctrl-c",
+        "Ctrl-d",
+        "Alt-a",
+    ),
+    MultipleChoiceQuestion(
+        "What causes the shell to suggest a completion?",
+        "Tab",
+        "Ctrl-c",
+        "Ctrl-d",
+        "Alt-c",
+    ),
+]
 
 lab: dict[str, list[Question]] = {
     "Delete the `m` files.": [RandomRando()],
