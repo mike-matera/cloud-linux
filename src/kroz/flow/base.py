@@ -173,13 +173,13 @@ class FlowContext:
     def status_icon(flowname: str):
         status = FlowContext.flow_status(flowname)
         if status == FlowResult.INCOMPLETE:
-            return "⭕"  # Not started
+            return "[ ]"  # Not started
         elif status == FlowResult.CORRECT:
-            return "✅️"  # Complete
+            return "[X]"  # Complete
         elif status == FlowResult.SKIPPED:
-            return "🕒"  # Not finished
+            return "[~]"  # Not finished
         elif status == FlowResult.INCORRECT:
-            return "❌"  # Incorrect answers.
+            return "[!]"  # Incorrect answers.
 
     @staticmethod
     def run(flow: KrozFlowABC) -> KrozFlowABC:

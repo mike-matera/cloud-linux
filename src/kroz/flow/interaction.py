@@ -161,7 +161,7 @@ class InteractionScreen(KrozScreen):
         **kwargs,
     ):
         super().__init__(
-            inter.text, title="🔴 Listening...", can_skip=can_skip, **kwargs
+            inter.text, title="O Listening...", can_skip=can_skip, **kwargs
         )
         self._inter = inter
         self._server = Quart(__name__)
@@ -184,13 +184,13 @@ class InteractionScreen(KrozScreen):
                     KrozApp.running().notify("Congratulations!", timeout=5)
                     self.dismiss(str(event.cmd))
                 else:
-                    md.border_title = f"❌ {event.cmd}"
+                    md.border_title = f"X {event.cmd}"
                     self.classes = "feedback"
             else:
-                md.border_title = f"🔴 {event.cmd}"
+                md.border_title = f"O {event.cmd}"
                 self.classes = ""
         except AssertionError as e:
-            md.border_title = f"❌ {event.cmd}"
+            md.border_title = f"X {event.cmd}"
             self.classes = "feedback"
             md.update(
                 textwrap.dedent(
@@ -202,7 +202,7 @@ class InteractionScreen(KrozScreen):
                 )
             )
         except Exception:
-            md.border_title = f"❌ {event.cmd}"
+            md.border_title = f"X {event.cmd}"
             self.classes = "feedback"
 
     async def _run_server(self):
@@ -239,7 +239,7 @@ class InteractionScreen(KrozScreen):
         finally:
             return "okay"
 
-    def check_action(self, action: str, parameters: tuple[object, ...]):        
+    def check_action(self, action: str, parameters: tuple[object, ...]):
         if action == "dismiss":
             return False
         else:
