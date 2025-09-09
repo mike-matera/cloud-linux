@@ -305,7 +305,7 @@ class KrozApp(App[str]):
     def _confirmation(self):
         """Get the base64 encoded confirmation code."""
         return ConfirmationCode(key=self.config["secret"]).confirmation(
-            {"score": round(self.score, 1)}
+            {"lab": str(self.config["state_file"].name), "score": round(self.score, 1)}
         )
 
     def on_score_message(self, msg: ScoreMessage):

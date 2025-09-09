@@ -135,7 +135,6 @@ class ConfirmationCode:
         data = data.copy()
         data["user"] = getpass.getuser()
         data["host"] = platform.node()
-        data["cmd"] = sys.executable
         data["date"] = round(
             datetime.datetime.now(datetime.timezone.utc).timestamp()
         )
