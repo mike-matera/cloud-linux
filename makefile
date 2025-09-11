@@ -3,9 +3,11 @@ all: build
 
 build:
 	uv run pex -v --venv -c cis90 -o dist/cis90.pex .
+	uv run pex -v --venv -c kroz -o dist/kroz.pex . 
 
 install:
 	cp dist/cis90.pex /usr/bin/cis90
+	cp dist/kroz.pex /usr/bin/kroz 
 
 test:
 	uv run pytest --asyncio-mode auto 
