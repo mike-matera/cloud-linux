@@ -11,6 +11,7 @@ import runpy
 import sys
 import uuid
 from importlib.resources import files
+from pathlib import Path
 
 
 def run(args) -> int:
@@ -105,7 +106,10 @@ def ask(args) -> int:
         else:
             kwargs[key] = val
 
-    app = KrozApp(module, state_file="ask", debug=True)
+    state_file = Path("ask.krs")
+    if state_file.exists():
+        state_file.unlink()
+    app = KrozApp(module, state_file=str(state_file), debug=True)
 
     def _main():
         with FlowContext("ask") as flow:
