@@ -46,7 +46,18 @@ class KrozFlowABC(ABC):
                 raise RuntimeError(f"Invalid keyword argument: {key}")
 
     def __repr__(self):
-        return f"""{self.__class__.__name__}("{textwrap.shorten(self.text, 40)}", points={self.points}, can_skip={self.can_skip}, answer="{self.answer}", result={self.result}, debug={self.debug})"""
+        header = f"{self.__class__.__module__}:{self.__class__.__name__}"
+        question = textwrap.dedent(self.text).strip()
+        settings = "\n".join(
+            f"{item}: {value}" for item, value in sorted(self.__dict__.items())
+        )
+        return f"""
+{textwrap.indent(header, "+-- ", predicate=lambda x: True)}
+{textwrap.indent(question, "| ", predicate=lambda x: True)}
++------
+{textwrap.indent(settings, "| ", predicate=lambda x: True)}
++------
+"""
 
 
 @dataclass
@@ -197,12 +208,12 @@ class FlowContext:
         # Reset the flow if it's run already
         flow.result = FlowResult.INCOMPLETE
 
-        flow = stack.from_checkpoint(flow)
-        if flow.result != FlowResult.CORRECT:
+        saved_flow = stack.from_checkpoint(flow)
+        if saved_flow.result != FlowResult.CORRECT:
             flow.result = flow.show()
 
-        if flow.result == FlowResult.CORRECT or (
-            flow.debug and flow.result == FlowResult.SKIPPED
+        if saved_flow.result == FlowResult.CORRECT or (
+            flow.debug and saved_flow.result == FlowResult.SKIPPED
         ):
             app.score += flow.points
 
