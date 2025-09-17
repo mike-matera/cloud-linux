@@ -1,5 +1,6 @@
 import pathlib
 import tempfile
+from unittest.mock import MagicMock, Mock
 
 import pytest
 from textual.worker import WorkerFailed
@@ -9,9 +10,15 @@ from kroz.screen import KrozScreen
 from kroz.secrets import EncryptedStateFile
 
 
-def get_app(**kwargs):
+def get_app(mocker, **kwargs):
     app = KrozApp("Testing", **kwargs)
     screen = KrozScreen("Test Text", title="Test Title", can_skip=False)
+
+    m = Mock(spec=[], return_value=app)
+    mocker.patch("kroz.app.KrozApp.running", new=m)
+
+    p = MagicMock()
+    mocker.patch("kroz.app.KrozApp.progress", new=p)
 
     def worker() -> None:
         app.show(screen, title="Test Hello", classes="")
@@ -21,9 +28,9 @@ def get_app(**kwargs):
 
 
 @pytest.mark.asyncio
-async def test_app_default_config():
+async def test_app_default_config(mocker):
     """Test the default configuration"""
-    app = get_app()
+    app = get_app(mocker)
     async with app.run_test() as pilot:
         # Check the default configuration
         for key, value in _default_config.items():
@@ -39,9 +46,9 @@ async def test_app_default_config():
 
 
 @pytest.mark.asyncio
-async def test_app_debug_config():
+async def test_app_debug_config(mocker):
     """Test the debug configuration"""
-    app = get_app(debug=True)
+    app = get_app(mocker, debug=True)
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.config["default_path"] == pathlib.Path.cwd()
@@ -51,27 +58,27 @@ async def test_app_debug_config():
 
 
 @pytest.mark.asyncio
-async def test_app_config_items():
+async def test_app_config_items(mocker):
     """Test the configuration overrides"""
-    app = get_app(default_path="/tmp")
+    app = get_app(mocker, default_path="/tmp")
     async with app.run_test() as pilot:
         await pilot.pause()
         assert isinstance(app.config["default_path"], pathlib.Path)
         assert app.config["default_path"] == pathlib.Path("/tmp")
 
-    app = get_app(random_seed="20")
+    app = get_app(mocker, random_seed="20")
     async with app.run_test() as pilot:
         await pilot.pause()
         assert isinstance(app.config["random_seed"], int)
         assert app.config["random_seed"] == 20
 
-    app = get_app(secret="foobar")
+    app = get_app(mocker, secret="foobar")
     async with app.run_test() as pilot:
         await pilot.pause()
         assert isinstance(app.config["secret"], str)
         assert app.config["secret"] == "foobar"
 
-    app = get_app(config_dir="/tmp")
+    app = get_app(mocker, config_dir="/tmp")
     async with app.run_test() as pilot:
         await pilot.pause()
         assert isinstance(app.config["config_dir"], pathlib.Path)
@@ -79,7 +86,7 @@ async def test_app_config_items():
 
     with tempfile.TemporaryDirectory() as d:
         state_file = pathlib.Path(d) / "state.krs"
-        app = get_app(config_dir=d, state_file="state")
+        app = get_app(mocker, config_dir=d, state_file="state")
         async with app.run_test() as pilot:
             await pilot.pause()
             assert isinstance(app.config["state_file"], pathlib.Path)
@@ -90,6 +97,6 @@ async def test_app_config_items():
         # No absolute paths for the state file.
         state_file = pathlib.Path(d) / "state.krs"
         with pytest.raises(WorkerFailed):
-            app = get_app(config_dir=d, state_file=state_file)
+            app = get_app(mocker, config_dir=d, state_file=state_file)
             async with app.run_test() as pilot:
                 await pilot.pause()
