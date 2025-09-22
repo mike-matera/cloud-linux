@@ -57,7 +57,12 @@
       ansible.builtin.unarchive:
         src: files/cis90-skel.tar
         dest: /etc/skel
-    - name: Add KROZ watcher setup. 
+
+- hosts: all 
+  name: Add KROZ configuration to the default bashrc.  
+  become: true
+  tasks:
+    - name: Add KROZ watcher setup.
       ansible.builtin.blockinfile:
         path: /etc/skel/.bashrc
         append_newline: true
@@ -122,4 +127,23 @@
         mode: '0600'
       loop: "{{ users | flatten(levels=1) }}"
 
-
+- hosts: all
+  name: Install kroz player and utilities
+  tags:
+    - kroz
+  become: true
+  tasks:
+    - name: "Install kroz binary"
+      ansible.builtin.copy:
+        src: "../dist/kroz.pex"
+        dest: "/usr/bin/kroz"
+        owner: "root"
+        group: "root"
+        mode: '0755'
+    - name: "Install cis90 binary"
+      ansible.builtin.copy:
+        src: "../dist/cis90.pex"
+        dest: "/usr/bin/cis90"
+        owner: "root"
+        group: "root"
+        mode: '0755'

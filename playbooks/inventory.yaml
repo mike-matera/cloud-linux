@@ -1,3 +1,5 @@
 ungrouped:
   hosts:
     opus.cis.cabrillo.edu:
+    hydra.cis.cabrillo.edu:
+      ansible_host: 172.20.0.25
