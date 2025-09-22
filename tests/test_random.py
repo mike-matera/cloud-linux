@@ -7,7 +7,7 @@ import grp
 import os
 import pathlib
 import subprocess
-from unittest.mock import Mock
+from unittest.mock import MagicMock, Mock
 
 import pytest
 
@@ -27,6 +27,9 @@ def kroz_app(mocker, tmp_path, kroz_screen):
     app = KrozApp("Testing", config_dir=tmp_path, default_path=tmp_path)
     m = Mock(spec=[], return_value=app)
     mocker.patch("kroz.app.KrozApp.running", new=m)
+
+    p = MagicMock()
+    mocker.patch("kroz.app.KrozApp.progress", new=p)
 
     def worker() -> None:
         app.show(kroz_screen)

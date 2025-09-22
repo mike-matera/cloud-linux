@@ -172,9 +172,18 @@ class FileType(Question):
         self._solution = self.shell(f"file -b {self._path}").strip()
 
     def check(self, answer: str):
+        answer = answer.replace(f"{self._path}:", "").strip()
+
         assert (
             self._solution.lower().split()[0] == answer.lower().split()[0]
-        ), f"Bad type: {self._solution}"
+        ), "That's not correct!"
+
+    def __getstate__(self):
+        """The _filter object can be a lambda and should be removed."""
+        state = self.__dict__.copy()
+        if "_filter" in state:
+            del state["_filter"]
+        return state
 
 
 class LinkInfo(Question):

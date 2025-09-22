@@ -12,10 +12,10 @@ Complete pending a final proof read:
 * Lesson 6
 * Lesson 7
 * Lesson 8
+* Lesson 9 
 
 Incomplete:
 
-* Lesson 9 (Walks, Questions, Integrate Islands2)
 * Lesson 10 (Walks, Questions, Integrate Processes)
 * Lesson 11 (all)
 * Lesson 12 (all)

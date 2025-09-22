@@ -5,15 +5,20 @@ KROZ CLI
 import argparse
 import binascii
 import importlib
+import os
 import re
 import runpy
 import sys
 import uuid
 from importlib.resources import files
+from pathlib import Path
 
 
 def run(args) -> int:
     """Run a script or a module"""
+    if args.debug:
+        os.environ["TEXTUAL"] = "debug,devtools"
+
     from kroz.app import KrozApp
 
     module: str = args.module
@@ -32,17 +37,27 @@ def run(args) -> int:
 
     if app not in modns:
         raise RuntimeError(f"""No application named "{app}" is in {module}""")
-    if not isinstance(modns[app], KrozApp):
+
+    if isinstance(modns[app], KrozApp):
+        modns[app]._debug = args.debug
+        modns[app].run()
+
+    elif callable(modns[app]):
+        newapp = KrozApp(module, debug=args.debug)
+        newapp.main(modns[app])
+        newapp.run()
+    else:
         raise RuntimeError(
-            f"""The member named "{app}" is not a KrozApp in {module}"""
+            f"""The member named "{app}" is not a KrozApp or a callable in {module}"""
         )
-    modns[app]._debug = args.debug
-    print(modns[app].run())
     return 0
 
 
 def lesson_run(module: str, debug: bool) -> int:
     """Run a lesson module"""
+    if debug:
+        os.environ["TEXTUAL"] = "debug,devtools"
+
     from kroz.labs import lab
 
     mod = importlib.import_module(module)
@@ -62,34 +77,43 @@ def ask(args) -> int:
     form "arg=value" for strings or "arg:=value" to use Python's `eval` function
     on value.
     """
+
+    # Always enable debugging...
+    os.environ["TEXTUAL"] = "debug,devtools"
+
     from kroz.app import KrozApp
+    from kroz.flow import FlowContext
 
     module: str = args.module
     assert ":" in module, """Module must be in the format module:class"""
 
     mod, question = module.split(":")
-    modns = runpy.run_module(mod)
+    modmodule = importlib.import_module(mod)
 
-    assert question in modns, (
+    assert hasattr(modmodule, question), (
         f"""The question {question} is not in the module."""
     )
 
-    kwargs = {}
+    kwargs = {"progress": True, "tries": 1}
     for extra in args.args:
         assert "=" in extra, (
-            f"""Argument "{extra}" must be in the format parameter=value"""
+            f"""Argument "{extra}" must be in the format parameter=value or parameter:=value"""
         )
         parts = extra.split("=")
         key, val = parts[0], "=".join(parts[1:])
         if key.endswith(":"):
-            kwargs[key[:-1]] = eval(val, modns, None)
+            kwargs[key[:-1]] = eval(val, modmodule.__dict__, None)
         else:
             kwargs[key] = val
 
-    app = KrozApp(module, debug=True)
+    state_file = Path("ask.krs")
+    if state_file.exists():
+        state_file.unlink()
+    app = KrozApp(module, state_file=str(state_file), debug=True)
 
     def _main():
-        modns[question](**kwargs).show()
+        with FlowContext("ask") as flow:
+            flow.run(getattr(modmodule, question)(**kwargs))
 
     app.main(_main)
     print(app.run())
@@ -182,14 +206,39 @@ def secrets_main(args):
             while line != ".":
                 line = input("> ")
                 got += line.strip()
-                got = got.replace("\n", "")
-                got = got.replace(" ", "")
-                got = got.replace("\t", "")
-                if check_so_far(got):
-                    got = ""
-
+            got = got.replace("\n", "")
+            got = got.replace(" ", "")
+            got = got.replace("\t", "")
+            for i in range(len(got)):
+                for j in range(i + 1, len(got)):
+                    try:
+                        data = vault.validate(got[i : j + 1])
+                        for const in constraints:
+                            if const[0] not in data:
+                                raise ValueError(
+                                    f"""Constraint failed: data does not contain: {const[0]}"""
+                                )
+                            if data[const[0]] != const[1]:
+                                raise ValueError(
+                                    f"""Constraint failed: {const[0]}: {data[const[0]]} != {const[1]}"""
+                                )
+                        print("\n")
+                        print(Bold, F_LightGreen, B_Black, sep="", end="")
+                        print(data)
+                        print(B_Default, F_Default, Reset, sep="", end="")
+                        print("\n")
+                    except binascii.Error:
+                        pass
+                    except AssertionError:
+                        pass
+                    except ValueError as e:
+                        print(e)
+                    except Exception as e:
+                        print("DEBUG:", type(e))
     else:
-        print(EncryptedStateFile(key=key, filename=args.file)._data)
+        import pprint
+
+        pprint.pprint(EncryptedStateFile(key=key, filename=args.file)._data)
 
 
 def main() -> int:

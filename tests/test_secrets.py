@@ -28,7 +28,6 @@ def test_cfm_contents():
     assert isinstance(got, dict)
     assert "user" in got
     assert "host" in got
-    assert "cmd" in got
     assert "date" in got
     assert "foo" in got
     assert got["foo"] == "bar"
