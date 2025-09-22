@@ -118,7 +118,12 @@ def secrets_main(args):
         for const in args.constraint:
             if (m := re.match(r"(\w+)=(\S+)", const)) is None:
                 raise ValueError(f"Invalid constraint: {const}")
-            constraints.append((m.group(1), m.group(2),))
+            constraints.append(
+                (
+                    m.group(1),
+                    m.group(2),
+                )
+            )
 
     if args.key is not None:
         print("Using command line key.")
@@ -139,6 +144,36 @@ def secrets_main(args):
     B_Default = "\x1b[49m"
     B_Black = "\x1b[40m"
 
+    def check_so_far(got):
+        for i in range(len(got)):
+            for j in range(i + 1, len(got)):
+                try:
+                    data = vault.validate(got[i : j + 1])
+                    for const in constraints:
+                        if const[0] not in data:
+                            raise ValueError(
+                                f"""Constraint failed: data does not contain: {const[0]}"""
+                            )
+                        if data[const[0]] != const[1]:
+                            raise ValueError(
+                                f"""Constraint failed: {const[0]}: {data[const[0]]} != {const[1]}"""
+                            )
+                    print("\n")
+                    print(Bold, F_LightGreen, B_Black, sep="", end="")
+                    print(data)
+                    print(B_Default, F_Default, Reset, sep="", end="")
+                    print("\n")
+                    return True
+                except binascii.Error:
+                    pass
+                except AssertionError:
+                    pass
+                except ValueError as e:
+                    print(e)
+                except Exception as e:
+                    print("DEBUG:", type(e))
+        return False
+
     if args.file is None:
         vault = ConfirmationCode(key=key)
         while True:
@@ -147,31 +182,12 @@ def secrets_main(args):
             while line != ".":
                 line = input("> ")
                 got += line.strip()
-            got = got.replace("\n", "")
-            got = got.replace(" ", "")
-            got = got.replace("\t", "")
-            for i in range(len(got)):
-                for j in range(i + 1, len(got)):
-                    try:
-                        data = vault.validate(got[i : j + 1])
-                        for const in constraints:
-                            if const[0] not in data:
-                                raise ValueError(f"""Constraint failed: data does not contain: {const[0]}""")
-                            if data[const[0]] != const[1]:
-                                raise ValueError(f"""Constraint failed: {const[0]}: {data[const[0]]} != {const[1]}""")
-                        print("\n")
-                        print(Bold, F_LightGreen, B_Black, sep="", end="")
-                        print(data)
-                        print(B_Default, F_Default, Reset, sep="", end="")
-                        print("\n")
-                    except binascii.Error:
-                        pass
-                    except AssertionError:
-                        pass
-                    except ValueError as e:
-                        print(e)
-                    except Exception as e:
-                        print("DEBUG:", type(e))
+                got = got.replace("\n", "")
+                got = got.replace(" ", "")
+                got = got.replace("\t", "")
+                if check_so_far(got):
+                    got = ""
+
     else:
         print(EncryptedStateFile(key=key, filename=args.file)._data)
 
@@ -203,7 +219,13 @@ def main() -> int:
     secrets_parser.add_argument(
         "-f", "--file", type=str, help="The encrypted file to read."
     )
-    secrets_parser.add_argument("-c", "--constraint", action="append", type=str, help="Constrain a particular value. Values should be key=value. Can be used multiple times.")
+    secrets_parser.add_argument(
+        "-c",
+        "--constraint",
+        action="append",
+        type=str,
+        help="Constrain a particular value. Values should be key=value. Can be used multiple times.",
+    )
     secrets_parser.set_defaults(func=secrets_main)
 
     runparser = subparsers.add_parser("run", help="Run a module or class.")
