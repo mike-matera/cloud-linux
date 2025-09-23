@@ -147,3 +147,24 @@
         owner: "root"
         group: "root"
         mode: '0755'
+
+- hosts: hydra.cis.cabrillo.edu
+  name: Install midterm1 and practice1
+  tags:
+    - midterm1
+  become: true
+  tasks:
+    - name: "Install midterm1"
+      ansible.builtin.copy:
+        src: "../dist/midterm1.pex"
+        dest: "/usr/bin/midterm1"
+        owner: "root"
+        group: "root"
+        mode: '0755'
+    - name: "Install practice1"
+      ansible.builtin.copy:
+        src: "../dist/practice1.pex"
+        dest: "/usr/bin/practice1"
+        owner: "root"
+        group: "root"
+        mode: '0755'
