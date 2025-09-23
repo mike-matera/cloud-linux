@@ -23,6 +23,8 @@ build-backend = "setuptools.build_meta"
 [project.scripts]
 kroz = "kroz.__main__:main"
 cis90 = "kroz.__main__:cis90"
+midterm1 = "kroz.labs.midterm1:main"
+practice1 = "kroz.labs.practice1:main"
 
 [tool.setuptools.package-data]
 mypkg = ["*.txt", "*.tcss"]

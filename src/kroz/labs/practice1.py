@@ -37,9 +37,10 @@ def run():
 
 
 def main():
-    if input("What's the password? ") == "polpetta":
+    try:
+        assert input("What's the password? ") == "polpetta"
         run()
-    else:
+    except:
         print("Sorry.")
 
 

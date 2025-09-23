@@ -42,9 +42,10 @@ def run():
 
 
 def main():
-    if input("What's the password? ") == "meatball":
+    try:
+        assert input("What's the password? ") == "meatball"
         run()
-    else:
+    except:
         print("Sorry.")
 
 
