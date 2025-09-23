@@ -220,4 +220,10 @@ walks: dict[str, list[KrozFlowABC]] = {}
 
 questions: list[KrozFlowABC] = []
 
-lab: dict[str, list[KrozFlowABC]] = {}
+lab: dict[str, list[KrozFlowABC]] = {
+    "Find the ID of this process.": [ThisProcess()],
+    "Find my parent process ID": [ThisParent()],
+    "Find my grandparent process ID": [ThisGrandparent()],
+    "How many children?": [ChildFind(type=ChildFind.ResourceType.COUNT)],
+    "Misbehaving child": [ChildFind(type=ChildFind.ResourceType.CPU)],
+}

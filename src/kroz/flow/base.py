@@ -112,19 +112,32 @@ class FlowStack:
             except AttributeError:
                 pass  # Classes can ignore overrides with properties
 
-    def from_checkpoint(self, flow: KrozFlowABC) -> KrozFlowABC:
-        """Return a flow that was restored from the current checkpoint."""
-        if flow.progress:
-            return self.checkpoints.get(self.checkpoint_key(), flow)
-        else:
-            return flow
+    def recover_checkpoint_status(self, flow: KrozFlowABC) -> None:
+        """
+        If the flow has checkpointing on and has been persisted, update the
+        status to match the stored state.
+        """
+        flow.checkpoint = self.checkpoint_key()
+        if flow.progress and flow.checkpoint in self.checkpoints:
+            flow.result = self.checkpoints[flow.checkpoint].result
+
+    def checkpoint(self, flow: KrozFlowABC) -> None:
+        """
+        Update the current flow and save the checkpoint file.
+        """
+        flow.checkpoint = self.checkpoint_key()
+        self.checkpoints[flow.checkpoint] = flow
+        self.app.state.store()
 
     def record(self, flow: KrozFlowABC) -> None:
+        """
+        Update the current flow context in the checkpoint file.
+        """
         top = self.stack[-1]
         flow.checkpoint = self.checkpoint_key()
         top.flows.append(flow)
         if flow.progress:
-            self.checkpoints[flow.checkpoint] = flow
+            ## FML: self.checkpoints[flow.checkpoint] = flow
             self.stack[-1].checkpoint_index += 1
             self.app.state.store()
 
@@ -208,12 +221,13 @@ class FlowContext:
         # Reset the flow if it's run already
         flow.result = FlowResult.INCOMPLETE
 
-        saved_flow = stack.from_checkpoint(flow)
-        if saved_flow.result != FlowResult.CORRECT:
+        stack.recover_checkpoint_status(flow)
+        if flow.result != FlowResult.CORRECT:
+            stack.checkpoint(flow)
             flow.result = flow.show()
 
-        if saved_flow.result == FlowResult.CORRECT or (
-            flow.debug and saved_flow.result == FlowResult.SKIPPED
+        if flow.result == FlowResult.CORRECT or (
+            flow.debug and flow.result == FlowResult.SKIPPED
         ):
             app.score += flow.points
 

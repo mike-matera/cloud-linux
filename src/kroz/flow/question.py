@@ -126,6 +126,7 @@ class Question(KrozFlowABC):
                         can_skip=self.can_skip,
                     )
                 )
+
                 if self.answer is None:
                     return FlowResult.SKIPPED
 
@@ -166,6 +167,8 @@ class Question(KrozFlowABC):
                             )
                         return FlowResult.CORRECT
                 finally:
+                    # Save this attempt
+                    app.state.store()
                     self.cleanup_attempt()
         finally:
             self.cleanup()

@@ -63,7 +63,7 @@ def test_flow_correct(kroz_app, correct_q):
     assert kroz_app.score == 10
     assert "Success" == kroz_app.show.call_args_list[1].args[0]._text_title
     assert "checkpoints" in kroz_app.state
-    assert 0 == len(kroz_app.state["checkpoints"])
+    assert 1 == len(kroz_app.state["checkpoints"])
 
 
 def test_flow_failure(kroz_app, incorrect_q):
@@ -77,7 +77,7 @@ def test_flow_failure(kroz_app, incorrect_q):
     assert kroz_app.score == 0
     assert "Error" in kroz_app.show.call_args_list[1].args[0]._text_title
     assert "checkpoints" in kroz_app.state
-    assert 0 == len(kroz_app.state["checkpoints"])
+    assert 1 == len(kroz_app.state["checkpoints"])
 
 
 def test_flow_skip(mocker, kroz_app, incorrect_q):
@@ -91,7 +91,7 @@ def test_flow_skip(mocker, kroz_app, incorrect_q):
     assert kroz_app.show.call_count == 1
     assert kroz_app.score == 0
     assert "checkpoints" in kroz_app.state
-    assert 0 == len(kroz_app.state["checkpoints"])
+    assert 1 == len(kroz_app.state["checkpoints"])
 
 
 def test_flow_checkpoint_success(kroz_app, correct_q):

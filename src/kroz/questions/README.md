@@ -3,10 +3,10 @@
 These are complete:
 
 * Lesson 2 
+* Lesson 3
 
 Complete pending a final proof read: 
 
-* Lesson 3
 * Lesson 4
 * Lesson 5
 * Lesson 6
@@ -16,7 +16,7 @@ Complete pending a final proof read:
 
 Incomplete:
 
-* Lesson 10 (Walks, Questions, Integrate Processes)
+* Lesson 10 (Walks, Questions)
 * Lesson 11 (all)
 * Lesson 12 (all)
 * Lesson 13 (all)

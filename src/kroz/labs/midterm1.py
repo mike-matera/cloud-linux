@@ -1,46 +1,52 @@
 """
-Lab for week 2.
+Midterm 1
 """
 
-import textwrap
+import datetime
 
 from kroz.app import KrozApp
-from kroz.ascii import tux
 from kroz.flow import FlowContext
+from kroz.flow.base import FlowContext
 from kroz.questions.lesson02 import (
     FreeMemory,
-    NewYearFuture,
     OsRelease,
 )
 from kroz.questions.lesson03 import PathAttrs, RelativePaths
 from kroz.questions.lesson04 import FileType, LinkInfo, MakeLink, WordInBigfile
 
-app = KrozApp("Midterm 1", state_file="mt1")
+
+def run():
+    app = KrozApp("Midterm 1", state_file="midterm1", debug=True)
+
+    def run():
+        if "started" not in app.state:
+            app.state["started"] = datetime.datetime.now()
+        try:
+            with FlowContext(
+                "questions", progress=True, points=100 / 9
+            ) as flow:
+                flow.run(OsRelease("PRETTY_NAME"))
+                flow.run(FreeMemory(key="free"))
+                flow.run(FileType())
+                flow.run(RelativePaths())
+                flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH))
+                flow.run(WordInBigfile(find=(3, 1)))
+                flow.run(PathAttrs(type=PathAttrs.AttrType.BLOCKS))
+                flow.run(LinkInfo(type=LinkInfo.Info.TARGET))
+                flow.run(MakeLink(name="midterm1", rel=False))
+        finally:
+            app.state["exited"] = datetime.datetime.now()
+
+    app.main(run)
+    app.run()
 
 
-@app.main
-def main() -> None:
-    app.show(
-        textwrap.dedent("""
-        # Welcome to Midterm #1 
-
-        """).format(tux(indent=4)),
-        classes="welcome",
-        title="Welcome!",
-    )
-
-    with FlowContext("questions", progress=True) as flow:
-        flow.run(NewYearFuture())
-        flow.run(OsRelease("VERSION"))
-        flow.run(FreeMemory(key="free"))
-        flow.run(FileType())
-        flow.run(RelativePaths())
-        flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH))
-        flow.run(WordInBigfile(find=(1, 1)))
-        flow.run(PathAttrs(type=PathAttrs.AttrType.BLOCKS))
-        flow.run(LinkInfo(type=LinkInfo.Info.REL_OR_ABS))
-        flow.run(MakeLink(name="test_link", rel=True))
+def main():
+    if input("What's the password? ") == "meatball":
+        run()
+    else:
+        print("Sorry.")
 
 
 if __name__ == "__main__":
-    app.run()
+    main()
