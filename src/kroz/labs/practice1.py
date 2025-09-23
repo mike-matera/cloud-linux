@@ -13,7 +13,7 @@ from kroz.questions.lesson04 import FileType, LinkInfo, MakeLink, WordInBigfile
 def run():
     from kroz.app import KrozApp
 
-    app = KrozApp("Practice Midterm 1", state_file="practice1")
+    app = KrozApp("Practice Midterm 1")
 
     def run():
         if "started" not in app.state:
@@ -25,7 +25,7 @@ def run():
                 flow.run(FreeMemory(key="used"))
                 flow.run(FileType())
                 flow.run(RelativePaths())
-                flow.run(WordInBigfile(find=(2, 2)))
+                flow.run(WordInBigfile(cols=5, find=(2, 2)))
                 flow.run(PathAttrs(type=PathAttrs.AttrType.PERMS))
                 flow.run(LinkInfo(type=LinkInfo.Info.TARGET))
                 flow.run(MakeLink(name="practice1", rel=True))

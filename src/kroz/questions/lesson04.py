@@ -224,10 +224,14 @@ class LinkInfo(Question):
         if self._path is None:
             self._path = random_real_path().find_one(
                 filter=lambda p: p.is_symlink()
+                and not p.readlink().is_symlink()
             )
         else:
             self._path = Path(self._path)
             assert self._path.is_symlink(), "Invalid path."
+            assert not self._path.readlink().is_symlink(), (
+                "Invalid path: link to link"
+            )
 
     @property
     def validators(self):
@@ -256,13 +260,8 @@ class LinkInfo(Question):
                 """That's not correct."""
             )
         elif self._type == LinkInfo.Info.TARGET_PATH:
-            assert (
-                Path(answer.strip())
-                == (
-                    self._path.parent / Path(os.readlink(self._path))
-                ).resolve()
-            ), (
-                f"""That's not correct: {(self._path.parent / Path(os.readlink(self._path))).resolve()}"""
+            assert Path(answer.strip()) == self._path.readlink().resolve(), (
+                """That's not correct"""
             )
         elif self._type == LinkInfo.Info.REL_OR_ABS:
             if answer.lower() == "absolute":
