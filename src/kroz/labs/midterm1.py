@@ -16,7 +16,7 @@ from kroz.questions.lesson04 import FileType, LinkInfo, MakeLink, WordInBigfile
 
 
 def run():
-    app = KrozApp("Midterm 1", state_file="midterm1", debug=True)
+    app = KrozApp("Midterm 1", state_file="midterm1")
 
     def run():
         if "started" not in app.state:

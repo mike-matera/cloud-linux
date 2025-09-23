@@ -13,7 +13,7 @@ from kroz.questions.lesson04 import FileType, LinkInfo, MakeLink, WordInBigfile
 def run():
     from kroz.app import KrozApp
 
-    app = KrozApp("Practice Midterm 1", state_file="practice1", debug=True)
+    app = KrozApp("Practice Midterm 1", state_file="practice1")
 
     def run():
         if "started" not in app.state:
