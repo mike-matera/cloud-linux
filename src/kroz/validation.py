@@ -3,10 +3,11 @@ Some helpful validators
 """
 
 import grp
-from pathlib import Path
 import pwd
 import re
-from textual.validation import ValidationResult, Validator
+from pathlib import Path
+
+from textual.validation import Regex, ValidationResult, Validator
 
 
 class NotEmpty(Validator):
@@ -149,7 +150,7 @@ class IsPermission(Validator):
     def to_string(value: int) -> str:
         rval = ""
         bit = 0o1000
-        letters = ['r', 'w', 'x']
+        letters = ["r", "w", "x"]
         letter = 0
         while (bit := bit >> 1) != 0:
             if value & bit:
@@ -157,8 +158,8 @@ class IsPermission(Validator):
             else:
                 rval += "-"
             letter = (letter + 1) % len(letters)
-        return rval 
-    
+        return rval
+
     def validate(self, value: str) -> ValidationResult:
         if not value:
             return self.failure("The answer cannot be empty.")
@@ -169,3 +170,14 @@ class IsPermission(Validator):
             return self.failure(
                 "Invalid permission value. Valid examples look like 644 or '-rwxr--r--'"
             )
+
+
+class RelativeOrAbsolute(Regex):
+    """The words relative or absolute"""
+
+    def __init__(self):
+        super().__init__(
+            regex=r"relative|absolute",
+            flags=re.I,
+            failure_description='Type "relative" or "absolute"',
+        )

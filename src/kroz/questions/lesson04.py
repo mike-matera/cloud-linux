@@ -21,12 +21,9 @@ Commands:
 """
 
 import os
-import re
 from enum import Enum
 from pathlib import Path
 from typing import Callable
-
-from textual.validation import Regex
 
 import kroz.random as random
 from kroz.app import KrozApp
@@ -41,7 +38,7 @@ from kroz.flow.question import (
 from kroz.questions.lesson03 import RelativePaths
 from kroz.random.bigfile import random_big_file
 from kroz.random.real_path import random_real_path
-from kroz.validation import AbsolutePath, NotEmpty
+from kroz.validation import AbsolutePath, NotEmpty, RelativeOrAbsolute
 
 title = "Working with Files"
 
@@ -192,21 +189,17 @@ class LinkInfo(Question):
     class Info(Enum):
         TARGET = (
             "What is the target of the symbolic link?",
-            NotEmpty(),
+            NotEmpty,
             "Path",
         )
         TARGET_PATH = (
             "What is the **absolute path** of the target of the symbolic link?",
-            AbsolutePath(),
+            AbsolutePath,
             "Path",
         )
         REL_OR_ABS = (
             "Is the **target** of the link relative or absolute?",
-            Regex(
-                regex=r"relative|absolute",
-                flags=re.I,
-                failure_description='Type "relative" or "absolute"',
-            ),
+            RelativeOrAbsolute,
             "relative or absolute",
         )
 
@@ -235,7 +228,7 @@ class LinkInfo(Question):
 
     @property
     def validators(self):
-        return self._type.value[1]
+        return self._type.value[1]()
 
     @property
     def placeholder(self):

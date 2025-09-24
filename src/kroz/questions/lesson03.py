@@ -162,16 +162,16 @@ class PathAttrs(Question):
         LINK = "symbolic link"
 
     class AttrType(Enum):
-        SIZE = ("Size", "What is the **size** of", [Integer()])
-        INODE = ("Inode", "What is the **inode number** of", [Integer()])
-        OWNER = ("Owner", "Who is the **owner** of", [IsUser()])
-        GROUP = ("Group", "What is the **group** of", [IsGroup()])
+        SIZE = ("Size", "What is the **size** of", Integer)
+        INODE = ("Inode", "What is the **inode number** of", Integer)
+        OWNER = ("Owner", "Who is the **owner** of", IsUser)
+        GROUP = ("Group", "What is the **group** of", IsGroup)
         PERMS = (
             "Permissions",
             "What are the **permissions** of",
-            [IsPermission()],
+            IsPermission,
         )
-        BLOCKS = ("Blocks", "How many **blocks** are used by", [Integer()])
+        BLOCKS = ("Blocks", "How many **blocks** are used by", Integer)
 
     def __init__(
         self,
@@ -215,7 +215,7 @@ class PathAttrs(Question):
 
     @property
     def validators(self):
-        return self._type.value[2]
+        return self._type.value[2]()
 
     def check(self, answer):
         assert isinstance(self._path, Path)
