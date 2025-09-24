@@ -6,7 +6,6 @@ import datetime
 
 from kroz.app import KrozApp
 from kroz.flow import FlowContext
-from kroz.flow.base import FlowContext
 from kroz.questions.lesson02 import (
     FreeMemory,
     OsRelease,
@@ -14,31 +13,26 @@ from kroz.questions.lesson02 import (
 from kroz.questions.lesson03 import PathAttrs, RelativePaths
 from kroz.questions.lesson04 import FileType, LinkInfo, MakeLink, WordInBigfile
 
+app = KrozApp("Midterm 1", state_file="midterm1")
 
+
+@app.main
 def run():
-    app = KrozApp("Midterm 1", state_file="midterm1")
-
-    def run():
-        if "started" not in app.state:
-            app.state["started"] = datetime.datetime.now()
-        try:
-            with FlowContext(
-                "questions", progress=True, points=100 / 9
-            ) as flow:
-                flow.run(OsRelease("PRETTY_NAME"))
-                flow.run(FreeMemory(key="free"))
-                flow.run(FileType())
-                flow.run(RelativePaths(verbose=False))
-                flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH))
-                flow.run(WordInBigfile(find=(3, 1)))
-                flow.run(PathAttrs(type=PathAttrs.AttrType.BLOCKS))
-                flow.run(LinkInfo(type=LinkInfo.Info.TARGET))
-                flow.run(MakeLink(name="midterm1", rel=False))
-        finally:
-            app.state["exited"] = datetime.datetime.now()
-
-    app.main(run)
-    app.run()
+    if "started" not in app.state:
+        app.state["started"] = datetime.datetime.now()
+    try:
+        with FlowContext("questions", progress=True, points=100 / 9) as flow:
+            flow.run(OsRelease("PRETTY_NAME"))
+            flow.run(FreeMemory(key="free"))
+            flow.run(FileType())
+            flow.run(RelativePaths(verbose=False))
+            flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH))
+            flow.run(WordInBigfile(cols=5, find=(3, 2)))
+            flow.run(PathAttrs(type=PathAttrs.AttrType.INODE))
+            flow.run(LinkInfo(type=LinkInfo.Info.TARGET))
+            flow.run(MakeLink(name="midterm1", rel=False))
+    finally:
+        app.state["exited"] = datetime.datetime.now()
 
 
 def main():
@@ -48,7 +42,7 @@ def main():
         print("Sorry.")
         return
 
-    run()
+    app.run()
 
 
 if __name__ == "__main__":
