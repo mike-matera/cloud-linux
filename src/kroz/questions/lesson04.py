@@ -379,23 +379,24 @@ class MakeLink(Question):
 
     def check(self, answer):
         assert isinstance(self._target, Path)
-        assert self._path.exists(), (
-            f"""I can't find anything with at {self._path}"""
+        coda = f"\n\n**Can't fix the link because it already exists?** Run this command to fix the problem:\n\n```rm {str(self._path).replace(str(Path.home()), '~')}```"
+        assert self._path.exists(follow_symlinks=False), (
+            f"""I can't find anything at {self._path}"""
         )
         assert self._path.is_symlink(), (
-            f"""The path `{self._path}` is not a symbolic link."""
+            f"""The path `{self._path}` is not a symbolic link.{coda}"""
         )
         assert self._path.readlink().resolve() == self._target.resolve(), (
-            f"""The link `{self._path}` doesn't point to the right place."""
+            f"""The link `{self._path}` doesn't point to the right place.{coda}"""
         )
         if self._rel is not None:
             if self._rel:
                 assert not self._path.readlink().is_absolute(), (
-                    f"""The link `{self._path}` is not relative."""
+                    f"""The link `{self._path}` is not relative.{coda}"""
                 )
             else:
                 assert self._path.readlink().is_absolute(), (
-                    f"""The link `{self._path}` is not absolute."""
+                    f"""The link `{self._path}` is not absolute.{coda}"""
                 )
 
 
