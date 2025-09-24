@@ -21,9 +21,12 @@ Commands:
 """
 
 import os
+import re
 from enum import Enum
 from pathlib import Path
 from typing import Callable
+
+from textual.validation import Regex
 
 import kroz.random as random
 from kroz.app import KrozApp
@@ -38,7 +41,7 @@ from kroz.flow.question import (
 from kroz.questions.lesson03 import RelativePaths
 from kroz.random.bigfile import random_big_file
 from kroz.random.real_path import random_real_path
-from kroz.validation import AbsolutePath, NotEmpty, RelativeOrAbsolute
+from kroz.validation import AbsolutePath, NotEmpty
 
 title = "Working with Files"
 
@@ -187,24 +190,10 @@ class LinkInfo(Question):
     """Examine the properties of a symbolic link."""
 
     class Info(Enum):
-        TARGET = (
-            "What is the target of the symbolic link?",
-            NotEmpty,
-            "Path",
-        )
-        TARGET_PATH = (
-            """What is the **absolute path** of the target of the symbolic link?
-            
-        *Hint: If the link is relative you need to first find the target then calculate the target's absolute path.*
-            """,
-            AbsolutePath,
-            "Path",
-        )
-        REL_OR_ABS = (
-            "Is the target of the link **relative** or **absolute**?",
-            RelativeOrAbsolute,
-            "relative or absolute",
-        )
+        TARGET = "Find the link target (simple)"
+        TARGET_PATH = "Find the absolute path of a relative link target"
+        TARGET_PATH_INDIRECT = "Find the absolute path of a relative link with multiple indirection."
+        REL_OR_ABS = "Is the link relative or absolute?"
 
     def __init__(
         self,
@@ -218,27 +207,56 @@ class LinkInfo(Question):
 
     def setup(self):
         if self._path is None:
-            self._path = random_real_path().find_one(
-                filter=lambda p: p.is_symlink()
-                and not p.readlink().is_symlink()
-            )
+            if self._type == LinkInfo.Info.TARGET:
+                self._path = random_real_path().random_link()
+            elif self._type == LinkInfo.Info.REL_OR_ABS:
+                self._path = random_real_path().find_one(
+                    filter=lambda p: p.is_symlink(),
+                    normalize=lambda p: p.readlink().is_absolute(),
+                )
+            elif self._type == LinkInfo.Info.TARGET_PATH:
+                self._path = random_real_path().find_one(
+                    filter=lambda p: p.is_symlink()
+                    and not p.readlink().is_absolute(),
+                )
+            elif self._type == LinkInfo.Info.TARGET_PATH_INDIRECT:
+                self._path = random_real_path().find_one(
+                    filter=lambda p: p.is_symlink()
+                    and p.readlink().is_symlink()
+                )
         else:
             self._path = Path(self._path)
-            assert self._path.is_symlink(), "Invalid path."
-            assert not self._path.readlink().is_symlink(), (
-                "Invalid path: link to link"
+
+        assert self._path is not None, "Path is None"
+        assert self._path.is_symlink(), """Target is not a symlink."""
+        if self._type == LinkInfo.Info.TARGET_PATH:
+            assert not self._path.readlink().is_absolute(), (
+                """Target is not a relative symlink."""
             )
-
-    @property
-    def validators(self):
-        return self._type.value[1]()
-
-    @property
-    def placeholder(self):
-        return self._type.value[2]
+        elif self._type == LinkInfo.Info.TARGET_PATH_INDIRECT:
+            assert self._path.readlink().is_symlink(), (
+                """Target is not a link to a link."""
+            )
 
     @property
     def text(self):
+        if self._type == LinkInfo.Info.TARGET:
+            qtext = "What is the target of the symbolic link?"
+        elif self._type == LinkInfo.Info.TARGET_PATH:
+            qtext = """What is the **absolute path** of the target of the symbolic link?
+            
+        *Hint: The link is relative so you need to first find the target of this link, then calculate the target's absolute path.*
+            """
+        elif self._type == LinkInfo.Info.TARGET_PATH_INDIRECT:
+            qtext = """What is the **absolute path** of the target of the symbolic link?
+            
+        *Hint: This link points to a link. You need to follow all links.*
+            """
+        elif self._type == LinkInfo.Info.REL_OR_ABS:
+            qtext = "Is the target of the link **relative** or **absolute**?"
+        else:
+            raise RuntimeError("Internal error.")
+
         return f"""
         # Symbolic Link Information 
 
@@ -246,8 +264,38 @@ class LinkInfo(Question):
 
             {self._path}
 
-        {self._type.value[0]}
+        {qtext}
         """
+
+    @property
+    def validators(self):
+        if self._type == LinkInfo.Info.TARGET:
+            return NotEmpty()
+        elif self._type == LinkInfo.Info.TARGET_PATH:
+            return AbsolutePath()
+        elif self._type == LinkInfo.Info.TARGET_PATH_INDIRECT:
+            return AbsolutePath()
+        elif self._type == LinkInfo.Info.REL_OR_ABS:
+            return Regex(
+                regex=r"relative|absolute",
+                flags=re.I,
+                failure_description='Type "relative" or "absolute"',
+            )
+        else:
+            raise RuntimeError("Internal error.")
+
+    @property
+    def placeholder(self):
+        if self._type == LinkInfo.Info.TARGET:
+            return "Path"
+        elif self._type == LinkInfo.Info.TARGET_PATH:
+            return "Absolute Path"
+        elif self._type == LinkInfo.Info.TARGET_PATH_INDIRECT:
+            return "Absolute Path"
+        elif self._type == LinkInfo.Info.REL_OR_ABS:
+            return "relative or absolute"
+        else:
+            raise RuntimeError("Internal error.")
 
     def check(self, answer: str):
         assert isinstance(self._path, Path)
@@ -255,9 +303,12 @@ class LinkInfo(Question):
             assert answer.strip() == os.readlink(self._path), (
                 """That's not correct."""
             )
-        elif self._type == LinkInfo.Info.TARGET_PATH:
-            assert Path(answer.strip()) == self._path.readlink().resolve(), (
-                """That's not correct"""
+        elif (
+            self._type == LinkInfo.Info.TARGET_PATH
+            or self._type == LinkInfo.Info.TARGET_PATH_INDIRECT
+        ):
+            assert Path(answer.strip()).resolve() == self._path.resolve(), (
+                """That's not correct."""
             )
         elif self._type == LinkInfo.Info.REL_OR_ABS:
             if answer.lower() == "absolute":

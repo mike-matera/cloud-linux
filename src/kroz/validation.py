@@ -7,7 +7,7 @@ import pwd
 import re
 from pathlib import Path
 
-from textual.validation import Regex, ValidationResult, Validator
+from textual.validation import ValidationResult, Validator
 
 
 class NotEmpty(Validator):
@@ -170,14 +170,3 @@ class IsPermission(Validator):
             return self.failure(
                 "Invalid permission value. Valid examples look like 644 or '-rwxr--r--'"
             )
-
-
-class RelativeOrAbsolute(Regex):
-    """The words relative or absolute"""
-
-    def __init__(self):
-        super().__init__(
-            regex=r"relative|absolute",
-            flags=re.I,
-            failure_description='Type "relative" or "absolute"',
-        )
