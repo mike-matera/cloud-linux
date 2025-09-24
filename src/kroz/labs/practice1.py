@@ -39,9 +39,11 @@ def run():
 def main():
     try:
         assert input("What's the password? ") == "polpetta"
-        run()
     except:
         print("Sorry.")
+        return
+
+    run()
 
 
 if __name__ == "__main__":
