@@ -63,7 +63,7 @@ class RandomRealPath:
         ).resolve()
 
     def random_link(self):
-        return self.find_one(lambda c: c.is_symlink()).resolve()
+        return self.find_one(lambda c: c.is_symlink())
 
     def find_one(
         self,
@@ -91,13 +91,15 @@ class RandomRealPath:
             normals = {}
             for root in self._trees:
                 for path in self._trees[root]:
-                    key = normalize(path)
-                    if key not in normals:
-                        normals[key] = [path]
-                    else:
-                        normals[key].append(path)
+                    # Only consider a normal that matches the filter.
+                    if filter(path):
+                        key = normalize(path)
+                        if key not in normals:
+                            normals[key] = [path]
+                        else:
+                            normals[key].append(path)
 
-        for tree in random.sample(list(normals), k=len(self._trees)):
+        for tree in random.sample(list(normals), k=len(normals)):
             for path in random.sample(normals[tree], k=len(normals[tree])):
                 if filter(path):
                     yield path

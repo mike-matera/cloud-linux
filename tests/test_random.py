@@ -13,6 +13,7 @@ import pytest
 
 from kroz.app import KrozApp
 from kroz.random.path import CheckFile, CheckPath
+from kroz.random.real_path import random_real_path
 from kroz.random.words import RandomWord
 from kroz.screen import KrozScreen
 
@@ -223,3 +224,40 @@ async def test_diffs(kroz_app, tmp_path):
     assert isinstance(diff[0], tuple)
     assert diff[0][0] == pathlib.Path("foo.bad")
     assert diff[0][1] == "Exists"
+
+
+@pytest.mark.asyncio
+async def test_path_lookups(kroz_app, tmp_path):
+    kroz_app._setup_user_app()
+
+    # Test a random file.
+    p = random_real_path().find_one(filter=lambda x: True)
+    assert p.exists()
+    assert p.is_absolute()
+
+    # Test a random link
+    link = random_real_path().random_link()
+    assert link.exists(), f"The link {link} does not exist."
+    assert link.is_symlink(), f"The link {link} is not a link."
+
+    # Test a random dir
+    d = random_real_path().random_dir()
+    assert d.exists(), f"The dir {d} does not exist."
+    assert d.is_dir(), f"The dir {d} is not a dir."
+
+    # From lesson04.LinkInfo: Test normalization of filtered properties.
+    path = random_real_path().find_one(
+        filter=lambda p: p.is_symlink(),
+        normalize=lambda p: p.readlink().is_absolute(),
+    )
+
+    # Test normalized ranomization
+    abscount = 0
+    for i in range(100):
+        path = random_real_path().find_one(
+            filter=lambda p: p.is_symlink(),
+            normalize=lambda p: p.readlink().is_absolute(),
+        )
+        if path.readlink().is_absolute():
+            abscount += 1
+    assert 40 < abscount < 60
