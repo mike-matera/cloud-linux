@@ -193,12 +193,15 @@ class LinkInfo(Question):
             "Path",
         )
         TARGET_PATH = (
-            "What is the **absolute path** of the target of the symbolic link?",
+            """What is the **absolute path** of the target of the symbolic link?
+            
+        *Hint: If the link is relative you need to first find the target then calculate the target's absolute path.*
+            """,
             AbsolutePath,
             "Path",
         )
         REL_OR_ABS = (
-            "Is the **target** of the link relative or absolute?",
+            "Is the target of the link **relative** or **absolute**?",
             RelativeOrAbsolute,
             "relative or absolute",
         )

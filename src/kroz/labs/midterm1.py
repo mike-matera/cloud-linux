@@ -28,7 +28,7 @@ def run():
                 flow.run(OsRelease("PRETTY_NAME"))
                 flow.run(FreeMemory(key="free"))
                 flow.run(FileType())
-                flow.run(RelativePaths())
+                flow.run(RelativePaths(verbose=False))
                 flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH))
                 flow.run(WordInBigfile(find=(3, 1)))
                 flow.run(PathAttrs(type=PathAttrs.AttrType.BLOCKS))

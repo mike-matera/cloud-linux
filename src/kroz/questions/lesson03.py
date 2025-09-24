@@ -257,11 +257,13 @@ class RelativePaths(Question):
         self,
         from_path: str | Path | None = None,
         to_path: str | Path | None = None,
+        verbose: bool = True,
         **kwargs,
     ):
         super().__init__(**kwargs)
         self._from = from_path
         self._to = to_path
+        self._verbose = verbose
 
     validators = [RelativePath()]
 
@@ -292,21 +294,25 @@ class RelativePaths(Question):
         answer = Path(answer)
         calculated = (self._from / answer).resolve()
 
-        feedback = textwrap.dedent(f"""
-        # The Path Journey
+        if self._verbose:
+            feedback = textwrap.dedent(f"""
+            # The Path Journey
 
-        Consider the trip between the *from* and the *to* directories. Your answer
-        should be a relative path that contains the entire journey. The journey 
-        starts at **{self._from}**  and the path we take is your answer **{answer}**. 
-        
-        Here's what it looks like when we take the journey one step at a time: 
-        """)
-        loc = self._from
-        for i, part in enumerate(answer.parts):
-            loc /= part
-            feedback += f"{i + 1}. {part} → {loc.resolve()}\n"
+            Consider the trip between the *from* and the *to* directories. Your answer
+            should be a relative path that contains the entire journey. The journey 
+            starts at **{self._from}**  and the path we take is your answer **{answer}**. 
+            
+            Here's what it looks like when we take the journey one step at a time: 
+            """)
+            loc = self._from
+            for i, part in enumerate(answer.parts):
+                loc /= part
+                feedback += f"{i + 1}. {part} → {loc.resolve()}\n"
 
-        feedback += f"\nThe end of the journey is **{loc.resolve()}** but should have been **{self._to}**\n"
+            feedback += f"\nThe end of the journey is **{loc.resolve()}** but should have been **{self._to}**\n"
+        else:
+            feedback = "That's not correct."
+
         assert calculated == self._to, feedback
 
 
