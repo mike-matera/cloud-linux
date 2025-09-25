@@ -217,7 +217,8 @@ class LinkInfo(Question):
             elif self._type == LinkInfo.Info.TARGET_PATH:
                 self._path = random_real_path().find_one(
                     filter=lambda p: p.is_symlink()
-                    and not p.readlink().is_absolute(),
+                    and not p.readlink().is_absolute()
+                    and not (p.parent / p.readlink()).is_symlink()
                 )
             elif self._type == LinkInfo.Info.TARGET_PATH_INDIRECT:
                 self._path = random_real_path().find_one(
@@ -233,10 +234,15 @@ class LinkInfo(Question):
             assert not self._path.readlink().is_absolute(), (
                 """Target is not a relative symlink."""
             )
+            assert not (
+                self._path.parent / self._path.readlink()
+            ).is_symlink(), """Target is indirect."""
+
         elif self._type == LinkInfo.Info.TARGET_PATH_INDIRECT:
-            assert self._path.readlink().is_symlink(), (
-                """Target is not a link to a link."""
-            )
+            assert (
+                self._path.readlink().is_symlink()
+                or (self._path.parent / self._path.readlink()).is_symlink()
+            ), """Target is not a link to a link."""
 
     @property
     def text(self):
