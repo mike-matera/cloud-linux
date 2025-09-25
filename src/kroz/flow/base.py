@@ -117,27 +117,29 @@ class FlowStack:
         If the flow has checkpointing on and has been persisted, update the
         status to match the stored state.
         """
-        flow.checkpoint = self.checkpoint_key()
-        if flow.progress and flow.checkpoint in self.checkpoints:
-            flow.result = self.checkpoints[flow.checkpoint].result
+        if flow.progress:
+            flow.checkpoint = self.checkpoint_key()
+            if flow.checkpoint in self.checkpoints:
+                flow.result = self.checkpoints[flow.checkpoint].result
 
     def checkpoint(self, flow: KrozFlowABC) -> None:
         """
         Update the current flow and save the checkpoint file.
         """
-        flow.checkpoint = self.checkpoint_key()
-        self.checkpoints[flow.checkpoint] = flow
-        self.app.state.store()
+        if flow.progress:
+            flow.checkpoint = self.checkpoint_key()
+            self.checkpoints[flow.checkpoint] = flow
+            self.app.state.store()
 
     def record(self, flow: KrozFlowABC) -> None:
         """
         Update the current flow context in the checkpoint file.
         """
         top = self.stack[-1]
-        flow.checkpoint = self.checkpoint_key()
         top.flows.append(flow)
         if flow.progress:
-            ## FML: self.checkpoints[flow.checkpoint] = flow
+            flow.checkpoint = self.checkpoint_key()
+            self.checkpoints[flow.checkpoint] = flow
             self.stack[-1].checkpoint_index += 1
             self.app.state.store()
 
