@@ -89,7 +89,7 @@ class EncryptedStateFile:
                 OSError,
                 AssertionError,
                 pickle.UnpicklingError,
-                # ValueError,
+                ValueError,
             ):
                 self._data = {}
 
