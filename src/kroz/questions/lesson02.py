@@ -107,7 +107,7 @@ class NewYearFuture(Question):
         return f"""
         # Future New Year
         
-        On what day of the week does new year's eve fall on in the
+        On what day of the week does new year's **day** fall on in the
         year {self._year}?"""
 
     def check(self, answer):
