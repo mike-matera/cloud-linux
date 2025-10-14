@@ -351,7 +351,7 @@ def cis90() -> int:
         import kroz.questions.lesson05 as do_lab
 
         lab.lab(do_lab)
-    elif args.assignment == "commands":
+    elif args.assignment == "rtfm":
         import kroz.questions.lesson06 as do_lab
 
         lab.lab(do_lab)
