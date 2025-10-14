@@ -84,7 +84,7 @@ mycommand [-t|-v] [name]
 
 Which is of the following is true of this command:
 """,
-        "It can be executed with no arguments"
+        "It can be executed with no arguments",
         "You must supply one or more `name` arguments",
         "The `-t` argument is required",
         "The `-v` argument is required",
@@ -100,7 +100,7 @@ mycommand -x name
 
 Which is of the following is true of this command:
 """,
-        "It has two forms, one with `-x` and one without"
+        "It has two forms, one with `-x` and one without",
         "The `name` argument is optional",
         "The `-x` argument is required",
         "The `-t` argument is required",
