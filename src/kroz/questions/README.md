@@ -15,11 +15,11 @@ Complete pending a final proof read:
 * Lesson 9 
 * Midterm/Practice 1 
 * Lesson 10
+* Lesson 12 (all)
 
 Incomplete:
 
 * Lesson 11 (all)
-* Lesson 12 (all)
 * Lesson 13 (all)
 * Midterm/Practice 2 
 * Final Project

@@ -12,12 +12,15 @@ Reading:
 
 import os
 import pathlib
+import re
 
 from kroz.app import KrozApp
 from kroz.flow.base import KrozFlowABC
 from kroz.flow.interaction import CommandLineCommand, InteractionABC
 from kroz.flow.question import (
+    MultipleChoiceQuestion,
     Question,
+    ShortAnswerQuestion,
 )
 
 title = "Love Your Editor"
@@ -173,6 +176,20 @@ delete `~/alice.txt` and restart the lab.**
 
 walks: dict[str, list[KrozFlowABC]] = {}
 
-questions: list[KrozFlowABC] = []
+questions: list[KrozFlowABC] = [
+    MultipleChoiceQuestion(
+        "What key puts `vi` into command mode?", "Esc", "a", "e", "Ctrl-c"
+    ),
+    ShortAnswerQuestion("What command quits `vi`?", ":q"),
+    ShortAnswerQuestion("What `vi` command saves the current file?", ":w"),
+    ShortAnswerQuestion("What `vi` command deletes the current line?", "dd"),
+    ShortAnswerQuestion(
+        "What `vi` command enters *insert mode*?", re.compile("(a|i)")
+    ),
+]
 
-lab: dict[str, list[KrozFlowABC]] = {}
+lab: dict[str, list[KrozFlowABC]] = {
+    "Make your own program": [MakeScript()],
+    "Run your program": [RunYourScript()],
+    "Fix misspelled words": [FixSpelling()],
+}
