@@ -21,8 +21,12 @@ import psutil
 from textual.validation import Integer
 
 from kroz.flow.base import KrozFlowABC
+from kroz.flow.interaction import Interaction
 from kroz.flow.question import (
+    MultipleChoiceQuestion,
     Question,
+    ShortAnswerQuestion,
+    TrueOrFalseQuestion,
 )
 from kroz.random import randint
 
@@ -216,9 +220,191 @@ class ChildFind(Question):
             self._find(answer)
 
 
-walks: dict[str, list[KrozFlowABC]] = {}
+walks: dict[str, list[KrozFlowABC]] = {
+    "Processes in the current session": [
+        Interaction(
+            """
+# Long Running Programs
 
-questions: list[KrozFlowABC] = []
+Most of the commands we use in the class exit right after they perform their 
+task. When they exit the prompt returns. Some programs run until you stop them.
+For example, the `ping` command runs until you stop it with `Ctrl-c`. Start the
+`ping` command. 
+
+```console
+$ ping opus.cis.cabrillo.edu 
+```
+
+After a few *pongs* exit ping with `Ctrl-c`. 
+""",
+            lambda cmd: cmd.command == "ping" and cmd.result == 0,
+        ),
+        Interaction(
+            """
+# Putting a Process in the Background 
+
+You can pause `ping` instead of killing it using the `Ctrl-z` key. This time 
+start ping and put it into the background:
+
+```console
+$ ping opus.cis.cabrillo.edu 
+```
+
+After a few *pongs* put `ping` in background with `Ctrl-z`. 
+""",
+            lambda cmd: cmd.command == "ping" and cmd.result == 148,
+        ),
+        Interaction(
+            """
+A process can be brought back to the foreground with `fg`:
+
+```console
+$ fg 
+```
+
+After a few more *pongs* put ping back into the background with `Ctrl-z`. 
+""",
+            lambda cmd: cmd.command == "fg" and cmd.result == 148,
+        ),
+        Interaction(
+            """
+# Running in the Background 
+
+A program can run when it's in the background. To let `ping` run again while 
+still being able to enter a command run `bg`:
+
+```console
+$ bg 
+```
+""",
+            lambda cmd: cmd.command == "bg" and cmd.result == 0,
+        ),
+        Interaction(
+            """
+# Wait? What!? 
+
+Ping is running **and** you have a prompt. Pres `Enter` a few times to look for 
+the prompt. Try running the `ls` command:
+
+```console
+$ ls
+```
+""",
+            lambda cmd: cmd.command == "ls",
+        ),
+        Interaction(
+            """
+# Let's Fix This 
+
+You can kill `ping` by bringing it into the foreground and then stopping it with
+`Ctrl-c`. 
+
+```console
+$ fg
+```
+""",
+            lambda cmd: cmd.command == "fg",
+        ),
+    ],
+    "Using `jobs` and `killall`": [
+        Interaction(
+            """
+# Start Background Jobs 
+
+The `sleep` program takes one argument, a number of seconds to wait. The `sleep`
+program exits once it's done waiting. Let's use it to launch some jobs in the 
+background:
+
+```console
+$ sleep 500 & 
+```
+
+**Run it five times!**
+""",
+            [
+                lambda cmd: cmd.command == "sleep"
+                and cmd.args == ["500"]
+                and cmd.result == 0
+            ]
+            * 5,
+        ),
+        Interaction(
+            """
+Use the `jobs` command to see background jobs in your shell:
+
+```console
+$ jobs
+[1]   Running                 sleep 500 &
+[2]   Running                 sleep 500 &
+[3]   Running                 sleep 500 &
+[4]   Running                 sleep 500 &
+[5]-  Running                 sleep 500 &
+```
+
+**You should see five copies as shown.**
+""",
+            lambda cmd: cmd.command == "jobs",
+        ),
+        Interaction(
+            """
+# The `kill` Command 
+
+The `kill` command usually takes a process ID of a program. But when that
+program is in the current shell you can use a shortcut. The `%5` argument says 
+to kill job number 5:
+
+```console
+$ kill %5
+```
+""",
+            lambda cmd: cmd.command == "kill" and cmd.args == ["%5"],
+        ),
+        Interaction(
+            """
+# The `killall` Command 
+
+The `killall` command looks for all programs with a particular name and sends
+them all a signal to cause them to exit. Use `killall` to kill the rest of the
+`sleep` commands:
+
+```console
+$ killall sleep
+```
+""",
+            lambda cmd: cmd.command == "killall" and cmd.args == ["sleep"],
+        ),
+    ],
+}
+
+questions: list[KrozFlowABC] = [
+    MultipleChoiceQuestion(
+        "What is a characteristic of a *daemon program*?",
+        "It waits in the background",
+        "It's malicious",
+        "It's started by a user",
+        "It is part of the shell",
+    ),
+    TrueOrFalseQuestion("A program can have only one parent process.", True),
+    TrueOrFalseQuestion("A program have any number of child processes.", True),
+    MultipleChoiceQuestion(
+        "What is the first program that's started by Linux?",
+        "init",
+        "start",
+        "ProcessManager",
+        "The shell",
+    ),
+    ShortAnswerQuestion(
+        "What program interactively shows you all the processes running on the system?",
+        "top",
+    ),
+    MultipleChoiceQuestion(
+        "What is the alias for signal number 9?",
+        "KILL",
+        "INT",
+        "STOP",
+        "SEGV",
+    ),
+]
 
 lab: dict[str, list[KrozFlowABC]] = {
     "Find the ID of this process.": [ThisProcess()],

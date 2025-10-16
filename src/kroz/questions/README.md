@@ -13,14 +13,14 @@ Complete pending a final proof read:
 * Lesson 7
 * Lesson 8
 * Lesson 9 
+* Midterm/Practice 1 
+* Lesson 10
 
 Incomplete:
 
-* Lesson 10 (Walks, Questions)
 * Lesson 11 (all)
 * Lesson 12 (all)
 * Lesson 13 (all)
-* Midterm/Practice 1 
 * Midterm/Practice 2 
 * Final Project
 
