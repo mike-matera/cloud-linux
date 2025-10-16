@@ -297,8 +297,8 @@ class KrozApp(App[str]):
         if event.worker.name == "main" and event.worker.is_finished:
             exit_message = textwrap.dedent(f"""
                 Thank you for playing! 
-                                        
-                Your confirmation code is: {self._confirmation()}
+            
+                Your final score was {self.score_format.format(score=self.score)} and confirmation code is: {self._confirmation()}
                 """)
             self.exit(message=exit_message, return_code=0)
 
