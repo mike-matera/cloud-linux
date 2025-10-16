@@ -69,6 +69,8 @@ def lab(package, debug=False):
             )
             if choice.answer is not None:
                 item = int(choice.answer) - 1
+                if item == len(items):
+                    return
                 with FlowContext(items[item][0]) as flow:
                     for f in items[item][2]:
                         if isinstance(f, KrozFlowABC):

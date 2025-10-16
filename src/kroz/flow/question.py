@@ -346,11 +346,12 @@ class Menu(Question):
         text = textwrap.dedent(self._text) + "\n"
         for i, item in enumerate(self._items, start=1):
             text += f"  {i}. {item.strip()}\n"
+        text += f"  {len(self._items) + 1}. Quit"
         return text
 
     @property
     def validators(self):
-        return Integer(minimum=1, maximum=len(self._items))
+        return Integer(minimum=1, maximum=len(self._items) + 1)
 
     def check(self, answer):
         return
