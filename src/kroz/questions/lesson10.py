@@ -41,7 +41,7 @@ class ThisProcess(Question):
 
     What is the Process ID (PID) of this program? 
 
-    TODO: Tell students the name to look for.
+    *Hint: This program contains "cis90" on the command line.*
     """
 
     validators = Integer()
@@ -52,8 +52,10 @@ class ThisProcess(Question):
         
         Here are a few tips: 
 
-        * Try making a pipeline with `ps` and `grep` to make it easier to find this process. 
-        * Other people may also be doing this lab. Make sure the process you find belongs to you. 
+        * Try making a pipeline with `ps` and `grep` to make it easier to find
+          this process. 
+        * Other people may also be doing this lab. Make sure the process you
+          find belongs to you. 
         """
 
 
@@ -62,8 +64,6 @@ class ThisParent(Question):
     # What is My PPID? 
 
     What is the **Parent** Process ID (PPID) of this program? 
-
-    TODO: Tell students the name to look for.
     """
 
     validators = Integer()
@@ -76,8 +76,10 @@ class ThisParent(Question):
         Here are a few tips: 
 
         * The PPID is listed on the same line as the PID in the output of `ps`. 
-        * Try making a pipeline with `ps` and `grep` to make it easier to find this process. 
-        * Other people may also be doing this lab. Make sure the process you find belongs to you. 
+        * Try making a pipeline with `ps` and `grep` to make it easier to find
+          this process. 
+        * Other people may also be doing this lab. Make sure the process you
+          find belongs to you. 
         """
 
 
@@ -85,9 +87,8 @@ class ThisGrandparent(Question):
     text = """
     # What is My Grandparent? 
 
-    What is the **Granparent** (The PPID of the PPID) Process ID of this program? 
-
-    TODO: Tell students the name to look for.
+    What is the **Granparent** (The PPID of the PPID) Process ID of this
+    program? 
     """
 
     validators = Integer()
@@ -107,7 +108,9 @@ class TopBackground(Question):
     # Stop Top 
 
     In a separate terminal start the `top` command and then put it in the
-    background. **Press Enter to continue.**
+    background. 
+    
+    **Press Enter to continue.**
     """
 
     placeholder = "Press Enter"
@@ -372,6 +375,64 @@ $ killall sleep
 ```
 """,
             lambda cmd: cmd.command == "killall" and cmd.args == ["sleep"],
+        ),
+    ],
+    "Find this program": [
+        Interaction(
+            """
+# Limits of `ps`
+
+The `ps` program formats it's output to fit your screen. That makes it so that 
+the full command line of a command usually gets cut off: 
+
+```console
+$ ps -elf 
+```
+""",
+            lambda cmd: cmd.command == "ps" and cmd.args == ["-elf"],
+        ),
+        Interaction(
+            """
+You can see the full command lines by piping the output of `ps` through `less`:
+
+```console
+$ ps -elf | less
+```
+""",
+            lambda cmd: cmd[0].command == "ps"
+            and cmd[0].args == ["-elf"]
+            and cmd[1].command == "less",
+        ),
+        Interaction(
+            """
+# Looking for a Particular Process?
+
+You can use `grep` to find a process by it's name or a part of it's `ps` line:
+
+```console
+$ ps -elf | grep cis90 
+```
+""",
+            lambda cmd: cmd[0].command == "ps"
+            and cmd[0].args == ["-elf"]
+            and cmd[1].command == "grep"
+            and cmd[1].args[-1] == "cis90",
+        ),
+        Interaction(
+            """
+# You Can Filter Still...
+
+You use another copy of `grep` to look for processes that you own:
+
+```console
+$ ps -elf | grep cis90 | grep $USER 
+```
+""",
+            lambda cmd: cmd[0].command == "ps"
+            and cmd[0].args == ["-elf"]
+            and cmd[1].command == "grep"
+            and cmd[1].args[-1] == "cis90"
+            and cmd[2].command == "grep",
         ),
     ],
 }
