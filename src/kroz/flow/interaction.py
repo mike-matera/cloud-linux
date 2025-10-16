@@ -8,7 +8,7 @@ import json
 import textwrap
 from abc import abstractmethod
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Literal
 
 from quart import Quart, request
 from textual.message import Message
@@ -176,6 +176,19 @@ class InteractionScreen(KrozScreen):
     async def on_interaction_screen_command_line_event(
         self, event: "InteractionScreen.CommandLineEvent"
     ):
+        def render_title(status: Literal["ok", "err"]) -> str:
+            parts = []
+            if status == "ok":
+                parts.append("O")
+            else:
+                parts.append("X")
+
+            if event.cmd.result != 0:
+                parts.append(f"⤷{event.cmd.result}")
+
+            parts.append(str(event.cmd))
+            return " ".join(parts)
+
         md = self.query_one(Markdown)
         try:
             result = self._inter.on_command(event.cmd)
@@ -184,13 +197,13 @@ class InteractionScreen(KrozScreen):
                     KrozApp.running().notify("Congratulations!", timeout=5)
                     self.dismiss(str(event.cmd))
                 else:
-                    md.border_title = f"X {event.cmd}"
+                    md.border_title = render_title("err")
                     self.classes = "feedback"
             else:
-                md.border_title = f"O {event.cmd}"
+                md.border_title = render_title("ok")
                 self.classes = ""
         except AssertionError as e:
-            md.border_title = f"X {event.cmd}"
+            md.border_title = render_title("err")
             self.classes = "feedback"
             md.update(
                 textwrap.dedent(
@@ -202,7 +215,7 @@ class InteractionScreen(KrozScreen):
                 )
             )
         except Exception:
-            md.border_title = f"X {event.cmd}"
+            md.border_title = render_title("err")
             self.classes = "feedback"
 
     async def _run_server(self):
