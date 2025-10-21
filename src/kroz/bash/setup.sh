@@ -1,6 +1,9 @@
 KROZ_SOCKET="${HOME}/.kroz/command.sock:5000"
 
 function cmd_report {
+    if $(echo $BASH_COMMAND | grep -e '^\s*trap'); then 
+        BASH_COMMAND=''
+    fi
     if [[ -S "$KROZ_SOCKET" && "$BASH_COMMAND" != "prompt_report" && "$BASH_COMMAND" != "PROMPT_COMMAND=prompt_report" ]]; then
         message=\{\"cmd\":\"$(echo "$BASH_COMMAND" | base64)\"\}
         if [[ ! -z "$KROZ_REPORT_DEBUG" ]] then 
