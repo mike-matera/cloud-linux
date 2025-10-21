@@ -482,7 +482,7 @@ $ head -n 20 artichoke | tail -n 1 | cut -d' ' -f1
             and cmd[1].command == "tail"
             and cmd[1].args == ["-n", "1"]
             and cmd[2].command == "cut"
-            and "-d' '" in cmd[2].args
+            and "-d' '" in cmd[2].line
             and "-f1" in cmd[2].args,
         ),
     ],
