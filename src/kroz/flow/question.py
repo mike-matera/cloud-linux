@@ -254,7 +254,11 @@ class ShortAnswerQuestion(Question):
     """A (vert) short answer question for KROZ."""
 
     def __init__(
-        self, text: str, solution: str, help: str | None = None, **kwargs
+        self,
+        text: str,
+        solution: str | re.Pattern,
+        help: str | None = None,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self._text = text
@@ -272,9 +276,14 @@ class ShortAnswerQuestion(Question):
         return text
 
     def check(self, answer):
-        assert self._solution == answer.strip(), (
-            self._help if self._help is not None else "That's not correct."
-        )
+        if isinstance(self._solution, str):
+            assert self._solution == answer.strip(), (
+                self._help if self._help is not None else "That's not correct."
+            )
+        else:
+            assert re.match(self._solution, answer.strip()) is not None, (
+                self._help if self._help is not None else "That's not correct."
+            )
 
 
 class QuestionScreen(KrozScreen):

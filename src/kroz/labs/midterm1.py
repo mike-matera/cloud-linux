@@ -21,7 +21,7 @@ def run():
     if "started" not in app.state:
         app.state["started"] = datetime.datetime.now()
     try:
-        with FlowContext("questions", progress=True, points=100 / 9) as flow:
+        with FlowContext("questions", progress=False, points=100 / 9) as flow:
             flow.run(OsRelease("PRETTY_NAME"))
             flow.run(FreeMemory(key="free"))
             flow.run(FileType())

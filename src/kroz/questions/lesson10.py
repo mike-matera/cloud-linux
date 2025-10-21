@@ -21,8 +21,12 @@ import psutil
 from textual.validation import Integer
 
 from kroz.flow.base import KrozFlowABC
+from kroz.flow.interaction import Interaction
 from kroz.flow.question import (
+    MultipleChoiceQuestion,
     Question,
+    ShortAnswerQuestion,
+    TrueOrFalseQuestion,
 )
 from kroz.random import randint
 
@@ -37,7 +41,7 @@ class ThisProcess(Question):
 
     What is the Process ID (PID) of this program? 
 
-    TODO: Tell students the name to look for.
+    *Hint: This program contains "cis90" on the command line.*
     """
 
     validators = Integer()
@@ -48,8 +52,10 @@ class ThisProcess(Question):
         
         Here are a few tips: 
 
-        * Try making a pipeline with `ps` and `grep` to make it easier to find this process. 
-        * Other people may also be doing this lab. Make sure the process you find belongs to you. 
+        * Try making a pipeline with `ps` and `grep` to make it easier to find
+          this process. 
+        * Other people may also be doing this lab. Make sure the process you
+          find belongs to you. 
         """
 
 
@@ -58,8 +64,6 @@ class ThisParent(Question):
     # What is My PPID? 
 
     What is the **Parent** Process ID (PPID) of this program? 
-
-    TODO: Tell students the name to look for.
     """
 
     validators = Integer()
@@ -72,8 +76,10 @@ class ThisParent(Question):
         Here are a few tips: 
 
         * The PPID is listed on the same line as the PID in the output of `ps`. 
-        * Try making a pipeline with `ps` and `grep` to make it easier to find this process. 
-        * Other people may also be doing this lab. Make sure the process you find belongs to you. 
+        * Try making a pipeline with `ps` and `grep` to make it easier to find
+          this process. 
+        * Other people may also be doing this lab. Make sure the process you
+          find belongs to you. 
         """
 
 
@@ -81,9 +87,8 @@ class ThisGrandparent(Question):
     text = """
     # What is My Grandparent? 
 
-    What is the **Granparent** (The PPID of the PPID) Process ID of this program? 
-
-    TODO: Tell students the name to look for.
+    What is the **Granparent** (The PPID of the PPID) Process ID of this
+    program? 
     """
 
     validators = Integer()
@@ -103,7 +108,9 @@ class TopBackground(Question):
     # Stop Top 
 
     In a separate terminal start the `top` command and then put it in the
-    background. **Press Enter to continue.**
+    background. 
+    
+    **Press Enter to continue.**
     """
 
     placeholder = "Press Enter"
@@ -216,9 +223,249 @@ class ChildFind(Question):
             self._find(answer)
 
 
-walks: dict[str, list[KrozFlowABC]] = {}
+walks: dict[str, list[KrozFlowABC]] = {
+    "Processes in the current session": [
+        Interaction(
+            """
+# Long Running Programs
 
-questions: list[KrozFlowABC] = []
+Most of the commands we use in the class exit right after they perform their 
+task. When they exit the prompt returns. Some programs run until you stop them.
+For example, the `ping` command runs until you stop it with `Ctrl-c`. Start the
+`ping` command. 
+
+```console
+$ ping opus.cis.cabrillo.edu 
+```
+
+After a few *pongs* exit ping with `Ctrl-c`. 
+""",
+            lambda cmd: cmd.command == "ping" and cmd.result == 0,
+        ),
+        Interaction(
+            """
+# Putting a Process in the Background 
+
+You can pause `ping` instead of killing it using the `Ctrl-z` key. This time 
+start ping and put it into the background:
+
+```console
+$ ping opus.cis.cabrillo.edu 
+```
+
+After a few *pongs* put `ping` in background with `Ctrl-z`. 
+""",
+            lambda cmd: cmd.command == "ping" and cmd.result == 148,
+        ),
+        Interaction(
+            """
+A process can be brought back to the foreground with `fg`:
+
+```console
+$ fg 
+```
+
+After a few more *pongs* put ping back into the background with `Ctrl-z`. 
+""",
+            lambda cmd: cmd.command == "fg" and cmd.result == 148,
+        ),
+        Interaction(
+            """
+# Running in the Background 
+
+A program can run when it's in the background. To let `ping` run again while 
+still being able to enter a command run `bg`:
+
+```console
+$ bg 
+```
+""",
+            lambda cmd: cmd.command == "bg" and cmd.result == 0,
+        ),
+        Interaction(
+            """
+# Wait? What!? 
+
+Ping is running **and** you have a prompt. Pres `Enter` a few times to look for 
+the prompt. Try running the `ls` command:
+
+```console
+$ ls
+```
+""",
+            lambda cmd: cmd.command == "ls",
+        ),
+        Interaction(
+            """
+# Let's Fix This 
+
+You can kill `ping` by bringing it into the foreground and then stopping it with
+`Ctrl-c`. 
+
+```console
+$ fg
+```
+""",
+            lambda cmd: cmd.command == "fg",
+        ),
+    ],
+    "Using `jobs` and `killall`": [
+        Interaction(
+            """
+# Start Background Jobs 
+
+The `sleep` program takes one argument, a number of seconds to wait. The `sleep`
+program exits once it's done waiting. Let's use it to launch some jobs in the 
+background:
+
+```console
+$ sleep 500 & 
+```
+
+**Run it five times!**
+""",
+            [
+                lambda cmd: cmd.command == "sleep"
+                and cmd.args == ["500"]
+                and cmd.result == 0
+            ]
+            * 5,
+        ),
+        Interaction(
+            """
+Use the `jobs` command to see background jobs in your shell:
+
+```console
+$ jobs
+[1]   Running                 sleep 500 &
+[2]   Running                 sleep 500 &
+[3]   Running                 sleep 500 &
+[4]   Running                 sleep 500 &
+[5]-  Running                 sleep 500 &
+```
+
+**You should see five copies as shown.**
+""",
+            lambda cmd: cmd.command == "jobs",
+        ),
+        Interaction(
+            """
+# The `kill` Command 
+
+The `kill` command usually takes a process ID of a program. But when that
+program is in the current shell you can use a shortcut. The `%5` argument says 
+to kill job number 5:
+
+```console
+$ kill %5
+```
+""",
+            lambda cmd: cmd.command == "kill" and cmd.args == ["%5"],
+        ),
+        Interaction(
+            """
+# The `killall` Command 
+
+The `killall` command looks for all programs with a particular name and sends
+them all a signal to cause them to exit. Use `killall` to kill the rest of the
+`sleep` commands:
+
+```console
+$ killall sleep
+```
+""",
+            lambda cmd: cmd.command == "killall" and cmd.args == ["sleep"],
+        ),
+    ],
+    "Find this program": [
+        Interaction(
+            """
+# Limits of `ps`
+
+The `ps` program formats it's output to fit your screen. That makes it so that 
+the full command line of a command usually gets cut off: 
+
+```console
+$ ps -elf 
+```
+""",
+            lambda cmd: cmd.command == "ps" and cmd.args == ["-elf"],
+        ),
+        Interaction(
+            """
+You can see the full command lines by piping the output of `ps` through `less`:
+
+```console
+$ ps -elf | less
+```
+""",
+            lambda cmd: cmd[0].command == "ps"
+            and cmd[0].args == ["-elf"]
+            and cmd[1].command == "less",
+        ),
+        Interaction(
+            """
+# Looking for a Particular Process?
+
+You can use `grep` to find a process by it's name or a part of it's `ps` line:
+
+```console
+$ ps -elf | grep cis90 
+```
+""",
+            lambda cmd: cmd[0].command == "ps"
+            and cmd[0].args == ["-elf"]
+            and cmd[1].command == "grep"
+            and cmd[1].args[-1] == "cis90",
+        ),
+        Interaction(
+            """
+# You Can Filter Still...
+
+You use another copy of `grep` to look for processes that you own:
+
+```console
+$ ps -elf | grep cis90 | grep $USER 
+```
+""",
+            lambda cmd: cmd[0].command == "ps"
+            and cmd[0].args == ["-elf"]
+            and cmd[1].command == "grep"
+            and cmd[1].args[-1] == "cis90"
+            and cmd[2].command == "grep",
+        ),
+    ],
+}
+
+questions: list[KrozFlowABC] = [
+    MultipleChoiceQuestion(
+        "What is a characteristic of a *daemon program*?",
+        "It waits in the background",
+        "It's malicious",
+        "It's started by a user",
+        "It is part of the shell",
+    ),
+    TrueOrFalseQuestion("A program can have only one parent process.", True),
+    TrueOrFalseQuestion("A program have any number of child processes.", True),
+    MultipleChoiceQuestion(
+        "What is the first program that's started by Linux?",
+        "init",
+        "start",
+        "ProcessManager",
+        "The shell",
+    ),
+    ShortAnswerQuestion(
+        "What program interactively shows you all the processes running on the system?",
+        "top",
+    ),
+    MultipleChoiceQuestion(
+        "What is the alias for signal number 9?",
+        "KILL",
+        "INT",
+        "STOP",
+        "SEGV",
+    ),
+]
 
 lab: dict[str, list[KrozFlowABC]] = {
     "Find the ID of this process.": [ThisProcess()],
