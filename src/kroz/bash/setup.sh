@@ -26,3 +26,4 @@ function prompt_report {
 
 trap cmd_report DEBUG
 PROMPT_COMMAND=prompt_report
+unset VSCODE_SHELL_INTEGRATION
