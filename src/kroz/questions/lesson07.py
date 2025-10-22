@@ -40,9 +40,9 @@ from kroz.flow.question import (
 from kroz.questions.lesson04 import WordInBigfile
 from kroz.random.bigfile import random_big_file
 
-title = "Getting Help"
+title = "Pipelines"
 
-state = "rtfm"
+state = "io"
 
 
 class CountOranges(Question):
