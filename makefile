@@ -12,6 +12,8 @@ midterm1:
 install:
 	cp dist/cis90.pex /usr/bin/cis90
 	cp dist/kroz.pex /usr/bin/kroz 
+	chown root:mmatera /usr/bin/kroz 
+	chmod 770 /usr/bin/kroz 
 
 test:
 	uv run pytest --asyncio-mode auto 

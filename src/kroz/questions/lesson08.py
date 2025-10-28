@@ -39,7 +39,7 @@ class RandomRando(Question):
     text = """
     # Remove the "m" Files
 
-    I have just (re)created a directory called "Rando" in your home directory.
+    I have just (re)created a directory called "Random" in your home directory.
     Remove all files with names that start with the letter "m" (lower case). """
 
     def setup(self):
