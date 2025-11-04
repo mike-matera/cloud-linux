@@ -138,7 +138,9 @@ Look closely at the permissions.
         ),
         ShortAnswerQuestion("Who owns `/etc/shadow`?", "root", can_skip=False),
         ShortAnswerQuestion(
-            "What group does `/etc/shadow` belong to?", "root", can_skip=False
+            "What group does `/etc/shadow` belong to?",
+            "shadow",
+            can_skip=False,
         ),
         MultipleChoiceQuestion(
             "What can you do with the `/etc/shadow` file?",
