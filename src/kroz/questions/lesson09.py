@@ -14,6 +14,7 @@ Reading:
 Commands:
 
 1. `id`
+1. `chown`
 1. `chmod`
 1. `chgrp`
 1. `umask`

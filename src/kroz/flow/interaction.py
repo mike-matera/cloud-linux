@@ -77,6 +77,9 @@ class InteractionABC(KrozFlowABC):
     Base class for a KROZ interaction.
     """
 
+    # Default for flows.
+    can_skip = False
+
     @abstractmethod
     def on_command(self, command: CommandLineCommand) -> bool | None:
         """
@@ -95,7 +98,7 @@ class InteractionABC(KrozFlowABC):
 
     def show(self) -> FlowResult:
         app = KrozApp.running()
-        screen = InteractionScreen(self)
+        screen = InteractionScreen(self, can_skip=self.can_skip)
         self.answer = app.show(screen=screen)
         if self.answer is not None:
             return FlowResult.CORRECT
@@ -155,14 +158,9 @@ class InteractionScreen(KrozScreen):
     def __init__(
         self,
         inter: InteractionABC,
-        *,
-        title: str | None = None,
-        can_skip: bool = False,
         **kwargs,
     ):
-        super().__init__(
-            inter.text, title="O Listening...", can_skip=can_skip, **kwargs
-        )
+        super().__init__(inter.text, title="O Listening...", **kwargs)
         self._inter = inter
         self._server = Quart(__name__)
         self._server.add_url_rule(
