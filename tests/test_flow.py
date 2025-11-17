@@ -55,7 +55,7 @@ def incorrect_q():
 def test_flow_correct(kroz_app, correct_q):
     """Test a flow with correct result"""
 
-    result = FlowContext.run(correct_q(progress=False))
+    result = FlowContext.run(correct_q(progress=True))
     assert isinstance(result, correct_q)
     assert result.result == FlowResult.CORRECT
     assert result.answer == "show-return"
@@ -69,7 +69,7 @@ def test_flow_correct(kroz_app, correct_q):
 def test_flow_failure(kroz_app, incorrect_q):
     """Test a flow with failure result"""
 
-    result = FlowContext.run(incorrect_q(progress=False))
+    result = FlowContext.run(incorrect_q(progress=True))
     assert isinstance(result, incorrect_q)
     assert result.result == FlowResult.INCORRECT
     assert result.answer == "show-return"
@@ -84,7 +84,7 @@ def test_flow_skip(mocker, kroz_app, incorrect_q):
     """Test a flow with skipped result"""
 
     mocker.patch("kroz.app.KrozApp.show", new=Mock(return_value=None))
-    result = FlowContext.run(incorrect_q(progress=False))
+    result = FlowContext.run(incorrect_q(progress=True))
     assert isinstance(result, incorrect_q)
     assert result.result == FlowResult.SKIPPED
     assert result.answer is None

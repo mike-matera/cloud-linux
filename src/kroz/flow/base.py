@@ -228,10 +228,13 @@ class FlowContext:
             stack.checkpoint(flow)
             flow.result = flow.show()
 
-        if flow.result == FlowResult.CORRECT or (
-            flow.debug and flow.result == FlowResult.SKIPPED
-        ):
-            app.score += flow.points
+        # BUG: Double counting. The whole flow thing is really shitty design.
+        # The question flow updates the score because users should be albe to
+        # see it after a "congratulations". But then it's also done here.
+        # if flow.result == FlowResult.CORRECT or (
+        #     flow.debug and flow.result == FlowResult.SKIPPED
+        # ):
+        #     app.score += flow.points
 
         stack.record(flow)
         return flow

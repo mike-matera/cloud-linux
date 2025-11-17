@@ -9,6 +9,10 @@ midterm1:
 	uv run pex -v --venv append -c midterm1 -o dist/midterm1.pex . 
 	uv run pex -v --venv append -c practice1 -o dist/practice1.pex .
 
+midterm2:
+	uv run pex -v --venv append -c midterm1 -o dist/midterm1.pex . 
+	uv run pex -v --venv append -c practice1 -o dist/practice1.pex .
+
 install:
 	cp dist/cis90.pex /usr/bin/cis90
 	cp dist/kroz.pex /usr/bin/kroz 

@@ -1,5 +1,5 @@
 """
-Midterm 1
+Midterm 2
 """
 
 import datetime
@@ -14,22 +14,16 @@ from kroz.questions.lesson02 import (
     NewYearFuture,
     OsRelease,
 )
-from kroz.questions.lesson03 import PathAttrs, RelativePaths
+from kroz.questions.lesson03 import PathAttrs
 from kroz.questions.lesson04 import FileType, LinkInfo, MakeLink, WordInBigfile
-from kroz.questions.lesson07 import CountOranges, SortedWords, UniqueWords
+from kroz.questions.lesson07 import UniqueWords
 from kroz.questions.lesson08 import (
     DeepMessage,
-    RandomDeleteMe,
     RandomRando,
-    RandomRandoTick,
 )
-from kroz.questions.lesson09 import Islands2
 from kroz.questions.lesson10 import (
     ChildFind,
     ThisGrandparent,
-    ThisParent,
-    ThisProcess,
-    TopBackground,
 )
 from kroz.random.path import CheckDir, CheckFile, CheckPath
 
@@ -137,39 +131,26 @@ def run():
     if "started" not in app.state:
         app.state["started"] = datetime.datetime.now()
     try:
-        with FlowContext("questions", progress=False, points=100 / 9) as flow:
-            flow.run(OsRelease("PRETTY_NAME"))
-            flow.run(FreeMemory(key="free"))
+        with FlowContext("midterm2", progress=False, points=10) as flow:
+            flow.run(OsRelease("ID_LIKE"))
+            flow.run(FreeMemory(key="shared"))
             flow.run(FileType())
-            flow.run(RelativePaths(verbose=False))
-            flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH))
-            flow.run(WordInBigfile(cols=5, find=(3, 2)))
-            flow.run(PathAttrs(type=PathAttrs.AttrType.INODE))
-            flow.run(LinkInfo(type=LinkInfo.Info.TARGET))
-            flow.run(MakeLink(name="midterm1", rel=False))
-
-            flow.run(NewYearFuture(tries=1))
-            flow.run(OsRelease("VERSION_CODENAME"))
-            flow.run(FreeMemory(key="used"))
-            flow.run(FileType())
-            flow.run(RelativePaths())
-            flow.run(WordInBigfile(cols=5, find=(2, 2)))
-            flow.run(PathAttrs(type=PathAttrs.AttrType.INODE))
-            flow.run(LinkInfo(type=LinkInfo.Info.TARGET))
-            flow.run(MakeLink(name="practice1", rel=True))
-            flow.run(Islands2())
-            flow.run(CountOranges())
-            flow.run(SortedWords())
+            flow.run(WordInBigfile(cols=5, from_bottom=True))
+            flow.run(
+                PathAttrs(
+                    path_type=PathAttrs.PathType.DIR,
+                    type=PathAttrs.AttrType.INODE,
+                )
+            )
+            flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH_INDIRECT))
+            flow.run(MakeLink(name="midterm2", rel=False))
+            flow.run(NewYearFuture(tries=2))
+            flow.run(Counties())
             flow.run(UniqueWords())
             flow.run(RandomRando())
-            flow.run(RandomRandoTick())
-            flow.run(RandomDeleteMe())
             flow.run(DeepMessage())
-            flow.run(ThisProcess())
-            flow.run(ThisParent())
             flow.run(ThisGrandparent())
-            flow.run(TopBackground())
-            flow.run(ChildFind(ChildFind.ResourceType.COUNT))
+            flow.run(ChildFind(ChildFind.ResourceType.NICE))
 
     finally:
         app.state["exited"] = datetime.datetime.now()
@@ -177,7 +158,7 @@ def run():
 
 def main():
     try:
-        assert input("What's the password? ") == "meatball"
+        assert input("What's the password? ") == "hildegard"
     except:
         print("Sorry.")
         return

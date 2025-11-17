@@ -138,8 +138,8 @@
         src: "../dist/kroz.pex"
         dest: "/usr/bin/kroz"
         owner: "root"
-        group: "root"
-        mode: '0755'
+        group: "mmatera"
+        mode: '0750'
     - name: "Install cis90 binary"
       ansible.builtin.copy:
         src: "../dist/cis90.pex"
@@ -165,6 +165,27 @@
       ansible.builtin.copy:
         src: "../dist/practice1.pex"
         dest: "/usr/bin/practice1"
+        owner: "root"
+        group: "root"
+        mode: '0755'
+
+- hosts: hydra.cis.cabrillo.edu
+  name: Install midterm2 and practice2
+  tags:
+    - midterm2
+  become: true
+  tasks:
+    - name: "Install midterm2"
+      ansible.builtin.copy:
+        src: "../dist/midterm2.pex"
+        dest: "/usr/bin/midterm2"
+        owner: "root"
+        group: "root"
+        mode: '0755'
+    - name: "Install practice2"
+      ansible.builtin.copy:
+        src: "../dist/practice2.pex"
+        dest: "/usr/bin/practice2"
         owner: "root"
         group: "root"
         mode: '0755'
