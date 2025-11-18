@@ -309,10 +309,14 @@ class LinkInfo(Question):
             assert answer.strip() == os.readlink(self._path), (
                 """That's not correct."""
             )
-        elif (
-            self._type == LinkInfo.Info.TARGET_PATH
-            or self._type == LinkInfo.Info.TARGET_PATH_INDIRECT
-        ):
+        elif self._type == LinkInfo.Info.TARGET_PATH:
+            assert Path(answer.strip()).resolve() == self._path.resolve(), (
+                """That's not correct."""
+            )
+        elif self._type == LinkInfo.Info.TARGET_PATH_INDIRECT:
+            assert not Path(answer.strip()).is_symlink(), (
+                """That's not correct. The answer you gave is a link."""
+            )
             assert Path(answer.strip()).resolve() == self._path.resolve(), (
                 """That's not correct."""
             )

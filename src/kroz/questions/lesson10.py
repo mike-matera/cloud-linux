@@ -87,7 +87,7 @@ class ThisGrandparent(Question):
     text = """
     # What is My Grandparent? 
 
-    What is the **Granparent** (The PPID of the PPID) Process ID of this
+    What is the **Grandparent** (The PPID of the PPID) Process ID of this
     program? 
     """
 
