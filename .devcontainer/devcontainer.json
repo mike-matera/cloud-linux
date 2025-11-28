@@ -1,6 +1,6 @@
 {
-    "name": "Default DevContainer",
-    "image": "mcr.microsoft.com/devcontainers/universal:latest",
+    "name": "CIS-90 Kroz devcontainer",
+    "image": "ghcr.io/mike-matera/cis-90-devcontainer:main",
     "features": {
     },
     "customizations": {
