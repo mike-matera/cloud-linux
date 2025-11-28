@@ -1,0 +1,15 @@
+{
+    "name": "Default DevContainer",
+    "image": "mcr.microsoft.com/devcontainers/universal:latest",
+    "features": {
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+            ]
+        }
+    },
+    "forwardPorts": [],
+    "postCreateCommand": "",
+    "remoteUser": "student"
+}

@@ -1,6 +1,9 @@
 
 - hosts: all
   name: Generate host groups by distro.
+  tags:
+    - setup
+    - devcontainer
   tasks:
     - name: Classify hosts depending on their OS distribution
       group_by:
@@ -9,6 +12,9 @@
 - hosts: all
   become: true
   name: Install packages.
+  tags:
+    - setup
+    - devcontainer
   tasks: 
     - ansible.builtin.package:
         name:
@@ -17,7 +23,7 @@
 
 - hosts: all 
   name: Install MOTD
-  become: yes
+  become: true
   roles:
     - role: motd
       motdname: "{{inventory_hostname_short}}"
@@ -28,6 +34,7 @@
   become: true
   tags:
     - zork
+    - devcontainer
   roles:
     - zork 
 
@@ -52,6 +59,8 @@
 - hosts: opus.cis.cabrillo.edu 
   name: Create student skeleton directory 
   become: true
+  tags:
+    - devcontainer
   tasks:
     - name: Untar the skeleton 
       ansible.builtin.unarchive:
@@ -61,6 +70,8 @@
 - hosts: all 
   name: Add KROZ configuration to the default bashrc.  
   become: true
+  tags:
+    - kroz
   tasks:
     - name: Add KROZ watcher setup.
       ansible.builtin.blockinfile:

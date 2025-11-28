@@ -16,3 +16,4 @@ packages:
   - sysvbanner
   - emacs
   - unzip
+  - curl

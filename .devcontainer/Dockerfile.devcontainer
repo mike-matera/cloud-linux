@@ -1,0 +1,28 @@
+FROM mcr.microsoft.com/devcontainers/base:ubuntu24.04 
+
+RUN bash -c "unminimize <<< y"
+RUN apt update -y && apt install -y ansible pipx
+
+COPY playbooks /tmp/playbooks 
+
+RUN cd /tmp/playbooks \
+    && ansible-playbook -i inventory-devcontainer.yaml --connection=local base.yaml -t devcontainer \
+    && rm -rf /tmp/playbooks
+
+RUN useradd -m --shell /usr/bin/bash student 
+USER student 
+WORKDIR /home/student 
+
+RUN pipx install uv
+
+COPY --chown=student:student pyproject.toml MANIFEST.in uv.lock README.md /tmp/installer/
+COPY --chown=student:student src/ /tmp/installer/src/
+
+RUN cd /tmp/installer \
+    && /home/student/.local/bin/uv build \
+    && pipx install dist/cloud_linux-* \
+    && rm -rf /tmp/installer ~/.cache ~/.local/bin/mid* ~/.local/bin/practice* ~/.local/bin/kroz 
+
+RUN echo 'eval "$(/home/student/.local/bin/cis90 config)"' >> /home/student/.bashrc 
+
+CMD ["/usr/bin/bash", "-l"]
