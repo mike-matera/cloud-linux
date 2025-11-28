@@ -1,4 +1,4 @@
-name: build-key-signer
+name: build-dev-container
 
 on:
   workflow_dispatch: {}
