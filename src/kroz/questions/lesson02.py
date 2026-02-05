@@ -176,15 +176,17 @@ class OsRelease(Question):
         return f"""
         # Operating System Information 
 
-        Use a command to show you the "{self._key}" of the Linux operating 
-        system. Enter it in the box below. 
+        What is the "{self._key}" of the Linux distribution ("distro") on this
+        server?
+        
+        Enter it in the box below. 
         """
 
     def check(self, answer):
         assert self._solution == answer.replace('"', "").strip(), """
-            That's not correct. The command that shows you operating system
-            information also shows a lot of other information. Make sure you find
-            the exact information that I asked for. 
+            That's not correct. The command that shows you information about the
+            Linux distribution also shows a lot of other information. Make sure
+            you find the exact information that I asked for. 
             """
 
 
