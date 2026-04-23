@@ -163,15 +163,7 @@ class CheckPath:
 
         This is destructive. Be careful.
         """
-        self._validate()
-        if self.basepath.exists():
-            for item in self.basepath.iterdir():
-                if item.is_dir():
-                    shutil.rmtree(item)
-                else:
-                    item.unlink()
-        else:
-            self.basepath.mkdir(parents=True)
+        self.cleanup()  # Runs validate
 
         for file in self.files:
             realpath = self.basepath / file.path
@@ -202,10 +194,18 @@ class CheckPath:
     def cleanup(self):
         """Remove the contents of the basepath (but not the path itself)"""
         self._validate()
+
+        def remove_readonly(func, path, _):
+            "Clear the readonly bit and reattempt the removal"
+            pathlib.Path(path).chmod(0o700)
+            func(path)
+
         if self.basepath.exists():
+            self.basepath.chmod(0o700, follow_symlinks=False)
             for item in self.basepath.iterdir():
+                item.chmod(0o777, follow_symlinks=False)
                 if item.is_dir():
-                    shutil.rmtree(item)
+                    shutil.rmtree(item)  # , onexc=remove_readonly)
                 else:
                     item.unlink()
 
