@@ -196,7 +196,8 @@ class CheckPath:
         self._validate()
 
         def remove_readonly(func, path, _):
-            "Clear the readonly bit and reattempt the removal"
+            """Attempt to fix the error and retry."""
+            pathlib.Path(path).parent.chmod(0o700)
             pathlib.Path(path).chmod(0o700)
             func(path)
 
@@ -205,7 +206,7 @@ class CheckPath:
             for item in self.basepath.iterdir():
                 item.chmod(0o777, follow_symlinks=False)
                 if item.is_dir():
-                    shutil.rmtree(item)  # , onexc=remove_readonly)
+                    shutil.rmtree(item, onexc=remove_readonly)
                 else:
                     item.unlink()
 
