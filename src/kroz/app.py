@@ -18,7 +18,7 @@ from textual.message import Message
 from textual.reactive import Reactive
 from textual.screen import ModalScreen, Screen
 from textual.widgets import Footer, Label, ProgressBar, RichLog, Static
-from textual.worker import Worker, get_current_worker
+from textual.worker import NoActiveWorker, Worker, get_current_worker
 
 from kroz.screen import KrozScreen
 from kroz.secrets import (
@@ -430,22 +430,47 @@ class KrozApp(App[str]):
 
     @staticmethod
     def running() -> "KrozApp":
+        """Get the running KrozApp from the worker thread's context.
+        If there's no running KrozApp a `NoActiveWorker` exception is raised.
+        """
         app = get_current_worker().node
         assert isinstance(app, KrozApp)
         return app
 
     @staticmethod
     def appconfig(key: str) -> Any:
-        return KrozApp.running().config[key]
+        """
+        Get a value from the current app's configuration dictionary. If there is
+        no running application resolve the key from the default configuration.
+        """
+        global _default_config
+        try:
+            return KrozApp.running().config[key]
+        except NoActiveWorker:
+            return _default_config[key]
 
     @staticmethod
     def setup_hook(
         *, hook: Callable[[], None] | None = None, defconfig={}
     ) -> None:
+        """
+        Register a setup hook with the KrozApp. This hook will be called during
+        application initialization. Modules that have expensive initialization
+        should do initialization in a hook so that users see a "please wait"
+        message.
+
+        If there is no running KrozApp this kook is executed immediately, that
+        way modules can be used in isolation after a plain "import".
+        """
         global _setuphooks, _default_config
+        _default_config.update(defconfig)
         if hook is not None:
             _setuphooks.append(hook)
-        _default_config.update(defconfig)
+            try:
+                get_current_worker()
+            except NoActiveWorker:
+                # There is no running app, run the setup hook now.
+                hook()
 
     @staticmethod
     def progress(title: str | None = None, initial_progress: int = 0):
