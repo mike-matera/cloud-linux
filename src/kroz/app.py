@@ -33,7 +33,6 @@ _setuphooks = []
 
 _default_config = {
     "default_path": pathlib.Path(os.environ.get("HOME", os.getcwd())),
-    "random_seed": None,
     "secret": None,
     "config_dir": None,
     "state_file": None,
@@ -200,7 +199,6 @@ class KrozApp(App[str]):
         self,
         title: str,
         default_path: str | None = None,
-        random_seed: int | None = None,
         secret: str | None = None,
         config_dir: str | None = None,
         state_file: str | None = None,
@@ -216,8 +214,6 @@ class KrozApp(App[str]):
         self._user_config = user_config
         if default_path:
             self._user_config["default_path"] = pathlib.Path(default_path)
-        if random_seed:
-            self._user_config["random_seed"] = int(random_seed)
         if secret:
             self._user_config["secret"] = str(secret)
         if config_dir:
@@ -434,7 +430,7 @@ class KrozApp(App[str]):
 
     @staticmethod
     def running() -> "KrozApp":
-        app: KrozApp = get_current_worker().node  # type: ignore
+        app = get_current_worker().node
         assert isinstance(app, KrozApp)
         return app
 

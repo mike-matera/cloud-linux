@@ -40,7 +40,6 @@ async def test_app_default_config(mocker):
 
         # Now check expected defaults after initialization
         assert app.config["default_path"] == pathlib.Path.home()
-        assert app.config["random_seed"] is None
         assert app.config["config_dir"] == pathlib.Path.home() / ".kroz"
         assert app.config["state_file"] is None
 
@@ -52,7 +51,6 @@ async def test_app_debug_config(mocker):
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.config["default_path"] == pathlib.Path.cwd()
-        assert app.config["random_seed"] is None
         assert app.config["config_dir"] == pathlib.Path.cwd()
         assert app.config["state_file"] is None
 
@@ -65,12 +63,6 @@ async def test_app_config_items(mocker):
         await pilot.pause()
         assert isinstance(app.config["default_path"], pathlib.Path)
         assert app.config["default_path"] == pathlib.Path("/tmp")
-
-    app = get_app(mocker, random_seed="20")
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        assert isinstance(app.config["random_seed"], int)
-        assert app.config["random_seed"] == 20
 
     app = get_app(mocker, secret="foobar")
     async with app.run_test() as pilot:
