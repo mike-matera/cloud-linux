@@ -3,11 +3,10 @@ Random processes.
 """
 
 import datetime
+from random import choice
 from typing import Any, Callable
 
 import psutil
-
-from kroz.random import choice
 
 
 def random_process(

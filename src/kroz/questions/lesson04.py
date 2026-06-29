@@ -21,6 +21,7 @@ Commands:
 """
 
 import os
+import random
 import re
 from enum import Enum
 from pathlib import Path
@@ -28,7 +29,6 @@ from typing import Callable
 
 from textual.validation import Regex
 
-import kroz.random as random
 from kroz.app import KrozApp
 from kroz.flow.base import KrozFlowABC
 from kroz.flow.interaction import Interaction

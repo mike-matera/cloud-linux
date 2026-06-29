@@ -15,7 +15,7 @@ import multiprocessing
 import os
 import time
 from enum import Enum
-from random import shuffle
+from random import randint, shuffle
 
 import psutil
 from textual.validation import Integer
@@ -28,7 +28,6 @@ from kroz.flow.question import (
     ShortAnswerQuestion,
     TrueOrFalseQuestion,
 )
-from kroz.random import randint
 
 title = "Working with Processes"
 

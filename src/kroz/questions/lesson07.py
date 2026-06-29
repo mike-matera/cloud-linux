@@ -24,11 +24,11 @@ Commands:
 
 """
 
+import random
 from pathlib import Path
 
 import textual.validation
 
-import kroz.random as random
 from kroz.flow.base import KrozFlowABC
 from kroz.flow.interaction import Interaction
 from kroz.flow.question import (

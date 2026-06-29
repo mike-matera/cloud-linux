@@ -3,11 +3,11 @@ Randomized system paths.
 """
 
 import pathlib
+import random
 from collections import namedtuple
 from collections.abc import Callable, Generator, Hashable
 from typing import Iterable
 
-import kroz.random as random
 from kroz.app import KrozApp
 
 SearchTree = namedtuple("SearchTree", ["root", "glob"])

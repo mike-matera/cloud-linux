@@ -2,10 +2,10 @@
 Helper for streams of random words.
 """
 
+import random
 import re
 from os import PathLike
 
-import kroz.random as random
 from kroz.app import KrozApp
 
 BANNED_WORDS: list[str] = [
