@@ -2,81 +2,110 @@
 Generic flow of an interactive lab.
 """
 
+from dataclasses import dataclass
+
 from kroz.app import KrozApp
-from kroz.flow import FlowContext
 from kroz.flow.base import FlowResult, KrozFlowABC
 from kroz.flow.question import Menu
+
+
+@dataclass
+class QuestionItem:
+    title: str
+    series: tuple[KrozFlowABC]
+    points: float
+
+
+@dataclass
+class StateItem:
+    title: str
+    status: FlowResult
+    score: float
 
 
 def lab(package, debug=False):
     app = KrozApp(package.title, state_file=package.state, debug=debug)
 
     def main() -> None:
-        app.show(package.__doc__, title="Welcome!", classes="welcome")
-
-        while True:
-            app.score = 0
-            for name in package.walks:
-                if (
-                    FlowContext.flow_status(f"walk:{name}")
-                    == FlowResult.CORRECT
-                ):
-                    app.score += 10 / len(package.walks)
-
-            if FlowContext.flow_status("questions") == FlowResult.CORRECT:
-                app.score += 10
-
-            for name in package.lab:
-                if (
-                    FlowContext.flow_status(f"lab:{name}")
-                    == FlowResult.CORRECT
-                ):
-                    app.score += 30 / len(package.lab)
-
-            items = [
-                (
-                    f"walk:{key}",
-                    f"{FlowContext.status_icon(f'walk:{key}')} {key}",
-                    value,
+        # Assemble the questions...
+        questions: list[QuestionItem] = (
+            [
+                QuestionItem(
+                    title=key,
+                    series=tuple(value),
+                    points=10 / len(package.walks),
                 )
                 for key, value in package.walks.items()
             ]
-            items += [
-                (
-                    "questions",
-                    f"{FlowContext.status_icon('questions')} Chapter questions",
-                    package.questions,
+            + [
+                QuestionItem(
+                    title="Chapter Questions",
+                    series=tuple(package.questions),
+                    points=10,
                 )
             ]
-            items += [
-                (
-                    f"lab:{key}",
-                    f"{FlowContext.status_icon(f'lab:{key}')} {key}",
-                    value,
+            + [
+                QuestionItem(
+                    title=key,
+                    series=tuple(value),
+                    points=30 / len(package.lab),
                 )
                 for key, value in package.lab.items()
             ]
+        )
 
-            choice = FlowContext.run(
-                Menu(
-                    message="""
+        # Create the default state dictionary.
+        state: dict[str, StateItem] = {
+            q.title: StateItem(
+                title=q.title, status=FlowResult.INCOMPLETE, score=0
+            )
+            for q in questions
+        }
+
+        # Recover the stored state if present. If not store the default.
+        state = app.state.get("progress", default=state, store=True)
+        app.set_score(sum([s.score for s in state.values()]))
+
+        app.show(package.__doc__, title="Welcome!", classes="welcome")
+
+        while True:
+            # TODO: Log each attempt
+
+            menu = Menu(
+                message="""
                     # Choose Your Path
 
                     **Choose a journey by entering a number and pressing `Enter`**
         """,
-                    items=[i[1] for i in items],
-                )
+                items=[
+                    f"[{state[i.title].status.value.short}] {i.title}"
+                    for i in questions
+                ],
             )
-            if choice.answer is not None:
-                item = int(choice.answer) - 1
-                if item == len(items):
+            menu.show()
+
+            if menu.answer is not None:
+                item = int(menu.answer) - 1
+
+                # Last item is always exit
+                if item == len(questions):
                     return
-                with FlowContext(items[item][0]) as flow:
-                    for f in items[item][2]:
-                        if isinstance(f, KrozFlowABC):
-                            flow.run(f)
-                        elif issubclass(f, KrozFlowABC):
-                            flow.run(f())
+
+                # Execute the questions
+                results = [
+                    f.show() if isinstance(f, KrozFlowABC) else f().show()
+                    for f in questions[item].series
+                ]
+
+                if all([r == FlowResult.CORRECT for r in results]):
+                    state[questions[item].title].status = FlowResult.CORRECT
+                    state[questions[item].title].score = questions[item].points
+                else:
+                    state[questions[item].title].status = FlowResult.SKIPPED
+                    state[questions[item].title].score = 0
+
+                app.state.store()
+                app.set_score(sum([s.score for s in state.values()]))
 
     app.main(main)
     return app.run()

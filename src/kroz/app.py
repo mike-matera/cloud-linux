@@ -353,6 +353,11 @@ class KrozApp(App[str]):
             raise RuntimeError("State has not been initialized.")
         return self._state
 
+    @property
+    def has_state(self):
+        """True if persistence is possible."""
+        return self._state is not None
+
     async def _show(self, screen: KrozScreen, animate: bool = True) -> Any:
         class Blanker(Screen):
             CSS = """

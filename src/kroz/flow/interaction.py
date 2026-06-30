@@ -3,7 +3,6 @@ The protocol and implementation of an interaction in KROZ.
 """
 
 import base64
-import hashlib
 import json
 import textwrap
 from abc import abstractmethod
@@ -99,11 +98,10 @@ class InteractionABC(KrozFlowABC):
     def show(self) -> FlowResult:
         app = KrozApp.running()
         screen = InteractionScreen(self, can_skip=self.can_skip)
-        self.answer = app.show(screen=screen)
-        if self.answer is not None:
+        if app.show(screen=screen) is not None:
             return FlowResult.CORRECT
         else:
-            return FlowResult.SKIPPED
+            return FlowResult.INCORRECT
 
 
 class Interaction(InteractionABC):
@@ -123,10 +121,11 @@ class Interaction(InteractionABC):
         else:
             self.filter = [filter]
         self.stage = 0
-        self.name = hashlib.sha1(text.encode("utf-8")).hexdigest()
 
     def on_command(self, command: CommandLineCommand) -> bool | None:
         try:
+            self.answer = str(command)
+            self.log()
             if self.filter[self.stage](command):
                 self.stage += 1
             else:

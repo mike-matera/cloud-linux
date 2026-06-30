@@ -127,6 +127,8 @@ class Question(KrozFlowABC):
                     )
                 )
 
+                self.log()
+
                 if self.answer is None:
                     return FlowResult.SKIPPED
 
@@ -156,7 +158,6 @@ class Question(KrozFlowABC):
                         )
                         tries_left -= 1
                     else:
-                        app.update_score(self.points)
                         if self.congrats is not None:
                             app.show(
                                 KrozScreen(

@@ -1,10 +1,10 @@
-from textual.app import RenderResult, ComposeResult
+from rich.text import Text
+from textual.app import ComposeResult, RenderResult
+from textual.widget import Widget
 from textual.widgets import (
     Header,
 )
-from textual.widget import Widget
 from textual.widgets._header import HeaderIcon, HeaderTitle
-from rich.text import Text
 
 
 class ScoreHeader(Header):
@@ -28,9 +28,12 @@ class ScoreHeader(Header):
             self._format = ""
 
         def render(self) -> RenderResult:
-            return Text(
-                self._format.format(score=self._score, total=self._total)
-            )
+            if self._score > 0:
+                return Text(
+                    self._format.format(score=self._score, total=self._total)
+                )
+            else:
+                return Text("")
 
         async def set_total(self, total: int) -> None:
             self._total = total
