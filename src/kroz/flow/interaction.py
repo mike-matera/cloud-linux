@@ -97,11 +97,13 @@ class InteractionABC(KrozFlowABC):
 
     def show(self) -> FlowResult:
         app = KrozApp.running()
+        self.result = FlowResult.INCOMPLETE
         screen = InteractionScreen(self, can_skip=self.can_skip)
         if app.show(screen=screen) is not None:
-            return FlowResult.CORRECT
+            self.result = FlowResult.CORRECT
         else:
-            return FlowResult.INCORRECT
+            self.result = FlowResult.INCORRECT
+        return self.result
 
 
 class Interaction(InteractionABC):

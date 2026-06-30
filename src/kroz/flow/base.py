@@ -20,6 +20,9 @@ class FlowResult(Enum):
     SKIPPED = FlowResultValue(long="Skipped", short="~")
     INCOMPLETE = FlowResultValue(long="Incomplete", short=" ")
 
+    def __str__(self):
+        return self.value.long
+
 
 @dataclass
 class AttemptLogEntry:
@@ -40,6 +43,8 @@ class KrozFlowABC(ABC):
 
     # Runtime data
     answer: str | None = None
+    points: float | None = None
+    result: FlowResult = FlowResult.INCOMPLETE
 
     debug: bool = False
 
@@ -71,7 +76,7 @@ class KrozFlowABC(ABC):
         settings = "\n".join(
             f"{item}: {value}"
             for item, value in sorted(self.__dict__.items())
-            if item != "text"
+            if item != "text" and not item.startswith("_")
         )
         return f"""
 {textwrap.indent(header, "+-- ", predicate=lambda x: True)}

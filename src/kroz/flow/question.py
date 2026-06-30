@@ -101,6 +101,7 @@ class Question(KrozFlowABC):
 
         app = KrozApp.running()
         try:
+            self.result = FlowResult.INCOMPLETE
             self.setup()
             tries_left = self.tries
             while self.tries == 0 or tries_left > 0:
@@ -127,10 +128,10 @@ class Question(KrozFlowABC):
                     )
                 )
 
-                self.log()
-
                 if self.answer is None:
-                    return FlowResult.SKIPPED
+                    self.result = FlowResult.SKIPPED
+                    self.log()  # Log skipps (is this necessary?)
+                    return self.result
 
                 try:
                     check_result = self.check(self.answer)
@@ -157,6 +158,7 @@ class Question(KrozFlowABC):
                             )
                         )
                         tries_left -= 1
+                        self.result = FlowResult.INCORRECT
                     else:
                         if self.congrats is not None:
                             app.show(
@@ -166,15 +168,15 @@ class Question(KrozFlowABC):
                                     classes="congrats",
                                 )
                             )
-                        return FlowResult.CORRECT
+                        self.result = FlowResult.CORRECT
+                        return self.result
                 finally:
-                    # Save this attempt
-                    app.state.store()
+                    self.log()  # Log skipps (is this necessary?)
                     self.cleanup_attempt()
         finally:
             self.cleanup()
 
-        return FlowResult.INCORRECT
+        return self.result
 
 
 class MultipleChoiceQuestion(Question):
