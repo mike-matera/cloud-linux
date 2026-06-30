@@ -2,10 +2,8 @@
 Midterm 1
 """
 
-import datetime
-
 from kroz.app import KrozApp
-from kroz.flow import FlowContext
+from kroz.labs.exam import exam
 from kroz.questions.lesson02 import (
     FreeMemory,
     OsRelease,
@@ -18,27 +16,24 @@ app = KrozApp("Midterm 1", state_file="midterm1")
 
 @app.main
 def run():
-    if "started" not in app.state:
-        app.state["started"] = datetime.datetime.now()
-    try:
-        with FlowContext("questions", progress=False, points=11) as flow:
-            flow.run(OsRelease("PRETTY_NAME"))
-            flow.run(FreeMemory(key="free"))
-            flow.run(FileType())
-            flow.run(RelativePaths(verbose=False))
-            flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH))
-            flow.run(WordInBigfile(cols=5, find=(3, 2)))
-            flow.run(PathAttrs(type=PathAttrs.AttrType.INODE))
-            flow.run(LinkInfo(type=LinkInfo.Info.TARGET))
-            flow.run(MakeLink(name="midterm1", rel=False))
-    finally:
-        app.state["exited"] = datetime.datetime.now()
+    return exam(
+        OsRelease("PRETTY_NAME", points=20),
+        FreeMemory(key="free", points=10),
+        FileType(points=10),
+        RelativePaths(verbose=False, points=10),
+        LinkInfo(type=LinkInfo.Info.TARGET_PATH, points=10),
+        WordInBigfile(cols=5, find=(3, 2), points=10),
+        PathAttrs(type=PathAttrs.AttrType.INODE, points=10),
+        LinkInfo(type=LinkInfo.Info.TARGET, points=10),
+        MakeLink(name="midterm1", rel=False, points=10),
+        timelimit=120,
+    )
 
 
 def main():
     try:
         assert input("What's the password? ") == "meatball"
-    except:
+    except AssertionError:
         print("Sorry.")
         return
 

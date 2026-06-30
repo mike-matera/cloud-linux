@@ -2,13 +2,12 @@
 Midterm 2
 """
 
-import datetime
 import textwrap
 from pathlib import Path
 
 from kroz.app import KrozApp
-from kroz.flow import FlowContext
 from kroz.flow.question import Question
+from kroz.labs.exam import exam
 from kroz.questions.lesson02 import (
     FreeMemory,
     NewYearFuture,
@@ -128,38 +127,33 @@ class Counties(Question):
 
 @app.main
 def run():
-    if "started" not in app.state:
-        app.state["started"] = datetime.datetime.now()
-    try:
-        with FlowContext("midterm2", progress=False, points=10) as flow:
-            flow.run(OsRelease("ID_LIKE"))
-            flow.run(FreeMemory(key="shared"))
-            flow.run(FileType())
-            flow.run(WordInBigfile(cols=5, from_bottom=True))
-            flow.run(
-                PathAttrs(
-                    path_type=PathAttrs.PathType.DIR,
-                    type=PathAttrs.AttrType.INODE,
-                )
-            )
-            flow.run(LinkInfo(type=LinkInfo.Info.TARGET_PATH_INDIRECT))
-            flow.run(MakeLink(name="midterm2", rel=False))
-            flow.run(NewYearFuture(tries=2))
-            flow.run(Counties())
-            flow.run(UniqueWords())
-            flow.run(RandomRando())
-            flow.run(DeepMessage())
-            flow.run(ThisGrandparent())
-            flow.run(ChildFind(ChildFind.ResourceType.NICE))
-
-    finally:
-        app.state["exited"] = datetime.datetime.now()
+    return exam(
+        OsRelease("ID_LIKE", points=10),
+        FreeMemory(key="shared", points=10),
+        FileType(points=10),
+        WordInBigfile(cols=5, from_bottom=True, points=10),
+        PathAttrs(
+            path_type=PathAttrs.PathType.DIR,
+            type=PathAttrs.AttrType.INODE,
+            points=10,
+        ),
+        LinkInfo(type=LinkInfo.Info.TARGET_PATH_INDIRECT, points=10),
+        MakeLink(name="midterm2", rel=False, points=10),
+        NewYearFuture(tries=2, points=10),
+        Counties(points=10),
+        UniqueWords(points=10),
+        RandomRando(points=10),
+        DeepMessage(points=10),
+        ThisGrandparent(points=10),
+        ChildFind(ChildFind.ResourceType.NICE, points=10),
+        timelimit=180,
+    )
 
 
 def main():
     try:
         assert input("What's the password? ") == "hildegard"
-    except:
+    except AssertionError:
         print("Sorry.")
         return
 
