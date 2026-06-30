@@ -321,6 +321,8 @@ class KrozApp(App[str]):
             self.score += msg._update
         elif msg._to:
             self.score = msg._to
+        if self.has_state:
+            self.state["score"] = self.score
 
     async def action_cleanup_quit(self):
         self.workers.cancel_all()
