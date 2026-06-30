@@ -12,6 +12,7 @@ import sys
 import uuid
 from importlib.resources import files
 from pathlib import Path
+from typing import Any
 
 
 def run(args) -> int:
@@ -82,7 +83,6 @@ def ask(args) -> int:
     os.environ["TEXTUAL"] = "debug,devtools"
 
     from kroz.app import KrozApp
-    from kroz.flow import FlowContext
 
     module: str = args.module
     assert ":" in module, """Module must be in the format module:class"""
@@ -94,7 +94,7 @@ def ask(args) -> int:
         f"""The question {question} is not in the module."""
     )
 
-    kwargs = {"progress": True, "tries": 1}
+    kwargs: dict[str, Any] = {"tries": 1}
     for extra in args.args:
         assert "=" in extra, (
             f"""Argument "{extra}" must be in the format parameter=value or parameter:=value"""
@@ -112,8 +112,7 @@ def ask(args) -> int:
     app = KrozApp(module, state_file=str(state_file), debug=True)
 
     def _main():
-        with FlowContext("ask") as flow:
-            flow.run(getattr(modmodule, question)(**kwargs))
+        (getattr(modmodule, question)(**kwargs)).show()
 
     app.main(_main)
     print(app.run())
