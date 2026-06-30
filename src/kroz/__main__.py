@@ -164,7 +164,6 @@ def secrets_main(args):
     Bold = "\x1b[1m"
     Reset = "\x1b[0m"
     F_LightGreen = "\x1b[92m"
-    F_LightRed = "\x1b[91m"
     F_Default = "\x1b[39m"
     B_Default = "\x1b[49m"
     B_Black = "\x1b[40m"
@@ -263,9 +262,6 @@ def logs_main(args):
     F_LightYellow = "\x1b[93m"
     F_LightGreen = "\x1b[92m"
     F_LightRed = "\x1b[91m"
-    F_Default = "\x1b[39m"
-    B_Default = "\x1b[49m"
-    B_Black = "\x1b[40m"
 
     if args.key is not None:
         print("Using command line key.")
