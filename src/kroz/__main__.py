@@ -14,6 +14,8 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
+from kroz.flow.base import AttemptLogEntry
+
 
 def run(args) -> int:
     """Run a script or a module"""
@@ -237,7 +239,82 @@ def secrets_main(args):
     else:
         import pprint
 
-        pprint.pprint(EncryptedStateFile(key=key, filename=args.file)._data)
+        data = EncryptedStateFile(key=key, filename=args.file)._data
+        if not args.all:
+            if "log" in data:
+                del data["log"]
+        pprint.pprint(data)
+
+
+def logs_main(args):
+    """
+    Analyze the attempt log.
+    """
+    import textwrap
+
+    from kroz.secrets import (
+        EncryptedStateFile,
+        embedded_key,
+        has_embedded_key,
+    )
+
+    Bold = "\x1b[1m"
+    Reset = "\x1b[0m"
+    F_LightYellow = "\x1b[93m"
+    F_LightGreen = "\x1b[92m"
+    F_LightRed = "\x1b[91m"
+    F_Default = "\x1b[39m"
+    B_Default = "\x1b[49m"
+    B_Black = "\x1b[40m"
+
+    if args.key is not None:
+        print("Using command line key.")
+        key = args.key
+    else:
+        if has_embedded_key():
+            print("Using embedded key.")
+            key = embedded_key()
+        else:
+            print("Using machine key.")
+            key = str(uuid.getnode())
+
+    data = EncryptedStateFile(key=key, filename=args.file)._data
+    log = data["log"]
+    assert isinstance(log, list)
+    first = None
+    last = None
+    count = 0
+    for entry in data["log"]:
+        assert isinstance(entry, AttemptLogEntry)
+
+        if args.class_ is not None:
+            if not any([cl in entry.classname for cl in args.class_]):
+                continue
+
+        count += 1
+        if first is None:
+            first = entry.timestamp
+        last = entry.timestamp
+
+        print(
+            "\n"
+            + Bold
+            + F_LightGreen
+            + entry.timestamp.astimezone().strftime("%c")
+            + Reset
+        )
+        print(textwrap.indent(entry.flow.strip(), "  "))
+
+    print()
+    if count > 0:
+        assert first is not None
+        assert last is not None
+        print(
+            f"{F_LightYellow}Log contains {count} items from: {first.astimezone().strftime('%c')} -- {last.astimezone().strftime('%c')}{Reset}"
+        )
+    else:
+        print(f"{F_LightRed}No matching log entries.{Reset}")
+    print()
 
 
 def main() -> int:
@@ -268,6 +345,12 @@ def main() -> int:
         "-f", "--file", type=str, help="The encrypted file to read."
     )
     secrets_parser.add_argument(
+        "-a",
+        "--all",
+        action="store_true",
+        help="Show all fields when decrypting a file.",
+    )
+    secrets_parser.add_argument(
         "-c",
         "--constraint",
         action="append",
@@ -275,6 +358,30 @@ def main() -> int:
         help="Constrain a particular value. Values should be key=value. Can be used multiple times.",
     )
     secrets_parser.set_defaults(func=secrets_main)
+
+    logs_parser = subparsers.add_parser(
+        "logs", help="Decode log messages from a secrets file."
+    )
+    logs_parser.add_argument(
+        "-k",
+        "--key",
+        type=str,
+        required=False,
+        help="The key used for operations.",
+    )
+    logs_parser.add_argument(
+        "-c",
+        "--class",
+        dest="class_",
+        action="append",
+        type=str,
+        help="Only print log entries matching a particular class. Can be used multiple times.",
+    )
+    logs_parser.add_argument(
+        "file", type=str, help="The encrypted file to read."
+    )
+
+    logs_parser.set_defaults(func=logs_main)
 
     runparser = subparsers.add_parser("run", help="Run a module or class.")
     runparser.add_argument(

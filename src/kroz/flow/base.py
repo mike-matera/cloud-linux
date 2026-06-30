@@ -26,7 +26,7 @@ class AttemptLogEntry:
     classname: str
     flow: str
     answer: str | None
-    timestamp: datetime.datetime = datetime.datetime.now()
+    timestamp: datetime.datetime = datetime.datetime.now(datetime.UTC)
 
 
 class KrozFlowABC(ABC):

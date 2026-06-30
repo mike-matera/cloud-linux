@@ -2,6 +2,7 @@
 Generic flow of an interactive lab.
 """
 
+import datetime
 from dataclasses import dataclass
 
 from kroz.app import KrozApp
@@ -21,6 +22,7 @@ class StateItem:
     title: str
     status: FlowResult
     score: float
+    updated: datetime.datetime = datetime.datetime.now(datetime.UTC)
 
 
 def lab(package, debug=False):
@@ -64,6 +66,15 @@ def lab(package, debug=False):
 
         # Recover the stored state if present. If not store the default.
         state = app.state.get("progress", default=state, store=True)
+
+        # Put timestamps into the state file
+        app.state.get(
+            "first_started",
+            default=datetime.datetime.now(datetime.UTC),
+            store=True,
+        )
+        app.state["last_started"] = datetime.datetime.now(datetime.UTC)
+
         app.set_score(sum([s.score for s in state.values()]))
 
         app.show(package.__doc__, title="Welcome!", classes="welcome")
