@@ -208,7 +208,7 @@ class KrozApp(App[str]):
         super().__init__()
         self.title = title
         self._debug = debug
-        self._main_func: Callable[[], None] = lambda: None
+        self._main_func: Callable[[], str | None] = lambda: None
         self._main_worker: Worker | None = None
         self._config = {}
         self._user_config = user_config
@@ -271,14 +271,14 @@ class KrozApp(App[str]):
                 p.update(percent=(i + 1 / len(_setuphooks)) * 100)
                 hook()
 
-    def _run_user_app(self) -> None:
+    def _run_user_app(self) -> str | None:
         try:
             self._setup_user_app()
-            self._main_func()
+            return self._main_func()
         except KrozApp.CancelledWorkerException:
             pass
 
-    def main(self, func: Callable[[], None]):
+    def main(self, func: Callable[[], str | None]):
         """Decorator for the main() function."""
         self._main_func = func
         return func
@@ -291,8 +291,13 @@ class KrozApp(App[str]):
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
         if event.worker.name == "main" and event.worker.is_finished:
+            goodbye = (
+                "Thank you for playing!"
+                if event.worker.result is None
+                else event.worker.result
+            )
             exit_message = textwrap.dedent(f"""
-                Thank you for playing! 
+                {goodbye} 
             
                 Your final score was {self.score_format.format(score=self.score)} and confirmation code is: {self._confirmation()}
                 """)
