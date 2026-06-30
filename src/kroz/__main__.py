@@ -257,11 +257,18 @@ def logs_main(args):
         has_embedded_key,
     )
 
-    Bold = "\x1b[1m"
-    Reset = "\x1b[0m"
-    F_LightYellow = "\x1b[93m"
-    F_LightGreen = "\x1b[92m"
-    F_LightRed = "\x1b[91m"
+    if sys.stdout.isatty():
+        Bold = "\x1b[1m"
+        Reset = "\x1b[0m"
+        F_LightYellow = "\x1b[93m"
+        F_LightGreen = "\x1b[92m"
+        F_LightRed = "\x1b[91m"
+    else:
+        Bold = ""
+        Reset = ""
+        F_LightYellow = ""
+        F_LightGreen = ""
+        F_LightRed = ""
 
     if args.key is not None:
         print("Using command line key.")
