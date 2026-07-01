@@ -24,10 +24,74 @@ class CommandLineCommand:
     Helpers for UNIX commands
     """
 
-    def __init__(self, *, cmd: list[str], cwd: str | Path, result: int):
-        self._cmd = cmd
+    def __init__(self, *, cmd: str, cwd: str | Path, result: int):
+        """Parse the incoming command."""
+
+        self._cmd = self._parse_shell_command(cmd)
         self._cwd = Path(cwd)
         self._result = result
+
+    @staticmethod
+    def _parse_shell_command(cmd: str) -> list[str]:
+        """
+        Parse a shell command string into multiple commands, splitting on | and ;.
+        Properly handles escaped semicolons and pipes (\\; and \\|).
+        Respects quoted strings, where delimiters inside quotes are not treated as separators.
+
+        Args:
+            cmd: The command string to parse.
+
+        Returns:
+            A list of command strings, split on unescaped delimiters outside quotes.
+        """
+        commands = []
+        current_cmd = []
+        i = 0
+        in_single_quote = False
+        in_double_quote = False
+
+        while i < len(cmd):
+            char = cmd[i]
+
+            # Handle quote state changes
+            if char == "'" and not in_double_quote:
+                in_single_quote = not in_single_quote
+                current_cmd.append(char)
+                i += 1
+            elif char == '"' and not in_single_quote:
+                in_double_quote = not in_double_quote
+                current_cmd.append(char)
+                i += 1
+            elif (
+                char == "\\"
+                and i + 1 < len(cmd)
+                and cmd[i + 1] in (";", "|", '"', "'")
+            ):
+                # Escaped relevant character add them both.
+                current_cmd.append(cmd[i])
+                current_cmd.append(cmd[i + 1])
+                i += 2
+            elif (
+                char in (";", "|")
+                and not in_single_quote
+                and not in_double_quote
+            ):
+                # Unescaped delimiter outside quotes: split here
+                cmd_str = "".join(current_cmd).strip()
+                if cmd_str:
+                    commands.append(cmd_str)
+                current_cmd = []
+                i += 1
+            else:
+                current_cmd.append(char)
+                i += 1
+
+        # Add the last command if any
+        cmd_str = "".join(current_cmd).strip()
+        if cmd_str:
+            commands.append(cmd_str)
+
+        return commands if commands else [""]
 
     @property
     def line(self) -> str:
@@ -60,7 +124,7 @@ class CommandLineCommand:
 
     def __getitem__(self, key):
         return CommandLineCommand(
-            cmd=[self._cmd[key]], cwd=self.cwd, result=self._result
+            cmd=self._cmd[key], cwd=self.cwd, result=self._result
         )
 
     def __len__(self) -> int:
@@ -167,7 +231,7 @@ class InteractionScreen(KrozScreen):
         self._server.add_url_rule(
             "/", view_func=self._receive_command, methods=["POST"]
         )
-        self._commands: list[str] = []
+        self._command: str = ""
 
     def on_mount(self):
         self.run_worker(self._run_server(), exclusive=True, exit_on_error=True)
@@ -230,9 +294,9 @@ class InteractionScreen(KrozScreen):
             if request.is_json:
                 req = json.loads(await request.data)
                 if "result" in req and "cwd" in req:
-                    if len(self._commands) > 0:
+                    if len(self._command) > 0:
                         newcommand = CommandLineCommand(
-                            cmd=self._commands,
+                            cmd=self._command,
                             cwd=base64.b64decode(req["cwd"])
                             .decode("utf-8")
                             .strip(),
@@ -241,11 +305,11 @@ class InteractionScreen(KrozScreen):
                         self.post_message(
                             InteractionScreen.CommandLineEvent(cmd=newcommand)
                         )
-                        self._commands = []
                 elif "cmd" in req:
-                    self._commands.append(
+                    self._command = (
                         base64.b64decode(req["cmd"]).decode("utf-8").strip()
                     )
+
         except Exception as e:
             self.log(f"ERROR: {e}")
         finally:
