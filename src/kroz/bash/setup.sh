@@ -4,7 +4,7 @@
 #
 # This needs testing. 
 #
-KROZ_SOCKET="${HOME}/.kroz/command.sock:5000"
+KROZ_SOCKET="${HOME}/.kroz/command.sock"
 __kroz_in_cmd_execution=0
 __kroz_first_report=0
 HISTCONTROL=ignoredups
