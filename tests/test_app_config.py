@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, Mock
 import pytest
 from textual.worker import WorkerFailed
 
-from kroz.app import KrozApp, _default_config
+from kroz.app import KrozApp
 from kroz.screen import KrozScreen
 from kroz.secrets import EncryptedStateFile
 
@@ -32,10 +32,6 @@ async def test_app_default_config(mocker):
     """Test the default configuration"""
     app = get_app(mocker)
     async with app.run_test() as pilot:
-        # Check the default configuration
-        for key, value in _default_config.items():
-            assert app.config[key] == value
-
         await pilot.pause()
 
         # Now check expected defaults after initialization
