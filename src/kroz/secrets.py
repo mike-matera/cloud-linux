@@ -20,8 +20,12 @@ import nacl.secret
 
 
 def has_embedded_key():
-    return importlib.resources.files("kroz").joinpath("key.txt").is_file()
-
+    try:
+        embedded_key()
+        return True
+    except:
+        pass 
+    return False
 
 def embedded_key():
     return (

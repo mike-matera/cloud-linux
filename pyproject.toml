@@ -29,7 +29,7 @@ midterm2 = "kroz.labs.midterm2:main"
 practice2 = "kroz.labs.practice2:main"
 
 [tool.setuptools.package-data]
-mypkg = ["*.txt", "*.tcss"]
+"kroz" = ["*.txt", "*.tcss"]
 
 [tool.ruff]
 line-length = 79

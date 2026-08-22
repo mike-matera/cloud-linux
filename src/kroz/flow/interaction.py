@@ -312,8 +312,8 @@ class InteractionScreen(KrozScreen):
 
         except Exception as e:
             self.log(f"ERROR: {e}")
-        finally:
-            return "okay"
+        
+        return "okay"
 
     def check_action(self, action: str, parameters: tuple[object, ...]):
         if action == "dismiss":
