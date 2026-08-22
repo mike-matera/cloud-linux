@@ -1,6 +1,0 @@
-ungrouped:
-  hosts:
-    opus.cis.cabrillo.edu:
-      ansible_connection: local
-    all:
-      ansible_connection: local
