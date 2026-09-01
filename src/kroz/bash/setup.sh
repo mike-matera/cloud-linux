@@ -10,7 +10,7 @@ __kroz_first_report=0
 HISTCONTROL=ignoredups
 
 function cmd_report {
-    is_prompt="$(grep prompt <<< "$BASH_COMMAND")"
+    is_prompt="$(grep -E "prompt|precmdline" <<< "$BASH_COMMAND")"
     if [[ -S "$KROZ_SOCKET" && -z "$is_prompt" && "$__kroz_first_report" = "1" && "$__kroz_in_cmd_execution" = "0" ]]; then
         __command="$(builtin history 1 | sed 's/ *[0-9]* *//')";
         __kroz_in_cmd_execution=1
