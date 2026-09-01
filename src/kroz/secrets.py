@@ -24,8 +24,9 @@ def has_embedded_key():
         embedded_key()
         return True
     except:
-        pass 
+        pass
     return False
+
 
 def embedded_key():
     return (
@@ -58,7 +59,7 @@ class EncryptedStateFile:
         self._data["host"] = platform.node()
         self._data["cmd"] = sys.executable
         self._data["date"] = round(
-            datetime.datetime.now(datetime.timezone.utc).timestamp()
+            datetime.datetime.now(datetime.UTC).timestamp()
         )
 
         # Filter out keys that start with _
@@ -140,9 +141,7 @@ class ConfirmationCode:
         data = data.copy()
         data["user"] = getpass.getuser()
         data["host"] = platform.node()
-        data["date"] = round(
-            datetime.datetime.now(datetime.timezone.utc).timestamp()
-        )
+        data["date"] = round(datetime.datetime.now(datetime.UTC).timestamp())
         raw = json.dumps(data, separators=(",", ":")).encode("utf-8")
         h = hashlib.blake2b(raw, digest_size=8, key=self.key)
         return base64.b64encode(h.digest() + raw).decode("utf-8")
