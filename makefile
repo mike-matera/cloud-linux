@@ -1,5 +1,5 @@
 
-all: build
+all: build midterm1 midterm2
 
 build:
 	uv run pex -v --venv -c cis90 -o dist/cis90.pex .
