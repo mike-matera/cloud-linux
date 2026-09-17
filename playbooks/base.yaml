@@ -142,6 +142,8 @@
   name: Install kroz player and utilities
   tags:
     - kroz
+    - assignments
+    - tests
   become: true
   tasks:
     - name: "Install kroz binary"
@@ -163,6 +165,7 @@
   name: Install midterm1 and practice1
   tags:
     - midterm1
+    - tests
   become: true
   tasks:
     - name: "Install midterm1"
@@ -184,6 +187,7 @@
   name: Install midterm2 and practice2
   tags:
     - midterm2
+    - tests
   become: true
   tasks:
     - name: "Install midterm2"
