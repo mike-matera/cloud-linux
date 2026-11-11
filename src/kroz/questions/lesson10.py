@@ -214,11 +214,11 @@ class ChildFind(Question):
             assert int(answer) == len(multiprocessing.active_children()), (
                 """That's not the correct number of children."""
             )
-        elif self.type == ChildFind.ResourceType.MEMORY:
-            self._find(answer)
-        elif self.type == ChildFind.ResourceType.CPU:
-            self._find(answer)
-        elif self.type == ChildFind.ResourceType.NICE:
+        elif (
+            self.type == ChildFind.ResourceType.MEMORY
+            or self.type == ChildFind.ResourceType.CPU
+            or self.type == ChildFind.ResourceType.NICE
+        ):
             self._find(answer)
 
 
@@ -324,9 +324,11 @@ $ sleep 500 &
 **Run it five times!**
 """,
             [
-                lambda cmd: cmd.command == "sleep"
-                and cmd.args == ["500"]
-                and cmd.result == 0
+                lambda cmd: (
+                    cmd.command == "sleep"
+                    and cmd.args == ["500", "&"]
+                    and cmd.result == 0
+                )
             ]
             * 5,
         ),
@@ -398,9 +400,11 @@ You can see the full command lines by piping the output of `ps` through `less`:
 $ ps -elf | less
 ```
 """,
-            lambda cmd: cmd[0].command == "ps"
-            and cmd[0].args == ["-elf"]
-            and cmd[1].command == "less",
+            lambda cmd: (
+                cmd[0].command == "ps"
+                and cmd[0].args == ["-elf"]
+                and cmd[1].command == "less"
+            ),
         ),
         Interaction(
             """
@@ -412,10 +416,12 @@ You can use `grep` to find a process by it's name or a part of it's `ps` line:
 $ ps -elf | grep cis90 
 ```
 """,
-            lambda cmd: cmd[0].command == "ps"
-            and cmd[0].args == ["-elf"]
-            and cmd[1].command == "grep"
-            and cmd[1].args[-1] == "cis90",
+            lambda cmd: (
+                cmd[0].command == "ps"
+                and cmd[0].args == ["-elf"]
+                and cmd[1].command == "grep"
+                and cmd[1].args[-1] == "cis90"
+            ),
         ),
         Interaction(
             """
@@ -427,11 +433,13 @@ You use another copy of `grep` to look for processes that you own:
 $ ps -elf | grep cis90 | grep $USER 
 ```
 """,
-            lambda cmd: cmd[0].command == "ps"
-            and cmd[0].args == ["-elf"]
-            and cmd[1].command == "grep"
-            and cmd[1].args[-1] == "cis90"
-            and cmd[2].command == "grep",
+            lambda cmd: (
+                cmd[0].command == "ps"
+                and cmd[0].args == ["-elf"]
+                and cmd[1].command == "grep"
+                and cmd[1].args[-1] == "cis90"
+                and cmd[2].command == "grep"
+            ),
         ),
     ],
 }
