@@ -33,6 +33,8 @@ title = "Working with Processes"
 
 state = "process"
 
+multiprocessing.set_start_method("fork", force=True)
+
 
 class ThisProcess(Question):
     text = """
