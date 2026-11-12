@@ -29,7 +29,7 @@ def run():
 def main():
     try:
         assert input("What's the password? ") == "polpetta"
-    except AssertionError:
+    except (AssertionError, KeyboardInterrupt):
         print("Sorry.")
         return
 

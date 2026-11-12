@@ -6,6 +6,9 @@ users:
 opus: users
 	ansible-playbook -i inventory.yaml base.yaml 
 
+tests: 
+	ansible-playbook -i inventory.yaml base.yaml -t tests
+
 userclean:
 	for user in $$(grep cis90 /etc/passwd | cut -d: -f1); do sudo userdel -f -r $$user; done
 	-rm -rf users/
